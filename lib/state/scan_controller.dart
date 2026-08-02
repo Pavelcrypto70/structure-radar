@@ -175,13 +175,22 @@ class ScanController extends ChangeNotifier {
           );
           notifyListeners();
         },
+        onPartial: (partial) {
+          results = partial;
+          notifyListeners();
+        },
         isCancelled: () => cancelRequested,
       );
 
       results = hits;
       lastUniverseSize = _repository.lastUniverseSize;
       lastRawPairCount = _repository.lastRawPairCount;
-      justFinishedScan = true;
+      if (hits.isEmpty && _repository.lastFetchOk > 0) {
+        // Completed but quiet market / strict filters — not an error.
+        justFinishedScan = true;
+      } else {
+        justFinishedScan = true;
+      }
       final p = profile;
       if (p != null) {
         for (final d in hits) {
@@ -189,7 +198,14 @@ class ScanController extends ChangeNotifier {
         }
       }
     } catch (e) {
-      error = '$e';
+      final msg = '$e';
+      if (msg.contains('EMPTY_UNIVERSE')) {
+        error = t.emptyUniverse;
+      } else if (msg.contains('ALL_FETCHES_FAILED')) {
+        error = t.allFetchesFailed;
+      } else {
+        error = msg;
+      }
     } finally {
       scanning = false;
       progress = null;

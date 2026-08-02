@@ -12,6 +12,7 @@ import 'exchanges/gate_client.dart';
 import 'universe_service.dart';
 
 typedef ProgressCb = void Function(ScanProgress progress);
+typedef PartialCb = void Function(List<Detection> partial);
 
 class _Job {
   _Job(this.entry, this.tf);
@@ -33,28 +34,41 @@ class MarketRepository {
             },
         detectors = detectors ??
             [
-              StructureShiftDetector(lookback: 5, recentBars: 3),
+              StructureShiftDetector(lookback: 4, recentBars: 5),
               MaRegimeDetector(),
-              LevelsDetector(),
+              LevelsDetector(
+                minTouches: 3,
+                minTouchGapBars: 4,
+                minTouchSpanBars: 10,
+                clusterTolAtr: 0.28,
+                approachAtr: 1.25,
+                tightApproachAtr: 0.7,
+                breakToleranceAtr: 0.35,
+              ),
             ],
         universeService = universeService ?? UniverseService(),
-        concurrency = concurrency ?? (kIsWeb ? 8 : 18);
+        concurrency = concurrency ?? (kIsWeb ? 6 : 18);
 
   final Map<ExchangeId, ExchangeClient> clients;
   final List<Detector> detectors;
   final UniverseService universeService;
   final int concurrency;
 
-  /// Last built universe size (for UI / recap).
   int lastUniverseSize = 0;
   int lastRawPairCount = 0;
+  int lastFetchOk = 0;
+  int lastFetchFail = 0;
+  String lastUniverseSource = '';
 
   Future<List<Detection>> scan(
     ScanRequest request, {
     ProgressCb? onProgress,
+    PartialCb? onPartial,
     bool Function()? isCancelled,
   }) async {
-    final exchanges = request.exchanges.toList();
+    lastFetchOk = 0;
+    lastFetchFail = 0;
+
     final timeframes = request.timeframes.toList();
     final activeDetectors =
         detectors.where((d) => request.detectors.contains(d.kind)).toList();
@@ -63,25 +77,25 @@ class MarketRepository {
     final universe = await universeService.build(
       exchanges: request.exchanges,
       clients: clients,
+      lightweight: kIsWeb,
     );
     lastUniverseSize = universe.symbols.length;
     lastRawPairCount = universe.rawPairCount;
+    lastUniverseSource = universe.source;
 
-    // One primary venue per coin — duplicates only annotated on symbol.alsoListedOn.
+    if (universe.symbols.isEmpty) {
+      throw StateError('EMPTY_UNIVERSE');
+    }
+
     final jobs = <_Job>[
       for (final entry in universe.symbols)
         for (final tf in timeframes) _Job(entry, tf),
     ];
 
     final total = jobs.length;
-    if (total == 0) {
-      onProgress?.call(ScanProgress(done: 1, total: 1, label: 'Done'));
-      return const [];
-    }
-
     var done = 0;
     final hits = <Detection>[];
-    final hitsLock = Object();
+    var nextPartialAt = 1;
 
     Future<void> runJob(_Job job) async {
       if (isCancelled?.call() == true) return;
@@ -96,6 +110,7 @@ class MarketRepository {
           limit: 220,
         );
         if (isCancelled?.call() == true) return;
+        lastFetchOk++;
         final local = <Detection>[];
         for (final det in activeDetectors) {
           local.addAll(
@@ -108,23 +123,28 @@ class MarketRepository {
           );
         }
         if (local.isNotEmpty) {
-          synchronizedAdd(hits, hitsLock, local);
+          hits.addAll(local);
+          final snapshot = _finalize(hits, request.minScore);
+          if (snapshot.length >= nextPartialAt) {
+            nextPartialAt = snapshot.length + 1;
+            onPartial?.call(snapshot);
+          }
         }
       } catch (_) {
-        // Skip dead / rate-limited pairs.
+        lastFetchFail++;
       } finally {
         done++;
-        if (done % 3 == 0 || done == total) {
+        if (done == 1 || done % 5 == 0 || done == total) {
           onProgress?.call(ScanProgress(
             done: done,
             total: total,
-            label: '${job.entry.primaryExchange.short} · ${sym.display} · ${job.tf.label}',
+            label:
+                '${job.entry.primaryExchange.short} · ${sym.display} · ${job.tf.label}',
           ));
         }
       }
     }
 
-    // Fixed-size worker pool — keeps sockets saturated without stampeding APIs.
     var next = 0;
     Future<void> worker() async {
       while (true) {
@@ -141,17 +161,12 @@ class MarketRepository {
     );
     await Future.wait(workers);
 
+    if (lastFetchOk == 0 && lastFetchFail > 0) {
+      throw StateError('ALL_FETCHES_FAILED');
+    }
+
     onProgress?.call(ScanProgress(done: total, total: total, label: 'Done'));
     return _finalize(hits, request.minScore);
-  }
-
-  void synchronizedAdd(
-    List<Detection> target,
-    Object lock,
-    List<Detection> batch,
-  ) {
-    // Dart is single-threaded; lock is documentation for intent.
-    target.addAll(batch);
   }
 
   List<Detection> _finalize(List<Detection> hits, double minScore) {

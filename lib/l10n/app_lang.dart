@@ -36,12 +36,22 @@ class L10n {
   String get buildingUniverse =>
       isRu ? 'Собираю юниверс пар…' : 'Building pair universe…';
 
+  String get emptyUniverse => isRu
+      ? 'Не удалось собрать список пар. Проверь сеть и попробуй снова.'
+      : 'Could not build the pair universe. Check network and retry.';
+
+  String get allFetchesFailed => isRu
+      ? 'Биржи не отдали свечи (сеть/CORS). На web попробуй обновить страницу или сузить биржи до Binance.'
+      : 'No candles returned (network/CORS). On web, hard-refresh or narrow exchanges to Binance.';
+
   String universeRecap(int unique, int raw) => isRu
       ? 'Уник. пар: $unique (сырых листингов: $raw)'
       : 'Unique pairs: $unique (raw listings: $raw)';
 
   String alsoOn(String venues) =>
       isRu ? 'Также на: $venues' : 'Also on: $venues';
+
+  String get hitsLive => isRu ? 'Хиты по мере скана' : 'Hits appear live';
 
   String get exchanges => isRu ? 'Биржи' : 'Exchanges';
   String get timeframes => isRu ? 'Таймфреймы' : 'Timeframes';

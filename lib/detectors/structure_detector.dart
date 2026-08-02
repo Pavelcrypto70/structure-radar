@@ -4,7 +4,7 @@ import '../domain/models.dart';
 import 'detector.dart';
 
 class StructureShiftDetector implements Detector {
-  StructureShiftDetector({this.lookback = 3, this.recentBars = 5});
+  StructureShiftDetector({this.lookback = 4, this.recentBars = 5});
 
   final int lookback;
   final int recentBars;
@@ -47,25 +47,26 @@ class StructureShiftDetector implements Detector {
     final breakIdxLow = lastLows[1];
     final breakIdxHigh = lastHighs[1];
     final lastIdx = candles.length - 1;
+    // Freshness window — keep wide enough for midcap TF noise.
+    final freshBars = recentBars + lookback + 6;
 
     final recentBearBreak = priorBull &&
         close < prevSwingLow &&
-        (lastIdx - breakIdxLow) <= recentBars + lookback + 8;
+        (lastIdx - breakIdxLow) <= freshBars;
     final recentBullBreak = priorBear &&
         close > prevSwingHigh &&
-        (lastIdx - breakIdxHigh) <= recentBars + lookback + 8;
+        (lastIdx - breakIdxHigh) <= freshBars;
 
-    // Also catch emerging LH+LL after bullish swings without waiting for deep prior purity.
     final emergingBear = !priorBear &&
         candles[lastHighs[2]].high < candles[lastHighs[1]].high &&
         candles[lastLows[2]].low < candles[lastLows[1]].low &&
         close < candles[lastLows[1]].low &&
-        (lastIdx - lastLows[2]) <= 12;
+        (lastIdx - lastLows[2]) <= 14;
     final emergingBull = !priorBull &&
         candles[lastHighs[2]].high > candles[lastHighs[1]].high &&
         candles[lastLows[2]].low > candles[lastLows[1]].low &&
         close > candles[lastHighs[1]].high &&
-        (lastIdx - lastHighs[2]) <= 12;
+        (lastIdx - lastHighs[2]) <= 14;
 
     final out = <Detection>[];
 

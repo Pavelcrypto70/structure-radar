@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 
-/// Exchange APIs block browser CORS. On web we route GET requests through a
-/// public CORS relay so GitHub Pages demos can still fetch candles.
+/// Exchange APIs block browser CORS. On web we route GET through a relay.
+/// Prefer corsproxy.io — allorigins often truncates multi-MB ticker payloads.
 Uri webSafeUri(Uri target) {
   if (!kIsWeb) return target;
   return Uri.parse(
-    'https://api.allorigins.win/raw?url=${Uri.encodeComponent(target.toString())}',
+    'https://corsproxy.io/?${Uri.encodeComponent(target.toString())}',
   );
 }
