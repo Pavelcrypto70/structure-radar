@@ -74,11 +74,21 @@ class MarketRepository {
         detectors.where((d) => request.detectors.contains(d.kind)).toList();
 
     onProgress?.call(ScanProgress(done: 0, total: 1, label: 'Universe…'));
-    final universe = await universeService.build(
+    // Full listings work on web via data-api.binance.vision (CORS *).
+    // Cap web jobs so the demo finishes in a reasonable time.
+    var universe = await universeService.build(
       exchanges: request.exchanges,
       clients: clients,
-      lightweight: kIsWeb,
+      lightweight: false,
     );
+    if (universe.symbols.isEmpty) {
+      universe = await universeService.build(
+        exchanges: request.exchanges,
+        clients: clients,
+        forceRefresh: true,
+        lightweight: true,
+      );
+    }
     lastUniverseSize = universe.symbols.length;
     lastRawPairCount = universe.rawPairCount;
     lastUniverseSource = universe.source;
@@ -87,8 +97,15 @@ class MarketRepository {
       throw StateError('EMPTY_UNIVERSE');
     }
 
+    final entries = kIsWeb && universe.symbols.length > 150
+        ? universe.symbols.take(150).toList()
+        : universe.symbols;
+    if (kIsWeb) {
+      lastUniverseSize = entries.length;
+    }
+
     final jobs = <_Job>[
-      for (final entry in universe.symbols)
+      for (final entry in entries)
         for (final tf in timeframes) _Job(entry, tf),
     ];
 
