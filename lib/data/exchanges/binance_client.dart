@@ -16,39 +16,22 @@ class BinanceClient implements ExchangeClient {
 
   @override
   Future<List<MarketSymbol>> listUsdtSpotPairs() async {
-    final infoUri = webSafeUri(Uri.https('api.binance.com', '/api/v3/exchangeInfo'));
+    // Ticker alone is enough and much lighter than exchangeInfo+ticker (avoids 429).
     final tickUri = webSafeUri(Uri.https('api.binance.com', '/api/v3/ticker/24hr'));
-    final results = await Future.wait([
-      _http.get(infoUri).timeout(const Duration(seconds: 40)),
-      _http.get(tickUri).timeout(const Duration(seconds: 40)),
-    ]);
-    for (final res in results) {
-      if (res.statusCode != 200) {
-        throw ExchangeException(id, 'HTTP ${res.statusCode}');
-      }
+    final res = await _http.get(tickUri).timeout(const Duration(seconds: 40));
+    if (res.statusCode != 200) {
+      throw ExchangeException(id, 'HTTP ${res.statusCode}');
     }
-    final info = jsonDecode(results[0].body) as Map<String, dynamic>;
-    final symbolsRaw = info['symbols'] as List<dynamic>? ?? [];
-    final tradable = <String>{};
-    for (final row in symbolsRaw) {
-      final m = row as Map<String, dynamic>;
-      if (m['status'] != 'TRADING') continue;
-      if (m['quoteAsset'] != 'USDT') continue;
-      if (m['isSpotTradingAllowed'] == false) continue;
-      final base = '${m['baseAsset']}';
-      if (_junkBase(base)) continue;
-      tradable.add('${m['symbol']}');
-    }
-
-    final tickers = jsonDecode(results[1].body) as List<dynamic>;
+    final tickers = jsonDecode(res.body) as List<dynamic>;
     final out = <MarketSymbol>[];
     for (final row in tickers) {
       final m = row as Map<String, dynamic>;
       final sym = '${m['symbol']}';
-      if (!tradable.contains(sym)) continue;
+      if (!sym.endsWith('USDT')) continue;
+      final base = sym.substring(0, sym.length - 4);
+      if (_junkBase(base)) continue;
       final quoteVol = double.tryParse('${m['quoteVolume']}') ?? 0;
       if (quoteVol <= 0) continue;
-      final base = sym.substring(0, sym.length - 4);
       out.add(
         MarketSymbol(
           id: sym,
@@ -75,11 +58,17 @@ class BinanceClient implements ExchangeClient {
       'limit': '$limit',
     }));
     final res = await _http.get(uri).timeout(const Duration(seconds: 20));
+    if (res.statusCode == 429) {
+      throw ExchangeException(id, 'HTTP 429 Too Many Requests');
+    }
     if (res.statusCode != 200) {
       throw ExchangeException(id, 'HTTP ${res.statusCode}');
     }
-    final raw = jsonDecode(res.body) as List<dynamic>;
-    return raw.map((row) {
+    final decoded = jsonDecode(res.body);
+    if (decoded is! List) {
+      throw ExchangeException(id, 'Unexpected kline payload');
+    }
+    return decoded.map((row) {
       final r = row as List<dynamic>;
       return Candle(
         openTime: DateTime.fromMillisecondsSinceEpoch((r[0] as num).toInt()),

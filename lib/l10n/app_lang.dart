@@ -41,8 +41,8 @@ class L10n {
       : 'Could not build the pair universe. Check network and retry.';
 
   String get allFetchesFailed => isRu
-      ? 'Биржи не отдали свечи (сеть/CORS). На web попробуй обновить страницу или сузить биржи до Binance.'
-      : 'No candles returned (network/CORS). On web, hard-refresh or narrow exchanges to Binance.';
+      ? 'Свечи не пришли (429/сеть/старый кэш). Сделай Ctrl+F5, оставь только Binance + один TF (4H) и сканируй снова.'
+      : 'No candles (429/network/stale cache). Hard-refresh (Ctrl+F5), keep Binance + one TF (4H), scan again.';
 
   String universeRecap(int unique, int raw) => isRu
       ? 'Уник. пар: $unique (сырых листингов: $raw)'
