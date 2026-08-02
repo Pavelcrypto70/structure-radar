@@ -107,6 +107,8 @@ class MarketSymbol {
     required this.base,
     required this.quote,
     required this.display,
+    this.alsoListedOn = const [],
+    this.quoteVolume24h = 0,
   });
 
   /// Canonical id, e.g. BTCUSDT
@@ -114,6 +116,30 @@ class MarketSymbol {
   final String base;
   final String quote;
   final String display;
+
+  /// Other venues that also list this base/USDT (not scanned — annotation only).
+  final List<ExchangeId> alsoListedOn;
+  final double quoteVolume24h;
+
+  String alsoOnLabel({required bool ru}) {
+    if (alsoListedOn.isEmpty) return '';
+    final names = alsoListedOn.map((e) => e.label).join(', ');
+    return ru ? 'Также на: $names' : 'Also on: $names';
+  }
+
+  MarketSymbol copyWith({
+    List<ExchangeId>? alsoListedOn,
+    double? quoteVolume24h,
+  }) {
+    return MarketSymbol(
+      id: id,
+      base: base,
+      quote: quote,
+      display: display,
+      alsoListedOn: alsoListedOn ?? this.alsoListedOn,
+      quoteVolume24h: quoteVolume24h ?? this.quoteVolume24h,
+    );
+  }
 }
 
 enum LevelPattern {

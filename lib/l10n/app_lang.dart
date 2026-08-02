@@ -30,8 +30,18 @@ class L10n {
 
   String get scanTitle => appName;
   String get scanSubtitle => isRu
-      ? 'Сканируем USDT-пары на Binance, Bybit и Gate.io: смена структуры, режим MA и уровни поддержки/сопротивления.'
-      : 'Scan Binance, Bybit and Gate.io USDT pairs for structure shifts, MA regime flips, and S/R interactions.';
+      ? 'Скан всех USDT кроме топ-15 по капе: мелкокап, дедуп между биржами, структура / MA / уровни.'
+      : 'Scan all USDT pairs except top-15 market-cap coins: mid/small caps, cross-venue dedupe, structure / MA / levels.';
+
+  String get buildingUniverse =>
+      isRu ? 'Собираю юниверс пар…' : 'Building pair universe…';
+
+  String universeRecap(int unique, int raw) => isRu
+      ? 'Уник. пар: $unique (сырых листингов: $raw)'
+      : 'Unique pairs: $unique (raw listings: $raw)';
+
+  String alsoOn(String venues) =>
+      isRu ? 'Также на: $venues' : 'Also on: $venues';
 
   String get exchanges => isRu ? 'Биржи' : 'Exchanges';
   String get timeframes => isRu ? 'Таймфреймы' : 'Timeframes';

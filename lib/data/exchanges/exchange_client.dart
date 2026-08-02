@@ -7,8 +7,11 @@ abstract class ExchangeClient {
   Future<List<Candle>> fetchCandles({
     required MarketSymbol symbol,
     required AppTimeframe timeframe,
-    int limit = 240,
+    int limit = 220,
   });
+
+  /// Tradable spot */USDT pairs with 24h quote volume (USDT).
+  Future<List<MarketSymbol>> listUsdtSpotPairs();
 }
 
 class ExchangeException implements Exception {

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../detectors/detector.dart';
 import '../detectors/levels_detector.dart';
 import '../detectors/ma_regime_detector.dart';
@@ -7,22 +9,22 @@ import 'exchanges/binance_client.dart';
 import 'exchanges/bybit_client.dart';
 import 'exchanges/exchange_client.dart';
 import 'exchanges/gate_client.dart';
-import 'symbol_universe.dart';
+import 'universe_service.dart';
 
 typedef ProgressCb = void Function(ScanProgress progress);
 
 class _Job {
-  _Job(this.exchange, this.tf, this.symbol);
-  final ExchangeId exchange;
+  _Job(this.entry, this.tf);
+  final UniverseEntry entry;
   final AppTimeframe tf;
-  final MarketSymbol symbol;
 }
 
 class MarketRepository {
   MarketRepository({
     Map<ExchangeId, ExchangeClient>? clients,
     List<Detector>? detectors,
-    this.concurrency = 4,
+    UniverseService? universeService,
+    int? concurrency,
   })  : clients = clients ??
             {
               ExchangeId.binance: BinanceClient(),
@@ -31,14 +33,21 @@ class MarketRepository {
             },
         detectors = detectors ??
             [
-              StructureShiftDetector(),
+              StructureShiftDetector(lookback: 5, recentBars: 3),
               MaRegimeDetector(),
               LevelsDetector(),
-            ];
+            ],
+        universeService = universeService ?? UniverseService(),
+        concurrency = concurrency ?? (kIsWeb ? 8 : 18);
 
   final Map<ExchangeId, ExchangeClient> clients;
   final List<Detector> detectors;
+  final UniverseService universeService;
   final int concurrency;
+
+  /// Last built universe size (for UI / recap).
+  int lastUniverseSize = 0;
+  int lastRawPairCount = 0;
 
   Future<List<Detection>> scan(
     ScanRequest request, {
@@ -49,66 +58,100 @@ class MarketRepository {
     final timeframes = request.timeframes.toList();
     final activeDetectors =
         detectors.where((d) => request.detectors.contains(d.kind)).toList();
-    final symbols = SymbolUniverse.symbols;
 
+    onProgress?.call(ScanProgress(done: 0, total: 1, label: 'Universe…'));
+    final universe = await universeService.build(
+      exchanges: request.exchanges,
+      clients: clients,
+    );
+    lastUniverseSize = universe.symbols.length;
+    lastRawPairCount = universe.rawPairCount;
+
+    // One primary venue per coin — duplicates only annotated on symbol.alsoListedOn.
     final jobs = <_Job>[
-      for (final exchange in exchanges)
-        for (final tf in timeframes)
-          for (final symbol in symbols) _Job(exchange, tf, symbol),
+      for (final entry in universe.symbols)
+        for (final tf in timeframes) _Job(entry, tf),
     ];
 
     final total = jobs.length;
+    if (total == 0) {
+      onProgress?.call(ScanProgress(done: 1, total: 1, label: 'Done'));
+      return const [];
+    }
+
     var done = 0;
     final hits = <Detection>[];
+    final hitsLock = Object();
 
     Future<void> runJob(_Job job) async {
       if (isCancelled?.call() == true) return;
-      final client = clients[job.exchange];
+      final client = clients[job.entry.primaryExchange];
       if (client == null) return;
 
-      onProgress?.call(ScanProgress(
-        done: done,
-        total: total,
-        label: '${job.exchange.short} · ${job.symbol.display} · ${job.tf.label}',
-      ));
-
+      final sym = job.entry.symbol;
       try {
         final candles = await client.fetchCandles(
-          symbol: job.symbol,
+          symbol: sym,
           timeframe: job.tf,
-          limit: 240,
+          limit: 220,
         );
+        if (isCancelled?.call() == true) return;
+        final local = <Detection>[];
         for (final det in activeDetectors) {
-          hits.addAll(
+          local.addAll(
             det.detect(
-              exchange: job.exchange,
-              symbol: job.symbol,
+              exchange: job.entry.primaryExchange,
+              symbol: sym,
               timeframe: job.tf,
               candles: candles,
             ),
           );
         }
+        if (local.isNotEmpty) {
+          synchronizedAdd(hits, hitsLock, local);
+        }
       } catch (_) {
-        // Skip failures.
+        // Skip dead / rate-limited pairs.
       } finally {
         done++;
-        onProgress?.call(ScanProgress(
-          done: done,
-          total: total,
-          label: '${job.exchange.short} · ${job.symbol.display} · ${job.tf.label}',
-        ));
+        if (done % 3 == 0 || done == total) {
+          onProgress?.call(ScanProgress(
+            done: done,
+            total: total,
+            label: '${job.entry.primaryExchange.short} · ${sym.display} · ${job.tf.label}',
+          ));
+        }
       }
     }
 
-    for (var i = 0; i < jobs.length; i += concurrency) {
-      if (isCancelled?.call() == true) break;
-      final slice = jobs.skip(i).take(concurrency).toList();
-      await Future.wait(slice.map(runJob));
-      await Future<void>.delayed(const Duration(milliseconds: 12));
+    // Fixed-size worker pool — keeps sockets saturated without stampeding APIs.
+    var next = 0;
+    Future<void> worker() async {
+      while (true) {
+        if (isCancelled?.call() == true) return;
+        final i = next++;
+        if (i >= jobs.length) return;
+        await runJob(jobs[i]);
+      }
     }
+
+    final workers = List.generate(
+      concurrency.clamp(1, 32),
+      (_) => worker(),
+    );
+    await Future.wait(workers);
 
     onProgress?.call(ScanProgress(done: total, total: total, label: 'Done'));
     return _finalize(hits, request.minScore);
+  }
+
+  void synchronizedAdd(
+    List<Detection> target,
+    Object lock,
+    List<Detection> batch,
+  ) {
+    // Dart is single-threaded; lock is documentation for intent.
+    target.addAll(batch);
   }
 
   List<Detection> _finalize(List<Detection> hits, double minScore) {

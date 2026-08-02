@@ -1,17 +1,17 @@
 import '../domain/models.dart';
 
-/// Spot USDT pairs only — kept short to keep multi-exchange scans light.
+/// Legacy static list kept only as offline fallback for tests.
 class SymbolUniverse {
   static const symbols = <MarketSymbol>[
-    MarketSymbol(id: 'BTCUSDT', base: 'BTC', quote: 'USDT', display: 'BTC/USDT'),
-    MarketSymbol(id: 'ETHUSDT', base: 'ETH', quote: 'USDT', display: 'ETH/USDT'),
-    MarketSymbol(id: 'SOLUSDT', base: 'SOL', quote: 'USDT', display: 'SOL/USDT'),
-    MarketSymbol(id: 'XRPUSDT', base: 'XRP', quote: 'USDT', display: 'XRP/USDT'),
-    MarketSymbol(id: 'BNBUSDT', base: 'BNB', quote: 'USDT', display: 'BNB/USDT'),
-    MarketSymbol(id: 'DOGEUSDT', base: 'DOGE', quote: 'USDT', display: 'DOGE/USDT'),
-    MarketSymbol(id: 'ADAUSDT', base: 'ADA', quote: 'USDT', display: 'ADA/USDT'),
-    MarketSymbol(id: 'LINKUSDT', base: 'LINK', quote: 'USDT', display: 'LINK/USDT'),
-    MarketSymbol(id: 'AVAXUSDT', base: 'AVAX', quote: 'USDT', display: 'AVAX/USDT'),
-    MarketSymbol(id: 'TONUSDT', base: 'TON', quote: 'USDT', display: 'TON/USDT'),
+    MarketSymbol(id: 'NEARUSDT', base: 'NEAR', quote: 'USDT', display: 'NEAR/USDT'),
+    MarketSymbol(id: 'APTUSDT', base: 'APT', quote: 'USDT', display: 'APT/USDT'),
+    MarketSymbol(id: 'ARBUSDT', base: 'ARB', quote: 'USDT', display: 'ARB/USDT'),
+    MarketSymbol(id: 'OPUSDT', base: 'OP', quote: 'USDT', display: 'OP/USDT'),
+    MarketSymbol(id: 'SUIUSDT', base: 'SUI', quote: 'USDT', display: 'SUI/USDT'),
+    MarketSymbol(id: 'INJUSDT', base: 'INJ', quote: 'USDT', display: 'INJ/USDT'),
+    MarketSymbol(id: 'FETUSDT', base: 'FET', quote: 'USDT', display: 'FET/USDT'),
+    MarketSymbol(id: 'RENDERUSDT', base: 'RENDER', quote: 'USDT', display: 'RENDER/USDT'),
+    MarketSymbol(id: 'PEPEUSDT', base: 'PEPE', quote: 'USDT', display: 'PEPE/USDT'),
+    MarketSymbol(id: 'WIFUSDT', base: 'WIF', quote: 'USDT', display: 'WIF/USDT'),
   ];
 }

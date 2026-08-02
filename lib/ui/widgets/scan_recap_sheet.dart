@@ -11,6 +11,8 @@ Future<void> showScanRecapSheet(
   required L10n t,
   required int hits,
   required double minScore,
+  required int universeSize,
+  required int rawPairCount,
   required VoidCallback onOpenResults,
 }) {
   HapticFeedback.heavyImpact();
@@ -46,7 +48,7 @@ Future<void> showScanRecapSheet(
               children: [
                 Expanded(
                   child: SrStatTile(
-                    label: isRuHits(t),
+                    label: t.isRu ? 'ХИТЫ' : 'HITS',
                     value: SrFormat.score(hits),
                     sub: t.recapHits(hits),
                   ),
@@ -60,6 +62,13 @@ Future<void> showScanRecapSheet(
                 ),
               ],
             ),
+            if (universeSize > 0) ...[
+              const SizedBox(height: 10),
+              Text(
+                t.universeRecap(universeSize, rawPairCount),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
             const SizedBox(height: 18),
             SizedBox(
               width: double.infinity,
@@ -90,5 +99,3 @@ Future<void> showScanRecapSheet(
     },
   );
 }
-
-String isRuHits(L10n t) => t.isRu ? 'ХИТЫ' : 'HITS';

@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/models.dart';
+import '../../l10n/app_lang.dart';
 import '../../l10n/detection_copy.dart';
 import '../../l10n/glossary_l10n.dart';
 import '../../state/locale_controller.dart';
@@ -42,6 +43,13 @@ class DetectionDetailScreen extends StatelessWidget {
             '${detection.exchange.label} · ${detection.timeframe.label} · score ${detection.score.toStringAsFixed(0)}',
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+          if (detection.symbol.alsoListedOn.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              detection.symbol.alsoOnLabel(ru: locale.lang == AppLang.ru),
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
           const SizedBox(height: 4),
           Text(
             '${t.detectedBar}: ${df.format(detection.detectedAt.toLocal())}',

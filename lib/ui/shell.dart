@@ -70,6 +70,8 @@ class _AppShellState extends State<AppShell> {
           t: t,
           hits: c.results.length,
           minScore: c.minScore,
+          universeSize: c.lastUniverseSize,
+          rawPairCount: c.lastRawPairCount,
           onOpenResults: () => setState(() => index = 1),
         );
         _recapBusy = false;

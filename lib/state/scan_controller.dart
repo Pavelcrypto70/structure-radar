@@ -41,6 +41,8 @@ class ScanController extends ChangeNotifier {
   DetectorKind? resultFilterKind;
   ResultSort resultSort = ResultSort.score;
   bool justFinishedScan = false;
+  int lastUniverseSize = 0;
+  int lastRawPairCount = 0;
 
   TelegramBridge get bridge => _bridge;
   AlertProfileStore get store => _store;
@@ -165,7 +167,11 @@ class ScanController extends ChangeNotifier {
           progress = ScanProgress(
             done: p.done,
             total: p.total,
-            label: p.label == 'Done' ? t.done : p.label,
+            label: p.label == 'Done'
+                ? t.done
+                : p.label.startsWith('Universe')
+                    ? t.buildingUniverse
+                    : p.label,
           );
           notifyListeners();
         },
@@ -173,6 +179,8 @@ class ScanController extends ChangeNotifier {
       );
 
       results = hits;
+      lastUniverseSize = _repository.lastUniverseSize;
+      lastRawPairCount = _repository.lastRawPairCount;
       justFinishedScan = true;
       final p = profile;
       if (p != null) {

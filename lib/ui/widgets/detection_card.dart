@@ -80,6 +80,15 @@ class DetectionCard extends StatelessWidget {
                           '${detection.symbol.display} · ${detection.exchange.label} · ${detection.timeframe.label}',
                           style: Theme.of(context).textTheme.titleMedium,
                         ),
+                        if (detection.symbol.alsoListedOn.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            detection.symbol.alsoOnLabel(ru: lang == AppLang.ru),
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: AppTokens.textMuted,
+                                ),
+                          ),
+                        ],
                         const SizedBox(height: 6),
                         Text(
                           title,
