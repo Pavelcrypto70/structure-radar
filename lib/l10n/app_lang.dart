@@ -41,8 +41,10 @@ class L10n {
       : 'Could not build the pair universe. Check network and retry.';
 
   String get allFetchesFailed => isRu
-      ? 'Свечи не пришли (429/сеть/старый кэш). Сделай Ctrl+F5, оставь только Binance + один TF (4H) и сканируй снова.'
-      : 'No candles (429/network/stale cache). Hard-refresh (Ctrl+F5), keep Binance + one TF (4H), scan again.';
+      ? 'Снова 429/сеть. Нужен жёсткий Ctrl+F5 (не обычный refresh). Потом только Binance, один TF — 4H.'
+      : '429/network again. Hard Ctrl+F5 (not normal refresh). Then Binance only, one TF — 4H.';
+
+  String get buildStamp => 'r4';
 
   String universeRecap(int unique, int raw) => isRu
       ? 'Уник. пар: $unique (сырых листингов: $raw)'

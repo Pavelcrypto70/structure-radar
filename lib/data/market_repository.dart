@@ -20,15 +20,19 @@ class _Job {
   final AppTimeframe tf;
 }
 
-/// Tiny async mutex so web never stampeding the public market-data host.
 class _Gate {
   Future<void> _tail = Future.value();
 
-  Future<T> schedule<T>(Future<T> Function() run, {Duration gap = Duration.zero}) {
+  Future<T> schedule<T>(
+    Future<T> Function() run, {
+    Duration gap = Duration.zero,
+  }) {
     final starter = _tail;
     late final Future<T> mine;
     mine = starter.then((_) async {
-      if (gap > Duration.zero) await Future<void>.delayed(gap);
+      if (gap > Duration.zero) {
+        await Future<void>.delayed(gap);
+      }
       return run();
     });
     _tail = mine.then((_) {}, onError: (_) {});
@@ -63,7 +67,7 @@ class MarketRepository {
               ),
             ],
         universeService = universeService ?? UniverseService(),
-        concurrency = concurrency ?? (kIsWeb ? 2 : 14);
+        concurrency = concurrency ?? (kIsWeb ? 1 : 14);
 
   final Map<ExchangeId, ExchangeClient> clients;
   final List<Detector> detectors;
@@ -86,31 +90,30 @@ class MarketRepository {
     lastFetchOk = 0;
     lastFetchFail = 0;
 
-    // Web: candles only from Binance vision (open CORS). Other venues = labels only.
-    final exchangeSet = kIsWeb
-        ? ({ExchangeId.binance}.intersection(request.exchanges).isNotEmpty
+    // Web: never fan-out to Gate/Bybit candle APIs (CORS relays → 429).
+    final scanExchanges = kIsWeb
+        ? (request.exchanges.contains(ExchangeId.binance)
             ? {ExchangeId.binance}
-            : request.exchanges)
+            : {request.exchanges.first})
         : request.exchanges;
 
-    final timeframes = request.timeframes.toList();
+    // Web: one TF only to stay under IP weight. Prefer 4H.
+    final timeframes = kIsWeb
+        ? [_pickWebTf(request.timeframes)]
+        : request.timeframes.toList();
+
     final activeDetectors =
         detectors.where((d) => request.detectors.contains(d.kind)).toList();
 
     onProgress?.call(ScanProgress(done: 0, total: 1, label: 'Universe…'));
-    var universe = await universeService.build(
-      exchanges: kIsWeb ? exchangeSet : request.exchanges,
+
+    // Web: lightweight universe (no multi-MB ticker) — avoids 429 before scan starts.
+    final universe = await universeService.build(
+      exchanges: scanExchanges,
       clients: clients,
-      lightweight: false,
+      forceRefresh: kIsWeb,
+      lightweight: kIsWeb,
     );
-    if (universe.symbols.isEmpty) {
-      universe = await universeService.build(
-        exchanges: exchangeSet,
-        clients: clients,
-        forceRefresh: true,
-        lightweight: true,
-      );
-    }
     lastUniverseSize = universe.symbols.length;
     lastRawPairCount = universe.rawPairCount;
     lastUniverseSource = universe.source;
@@ -119,23 +122,19 @@ class MarketRepository {
       throw StateError('EMPTY_UNIVERSE');
     }
 
-    // Keep web under Binance weight limits: fewer pairs, still mid/small-cap heavy.
-    final maxPairs = kIsWeb ? 80 : universe.symbols.length;
+    final maxPairs = kIsWeb ? 36 : universe.symbols.length;
     final entries = universe.symbols.take(maxPairs).toList();
     lastUniverseSize = entries.length;
 
-    // Attach also-on from the original multi-venue selection for UI.
     if (kIsWeb && request.exchanges.length > 1) {
-      final also = request.exchanges.where((e) => e != ExchangeId.binance).toList();
+      final also =
+          request.exchanges.where((e) => e != ExchangeId.binance).toList();
       for (var i = 0; i < entries.length; i++) {
         final e = entries[i];
         entries[i] = UniverseEntry(
-          primaryExchange: e.primaryExchange,
+          primaryExchange: ExchangeId.binance,
           symbol: e.symbol.copyWith(
-            alsoListedOn: {
-              ...e.symbol.alsoListedOn,
-              ...also,
-            }.where((x) => x != e.primaryExchange).toList(),
+            alsoListedOn: also.where((x) => x != ExchangeId.binance).toList(),
           ),
         );
       }
@@ -150,14 +149,12 @@ class MarketRepository {
     var done = 0;
     final hits = <Detection>[];
     var nextPartialAt = 1;
-    final gap = kIsWeb ? const Duration(milliseconds: 120) : Duration.zero;
+    final gap = kIsWeb ? const Duration(milliseconds: 450) : Duration.zero;
 
     Future<void> runJob(_Job job) async {
       if (isCancelled?.call() == true) return;
-      var exchange = job.entry.primaryExchange;
-      if (kIsWeb && clients.containsKey(ExchangeId.binance)) {
-        exchange = ExchangeId.binance;
-      }
+      final exchange =
+          kIsWeb ? ExchangeId.binance : job.entry.primaryExchange;
       final client = clients[exchange];
       if (client == null) return;
 
@@ -198,9 +195,13 @@ class MarketRepository {
         }
       } catch (_) {
         lastFetchFail++;
+        // Extra cool-down after failures (likely 429).
+        if (kIsWeb) {
+          await Future<void>.delayed(const Duration(milliseconds: 800));
+        }
       } finally {
         done++;
-        if (done == 1 || done % 4 == 0 || done == total) {
+        if (done == 1 || done % 2 == 0 || done == total) {
           onProgress?.call(ScanProgress(
             done: done,
             total: total,
@@ -220,11 +221,9 @@ class MarketRepository {
       }
     }
 
-    final workers = List.generate(
-      concurrency.clamp(1, 32),
-      (_) => worker(),
+    await Future.wait(
+      List.generate(concurrency.clamp(1, 32), (_) => worker()),
     );
-    await Future.wait(workers);
 
     if (lastFetchOk == 0 && lastFetchFail > 0) {
       throw StateError('ALL_FETCHES_FAILED');
@@ -232,6 +231,13 @@ class MarketRepository {
 
     onProgress?.call(ScanProgress(done: total, total: total, label: 'Done'));
     return _finalize(hits, request.minScore);
+  }
+
+  AppTimeframe _pickWebTf(Set<AppTimeframe> selected) {
+    if (selected.contains(AppTimeframe.h4)) return AppTimeframe.h4;
+    if (selected.contains(AppTimeframe.d1)) return AppTimeframe.d1;
+    if (selected.contains(AppTimeframe.h1)) return AppTimeframe.h1;
+    return AppTimeframe.h4;
   }
 
   Future<List<Candle>> _fetchCandlesWithRetry({
@@ -251,8 +257,8 @@ class MarketRepository {
       } catch (e) {
         final msg = '$e';
         final is429 = msg.contains('429') || msg.contains('Too Many');
-        if (!is429 || attempt >= 3) rethrow;
-        await Future<void>.delayed(Duration(milliseconds: 400 * attempt));
+        if (!is429 || attempt >= 4) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 900 * attempt));
       }
     }
   }

@@ -129,7 +129,7 @@ class _AppShellState extends State<AppShell> {
                 children: [
                   Text(t.appName, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(width: 8),
-                  SrModeChip(live: !kIsWeb),
+                  SrModeChip(live: !kIsWeb, stamp: t.buildStamp),
                   const Spacer(),
                   IconButton(
                     tooltip: t.guideCta,
@@ -277,13 +277,16 @@ class _ScanActionDock extends StatelessWidget {
 }
 
 class SrModeChip extends StatelessWidget {
-  const SrModeChip({super.key, required this.live});
+  const SrModeChip({super.key, required this.live, this.stamp});
   final bool live;
+  final String? stamp;
 
   @override
   Widget build(BuildContext context) {
     final color = live ? SrColors.bull : SrColors.warn;
-    final label = live ? 'LIVE' : 'WEB';
+    final label = live
+        ? 'LIVE'
+        : (stamp == null || stamp!.isEmpty ? 'WEB' : 'WEB · $stamp');
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
