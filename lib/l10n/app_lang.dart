@@ -36,7 +36,11 @@ class L10n {
   String get exchanges => isRu ? 'Биржи' : 'Exchanges';
   String get timeframes => isRu ? 'Таймфреймы' : 'Timeframes';
   String get detectors => isRu ? 'Детекторы' : 'Detectors';
-  String get minScore => isRu ? 'Мин. score' : 'Min score';
+  String get minScore =>
+      isRu ? 'Мин. уверенность' : 'Min confidence';
+  String get minScoreHint => isRu
+      ? 'Порог score 50–90: слабее порога — в ленту не попадёт. Это не цена и не риск, а фильтр «насколько чисто выглядит сетап».'
+      : 'Score threshold 50–90: weaker hits stay out of the feed. Not price or risk — a cleanliness filter for setups.';
   String get runScan => isRu ? 'Запустить скан' : 'Run scan';
   String get scanning => isRu ? 'Сканирование…' : 'Scanning…';
   String get cancel => isRu ? 'Отмена' : 'Cancel';
@@ -93,7 +97,7 @@ class L10n {
   String get exchangesForAlerts =>
       isRu ? 'Биржи для алертов' : 'Exchanges for alerts';
   String get alertMinScore =>
-      isRu ? 'Мин. score алерта' : 'Alert min score';
+      isRu ? 'Мин. уверенность алерта' : 'Alert min confidence';
   String get bridgePreview =>
       isRu ? 'Превью bridge payload' : 'Bridge payload preview';
   String outboundQueue(int n) => isRu

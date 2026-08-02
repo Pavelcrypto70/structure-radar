@@ -168,6 +168,17 @@ class _AppShellState extends State<AppShell> {
               ),
             ),
             Expanded(child: IndexedStack(index: index, children: pages)),
+            if (index == 0)
+              _ScanActionDock(
+                scanning: c.scanning,
+                cancelLabel: t.cancel,
+                scanLabel: c.scanning ? t.scanning : t.runScan,
+                onCancel: c.cancelScan,
+                onScan: () {
+                  HapticFeedback.mediumImpact();
+                  c.runScan(t);
+                },
+              ),
             _TerminalNav(
               index: index,
               labels: [t.tabRadar, t.tabResults, t.tabProfile, t.tabGlossary],
@@ -179,45 +190,86 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: index == 0
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  if (c.scanning)
-                    Expanded(
-                      child: FloatingActionButton.extended(
-                        heroTag: 'cancel',
-                        onPressed: c.cancelScan,
-                        backgroundColor: SrColors.surface2,
-                        foregroundColor: SrColors.text,
-                        label: Text(t.cancel),
+    );
+  }
+}
+
+class _ScanActionDock extends StatelessWidget {
+  const _ScanActionDock({
+    required this.scanning,
+    required this.cancelLabel,
+    required this.scanLabel,
+    required this.onCancel,
+    required this.onScan,
+  });
+
+  final bool scanning;
+  final String cancelLabel;
+  final String scanLabel;
+  final VoidCallback onCancel;
+  final VoidCallback onScan;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: SrColors.bg,
+      elevation: 0,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+        decoration: const BoxDecoration(
+          color: SrColors.bg,
+          border: Border(top: BorderSide(color: SrColors.lineSoft)),
+        ),
+        child: Row(
+          children: [
+            if (scanning) ...[
+              Expanded(
+                child: SizedBox(
+                  height: 52,
+                  child: OutlinedButton(
+                    onPressed: onCancel,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: SrColors.text,
+                      side: const BorderSide(color: SrColors.line),
+                      backgroundColor: SrColors.surface2,
+                      disabledBackgroundColor: SrColors.surface2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(SrRadius.md),
                       ),
                     ),
-                  if (c.scanning) const SizedBox(width: 12),
-                  Expanded(
-                    flex: c.scanning ? 2 : 1,
-                    child: FloatingActionButton.extended(
-                      heroTag: 'scan',
-                      onPressed: c.scanning
-                          ? null
-                          : () {
-                              HapticFeedback.mediumImpact();
-                              c.runScan(t);
-                            },
-                      backgroundColor: SrColors.accent,
-                      foregroundColor: SrColors.onAccent,
-                      icon: Icon(
-                        c.scanning ? Icons.hourglass_top : Icons.play_arrow_rounded,
-                      ),
-                      label: Text(c.scanning ? t.scanning : t.runScan),
+                    child: Text(cancelLabel),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+            ],
+            Expanded(
+              flex: scanning ? 2 : 1,
+              child: SizedBox(
+                height: 52,
+                child: FilledButton.icon(
+                  onPressed: scanning ? null : onScan,
+                  icon: Icon(
+                    scanning ? Icons.hourglass_top : Icons.play_arrow_rounded,
+                    size: 20,
+                  ),
+                  label: Text(scanLabel),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: SrColors.accent,
+                    foregroundColor: SrColors.onAccent,
+                    disabledBackgroundColor: SrColors.accent.withValues(alpha: 0.55),
+                    disabledForegroundColor: SrColors.onAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(SrRadius.md),
                     ),
                   ),
-                ],
+                ),
               ),
-            )
-          : null,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

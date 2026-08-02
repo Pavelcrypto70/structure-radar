@@ -193,6 +193,8 @@ class ProfileScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 6),
+          Text(t.minScoreHint, style: Theme.of(context).textTheme.bodySmall),
           Slider(
             value: p.minScore,
             min: 50,

@@ -122,6 +122,8 @@ class ScanScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 6),
+        Text(t.minScoreHint, style: Theme.of(context).textTheme.bodySmall),
         Slider(
           value: c.minScore,
           min: 50,
@@ -164,7 +166,7 @@ class ScanScreen extends StatelessWidget {
           const SizedBox(height: 10),
           ...c.results.take(6).map(
                 (d) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 24),
                   child: DetectionCard(
                     detection: d,
                     lang: locale.lang,
