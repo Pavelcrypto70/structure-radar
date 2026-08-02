@@ -11,10 +11,18 @@ import 'symbol_universe.dart';
 
 typedef ProgressCb = void Function(ScanProgress progress);
 
+class _Job {
+  _Job(this.exchange, this.tf, this.symbol);
+  final ExchangeId exchange;
+  final AppTimeframe tf;
+  final MarketSymbol symbol;
+}
+
 class MarketRepository {
   MarketRepository({
     Map<ExchangeId, ExchangeClient>? clients,
     List<Detector>? detectors,
+    this.concurrency = 4,
   })  : clients = clients ??
             {
               ExchangeId.binance: BinanceClient(),
@@ -30,6 +38,7 @@ class MarketRepository {
 
   final Map<ExchangeId, ExchangeClient> clients;
   final List<Detector> detectors;
+  final int concurrency;
 
   Future<List<Detection>> scan(
     ScanRequest request, {
@@ -42,50 +51,60 @@ class MarketRepository {
         detectors.where((d) => request.detectors.contains(d.kind)).toList();
     final symbols = SymbolUniverse.symbols;
 
-    final total = exchanges.length * timeframes.length * symbols.length;
+    final jobs = <_Job>[
+      for (final exchange in exchanges)
+        for (final tf in timeframes)
+          for (final symbol in symbols) _Job(exchange, tf, symbol),
+    ];
+
+    final total = jobs.length;
     var done = 0;
     final hits = <Detection>[];
 
-    for (final exchange in exchanges) {
-      final client = clients[exchange];
-      if (client == null) continue;
+    Future<void> runJob(_Job job) async {
+      if (isCancelled?.call() == true) return;
+      final client = clients[job.exchange];
+      if (client == null) return;
 
-      for (final tf in timeframes) {
-        for (final symbol in symbols) {
-          if (isCancelled?.call() == true) {
-            return _finalize(hits, request.minScore);
-          }
+      onProgress?.call(ScanProgress(
+        done: done,
+        total: total,
+        label: '${job.exchange.short} · ${job.symbol.display} · ${job.tf.label}',
+      ));
 
-          onProgress?.call(ScanProgress(
-            done: done,
-            total: total,
-            label: '${exchange.short} · ${symbol.display} · ${tf.label}',
-          ));
-
-          try {
-            final candles = await client.fetchCandles(
-              symbol: symbol,
-              timeframe: tf,
-              limit: 240,
-            );
-            for (final det in activeDetectors) {
-              hits.addAll(
-                det.detect(
-                  exchange: exchange,
-                  symbol: symbol,
-                  timeframe: tf,
-                  candles: candles,
-                ),
-              );
-            }
-          } catch (_) {
-            // Skip symbol/venue failures; scan continues.
-          }
-
-          done++;
-          await Future<void>.delayed(const Duration(milliseconds: 20));
+      try {
+        final candles = await client.fetchCandles(
+          symbol: job.symbol,
+          timeframe: job.tf,
+          limit: 240,
+        );
+        for (final det in activeDetectors) {
+          hits.addAll(
+            det.detect(
+              exchange: job.exchange,
+              symbol: job.symbol,
+              timeframe: job.tf,
+              candles: candles,
+            ),
+          );
         }
+      } catch (_) {
+        // Skip failures.
+      } finally {
+        done++;
+        onProgress?.call(ScanProgress(
+          done: done,
+          total: total,
+          label: '${job.exchange.short} · ${job.symbol.display} · ${job.tf.label}',
+        ));
       }
+    }
+
+    for (var i = 0; i < jobs.length; i += concurrency) {
+      if (isCancelled?.call() == true) break;
+      final slice = jobs.skip(i).take(concurrency).toList();
+      await Future.wait(slice.map(runJob));
+      await Future<void>.delayed(const Duration(milliseconds: 12));
     }
 
     onProgress?.call(ScanProgress(done: total, total: total, label: 'Done'));

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../domain/disclaimers.dart';
+import '../l10n/app_lang.dart';
+import '../state/locale_controller.dart';
 import '../state/scan_controller.dart';
 import '../theme/app_theme.dart';
 import 'screens/detection_detail_screen.dart';
@@ -24,6 +26,8 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final c = context.watch<ScanController>();
+    final locale = context.watch<LocaleController>();
+    final t = locale.t;
 
     if (c.loadingProfile) {
       return const Scaffold(
@@ -35,7 +39,6 @@ class _AppShellState extends State<AppShell> {
       return const _DisclaimerGate();
     }
 
-    // Push detail when selected
     final selected = c.selected;
     if (selected != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -44,7 +47,23 @@ class _AppShellState extends State<AppShell> {
         if (d == null) return;
         c.selectDetection(null);
         Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => DetectionDetailScreen(detection: d)),
+          PageRouteBuilder(
+            transitionDuration: const Duration(milliseconds: 280),
+            pageBuilder: (_, anim, __) => DetectionDetailScreen(detection: d),
+            transitionsBuilder: (_, anim, __, child) {
+              final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+              return FadeTransition(
+                opacity: curved,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0.04, 0.02),
+                    end: Offset.zero,
+                  ).animate(curved),
+                  child: child,
+                ),
+              );
+            },
+          ),
         );
       });
     }
@@ -57,32 +76,31 @@ class _AppShellState extends State<AppShell> {
     ];
 
     return Scaffold(
+      extendBody: true,
       body: IndexedStack(index: index, children: pages),
       bottomNavigationBar: NavigationBar(
         selectedIndex: index,
-        backgroundColor: AppTokens.bgElevated,
-        indicatorColor: AppTokens.accentSoft,
         onDestinationSelected: (i) => setState(() => index = i),
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.radar_outlined),
-            selectedIcon: Icon(Icons.radar),
-            label: 'Radar',
+            icon: const Icon(Icons.radar_outlined),
+            selectedIcon: const Icon(Icons.radar),
+            label: t.tabRadar,
           ),
           NavigationDestination(
-            icon: Icon(Icons.view_list_outlined),
-            selectedIcon: Icon(Icons.view_list),
-            label: 'Results',
+            icon: const Icon(Icons.view_list_outlined),
+            selectedIcon: const Icon(Icons.view_list),
+            label: t.tabResults,
           ),
           NavigationDestination(
-            icon: Icon(Icons.tune_outlined),
-            selectedIcon: Icon(Icons.tune),
-            label: 'Profile',
+            icon: const Icon(Icons.tune_outlined),
+            selectedIcon: const Icon(Icons.tune),
+            label: t.tabProfile,
           ),
           NavigationDestination(
-            icon: Icon(Icons.menu_book_outlined),
-            selectedIcon: Icon(Icons.menu_book),
-            label: 'Glossary',
+            icon: const Icon(Icons.menu_book_outlined),
+            selectedIcon: const Icon(Icons.menu_book),
+            label: t.tabGlossary,
           ),
         ],
       ),
@@ -99,7 +117,7 @@ class _AppShellState extends State<AppShell> {
                         onPressed: c.cancelScan,
                         backgroundColor: AppTokens.bgSoft,
                         foregroundColor: AppTokens.textPrimary,
-                        label: const Text('Cancel'),
+                        label: Text(t.cancel),
                       ),
                     ),
                   if (c.scanning) const SizedBox(width: 12),
@@ -107,11 +125,13 @@ class _AppShellState extends State<AppShell> {
                     flex: c.scanning ? 2 : 1,
                     child: FloatingActionButton.extended(
                       heroTag: 'scan',
-                      onPressed: c.scanning ? null : c.runScan,
+                      onPressed: c.scanning ? null : () => c.runScan(t),
                       backgroundColor: AppTokens.accent,
                       foregroundColor: const Color(0xFF1A140C),
-                      icon: Icon(c.scanning ? Icons.hourglass_top : Icons.play_arrow_rounded),
-                      label: Text(c.scanning ? 'Scanning…' : 'Run scan'),
+                      icon: Icon(
+                        c.scanning ? Icons.hourglass_top : Icons.play_arrow_rounded,
+                      ),
+                      label: Text(c.scanning ? t.scanning : t.runScan),
                     ),
                   ),
                 ],
@@ -119,9 +139,27 @@ class _AppShellState extends State<AppShell> {
             )
           : null,
       appBar: AppBar(
+        title: Text(
+          t.appName,
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         actions: [
+          TextButton(
+            onPressed: () {
+              locale.setLang(
+                locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
+              );
+            },
+            child: Text(
+              locale.lang == AppLang.ru ? 'EN' : 'RU',
+              style: const TextStyle(
+                color: AppTokens.accent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
           IconButton(
-            tooltip: 'Disclaimers',
+            tooltip: t.disclaimers,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const LegalScreen()),
@@ -148,6 +186,9 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
   @override
   Widget build(BuildContext context) {
     final c = context.read<ScanController>();
+    final locale = context.watch<LocaleController>();
+    final t = locale.t;
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -155,10 +196,33 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Structure Radar', style: Theme.of(context).textTheme.headlineLarge),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.appName,
+                      style: Theme.of(context).textTheme.headlineLarge,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      locale.setLang(
+                        locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
+                      );
+                    },
+                    child: Text(
+                      locale.lang == AppLang.ru ? 'EN' : 'RU',
+                      style: const TextStyle(
+                        color: AppTokens.accent,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 8),
               Text(
-                'Before you continue',
+                t.beforeContinue,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: AppTokens.accent,
                     ),
@@ -169,12 +233,12 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppTokens.bgElevated,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: AppTokens.strokeSoft),
                   ),
                   child: SingleChildScrollView(
                     child: Text(
-                      AppDisclaimers.full,
+                      AppDisclaimers.full(locale.lang),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
@@ -186,7 +250,7 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                 activeColor: AppTokens.accent,
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  AppDisclaimers.acceptanceLabel,
+                  t.acceptDisclaimer,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: AppTokens.textPrimary,
                       ),
@@ -207,7 +271,7 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                     foregroundColor: const Color(0xFF1A140C),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Enter Radar'),
+                  child: Text(t.enterRadar),
                 ),
               ),
             ],

@@ -2,8 +2,11 @@ import 'package:flutter/foundation.dart';
 
 import '../data/market_repository.dart';
 import '../domain/models.dart';
+import '../l10n/app_lang.dart';
 import '../services/alert_profile_store.dart';
 import '../services/telegram_bridge.dart';
+
+enum ResultSort { score, time }
 
 class ScanController extends ChangeNotifier {
   ScanController({
@@ -35,15 +38,38 @@ class ScanController extends ChangeNotifier {
   Set<DetectorKind> selectedDetectors = DetectorKind.values.toSet();
   double minScore = 65;
 
+  DetectorKind? resultFilterKind;
+  ResultSort resultSort = ResultSort.score;
+
   TelegramBridge get bridge => _bridge;
   AlertProfileStore get store => _store;
+
+  List<Detection> get visibleResults {
+    var list = [...results];
+    if (resultFilterKind != null) {
+      list = list.where((d) => d.kind == resultFilterKind).toList();
+    }
+    switch (resultSort) {
+      case ResultSort.score:
+        list.sort((a, b) => b.score.compareTo(a.score));
+      case ResultSort.time:
+        list.sort((a, b) => b.detectedAt.compareTo(a.detectedAt));
+    }
+    return list;
+  }
 
   Future<void> bootstrap() async {
     loadingProfile = true;
     notifyListeners();
     disclaimerAccepted = await _store.disclaimerAccepted();
     profile = await _store.loadOrCreate();
-    selectedExchanges = {...profile!.exchanges};
+    // Drop legacy non-USDT venues from older profiles.
+    selectedExchanges = profile!.exchanges
+        .where((e) => ExchangeId.values.contains(e))
+        .toSet();
+    if (selectedExchanges.isEmpty) {
+      selectedExchanges = ExchangeId.values.toSet();
+    }
     selectedTimeframes = {...profile!.timeframes};
     selectedDetectors = {...profile!.enabledDetectors};
     minScore = profile!.minScore;
@@ -68,12 +94,48 @@ class ScanController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> runScan() async {
+  void setResultFilter(DetectorKind? kind) {
+    resultFilterKind = kind;
+    notifyListeners();
+  }
+
+  void setResultSort(ResultSort sort) {
+    resultSort = sort;
+    notifyListeners();
+  }
+
+  void toggleExchange(ExchangeId e) {
+    final next = {...selectedExchanges};
+    next.contains(e) ? next.remove(e) : next.add(e);
+    selectedExchanges = next;
+    notifyListeners();
+  }
+
+  void toggleTimeframe(AppTimeframe e) {
+    final next = {...selectedTimeframes};
+    next.contains(e) ? next.remove(e) : next.add(e);
+    selectedTimeframes = next;
+    notifyListeners();
+  }
+
+  void toggleDetector(DetectorKind e) {
+    final next = {...selectedDetectors};
+    next.contains(e) ? next.remove(e) : next.add(e);
+    selectedDetectors = next;
+    notifyListeners();
+  }
+
+  void setMinScore(double v) {
+    minScore = v;
+    notifyListeners();
+  }
+
+  Future<void> runScan(L10n t) async {
     if (scanning) return;
     if (selectedExchanges.isEmpty ||
         selectedTimeframes.isEmpty ||
         selectedDetectors.isEmpty) {
-      error = 'Select at least one exchange, timeframe, and detector.';
+      error = t.selectAtLeast;
       notifyListeners();
       return;
     }
@@ -82,7 +144,8 @@ class ScanController extends ChangeNotifier {
     cancelRequested = false;
     error = null;
     results = [];
-    progress = const ScanProgress(done: 0, total: 1, label: 'Starting…');
+    resultFilterKind = null;
+    progress = ScanProgress(done: 0, total: 1, label: t.starting);
     notifyListeners();
 
     try {
@@ -94,7 +157,11 @@ class ScanController extends ChangeNotifier {
           minScore: minScore,
         ),
         onProgress: (p) {
-          progress = p;
+          progress = ScanProgress(
+            done: p.done,
+            total: p.total,
+            label: p.label == 'Done' ? t.done : p.label,
+          );
           notifyListeners();
         },
         isCancelled: () => cancelRequested,

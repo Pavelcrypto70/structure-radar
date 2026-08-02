@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../domain/models.dart';
+import '../../state/locale_controller.dart';
 import '../../state/scan_controller.dart';
 import '../../theme/app_theme.dart';
 import '../widgets/detection_card.dart';
@@ -11,6 +13,9 @@ class ResultsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.watch<ScanController>();
+    final locale = context.watch<LocaleController>();
+    final t = locale.t;
+    final visible = c.visibleResults;
 
     if (c.results.isEmpty) {
       return SafeArea(
@@ -19,12 +24,10 @@ class ResultsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Results', style: Theme.of(context).textTheme.headlineMedium),
+              Text(t.resultsTitle, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 12),
               Text(
-                c.scanning
-                    ? 'Scan in progress…'
-                    : 'No detections yet. Run a scan from the Radar tab.',
+                c.scanning ? t.scanInProgress : t.noDetectionsYet,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
@@ -36,39 +39,74 @@ class ResultsScreen extends StatelessWidget {
     return SafeArea(
       child: ListView.builder(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
-        itemCount: c.results.length + 1,
+        itemCount: visible.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.only(bottom: 14),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Results',
+                    t.resultsTitle,
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    '${c.results.length} setups · sorted by score',
+                    '${visible.length} ${t.setups} · ${t.sortedByScore}',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Educational heuristics only — not trade signals.',
+                    t.heuristicsOnly,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppTokens.warn,
                         ),
+                  ),
+                  const SizedBox(height: 14),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        FilterChipToggle(
+                          label: t.filterAll,
+                          selected: c.resultFilterKind == null,
+                          onTap: () => c.setResultFilter(null),
+                        ),
+                        ...DetectorKind.values.map(
+                          (k) => FilterChipToggle(
+                            label: t.detectorLabel(k.name),
+                            selected: c.resultFilterKind == k,
+                            onTap: () => c.setResultFilter(k),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      FilterChipToggle(
+                        label: t.sortScore,
+                        selected: c.resultSort == ResultSort.score,
+                        onTap: () => c.setResultSort(ResultSort.score),
+                      ),
+                      FilterChipToggle(
+                        label: t.sortTime,
+                        selected: c.resultSort == ResultSort.time,
+                        onTap: () => c.setResultSort(ResultSort.time),
+                      ),
+                    ],
                   ),
                 ],
               ),
             );
           }
-          final d = c.results[index - 1];
+          final d = visible[index - 1];
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: DetectionCard(
               detection: d,
+              lang: locale.lang,
               onTap: () => c.selectDetection(d),
             ),
           );

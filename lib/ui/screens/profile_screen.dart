@@ -4,7 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/models.dart';
+import '../../l10n/app_lang.dart';
 import '../../services/telegram_bridge.dart';
+import '../../state/locale_controller.dart';
 import '../../state/scan_controller.dart';
 import '../../theme/app_theme.dart';
 import '../widgets/detection_card.dart';
@@ -15,6 +17,8 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.watch<ScanController>();
+    final locale = context.watch<LocaleController>();
+    final t = locale.t;
     final p = c.profile;
     if (p == null) {
       return const Center(child: CircularProgressIndicator());
@@ -24,27 +28,46 @@ class ProfileScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
         children: [
-          Text('Alert profile', style: Theme.of(context).textTheme.headlineMedium),
+          Text(t.alertProfile, style: Theme.of(context).textTheme.headlineMedium),
           const SizedBox(height: 8),
-          Text(
-            'Configure which detections should fan out to Telegram later. '
-            'Delivery is prepared on-device; the bot is not connected yet.',
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-          const SizedBox(height: 20),
+          Text(t.alertProfileBody, style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 18),
           _card(
             context,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Telegram bridge', style: Theme.of(context).textTheme.titleMedium),
+                Text(t.language, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    FilterChipToggle(
+                      label: 'Русский',
+                      selected: locale.lang == AppLang.ru,
+                      onTap: () => locale.setLang(AppLang.ru),
+                    ),
+                    FilterChipToggle(
+                      label: 'English',
+                      selected: locale.lang == AppLang.en,
+                      onTap: () => locale.setLang(AppLang.en),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          _card(
+            context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.telegramBridge, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 SwitchListTile.adaptive(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Arm Telegram delivery'),
-                  subtitle: const Text(
-                    'When enabled, matching detections are queued locally for the future bot worker.',
-                  ),
+                  title: Text(t.armTelegram),
+                  subtitle: Text(t.armTelegramSub),
                   value: p.telegramOptIn,
                   activeColor: AppTokens.accent,
                   onChanged: (v) async {
@@ -52,7 +75,7 @@ class ProfileScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 8),
-                Text('Link code', style: Theme.of(context).textTheme.bodySmall),
+                Text(t.linkCode, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: 6),
                 Row(
                   children: [
@@ -70,7 +93,7 @@ class ProfileScreen extends StatelessWidget {
                         await Clipboard.setData(ClipboardData(text: p.linkCode));
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Link code copied')),
+                            SnackBar(content: Text(t.copied)),
                           );
                         }
                       },
@@ -82,7 +105,8 @@ class ProfileScreen extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () async {
                     final uri = c.bridge.deepLink(p);
-                    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    final ok =
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
                     if (!ok && context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Could not open $uri')),
@@ -90,7 +114,7 @@ class ProfileScreen extends StatelessWidget {
                     }
                   },
                   icon: const Icon(Icons.telegram, color: AppTokens.accent),
-                  label: const Text('Open bot deep link (prep)'),
+                  label: Text(t.openBotLink),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppTokens.textPrimary,
                     side: const BorderSide(color: AppTokens.stroke),
@@ -98,21 +122,23 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Bot username placeholder: @${TelegramBridge.botUsername}. '
-                  'Deep link opens Telegram; linking will activate after backend wiring.',
+                  t.botPlaceholder.replaceAll(
+                    '@StructureRadarBot',
+                    '@${TelegramBridge.botUsername}',
+                  ),
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          Text('Detectors for alerts', style: Theme.of(context).textTheme.titleMedium),
+          Text(t.detectorsForAlerts, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Wrap(
             children: DetectorKind.values.map((e) {
               final on = p.enabledDetectors.contains(e);
               return FilterChipToggle(
-                label: e.label,
+                label: t.detectorLabel(e.name),
                 selected: on,
                 onTap: () async {
                   final next = {...p.enabledDetectors};
@@ -122,8 +148,7 @@ class ProfileScreen extends StatelessWidget {
               );
             }).toList(),
           ),
-          const SizedBox(height: 8),
-          Text('Timeframes for alerts', style: Theme.of(context).textTheme.titleMedium),
+          Text(t.timeframesForAlerts, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Wrap(
             children: AppTimeframe.values.map((e) {
@@ -139,8 +164,7 @@ class ProfileScreen extends StatelessWidget {
               );
             }).toList(),
           ),
-          const SizedBox(height: 8),
-          Text('Exchanges for alerts', style: Theme.of(context).textTheme.titleMedium),
+          Text(t.exchangesForAlerts, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 8),
           Wrap(
             children: ExchangeId.values.map((e) {
@@ -156,10 +180,10 @@ class ProfileScreen extends StatelessWidget {
               );
             }).toList(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Row(
             children: [
-              Text('Alert min score', style: Theme.of(context).textTheme.titleMedium),
+              Text(t.alertMinScore, style: Theme.of(context).textTheme.titleMedium),
               const Spacer(),
               Text(
                 p.minScore.toStringAsFixed(0),
@@ -174,36 +198,17 @@ class ProfileScreen extends StatelessWidget {
             min: 50,
             max: 90,
             divisions: 8,
-            activeColor: AppTokens.accent,
             onChanged: (v) async {
               await c.saveProfile(p.copyWith(minScore: v));
             },
           ),
           const SizedBox(height: 8),
-          _card(
-            context,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Bridge payload preview', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 8),
-                Text(
-                  p.toTelegramBridgePayload().toString(),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontFamily: 'monospace',
-                        color: AppTokens.textSecondary,
-                      ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
           FutureBuilder(
             future: c.store.loadQueue(),
             builder: (context, snap) {
               final n = snap.data?.length ?? 0;
               return Text(
-                'Outbound queue (local): $n event(s) waiting for bot worker.',
+                t.outboundQueue(n),
                 style: Theme.of(context).textTheme.bodySmall,
               );
             },
@@ -219,7 +224,7 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppTokens.bgElevated,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppTokens.strokeSoft),
       ),
       child: child,

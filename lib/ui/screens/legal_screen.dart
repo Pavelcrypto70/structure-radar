@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../domain/disclaimers.dart';
+import '../../state/locale_controller.dart';
 import '../../theme/app_theme.dart';
 
 class LegalScreen extends StatelessWidget {
@@ -8,19 +10,19 @@ class LegalScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = context.watch<LocaleController>();
+    final t = locale.t;
+
     return Scaffold(
       backgroundColor: AppTokens.bg,
-      appBar: AppBar(title: const Text('Disclaimers')),
+      appBar: AppBar(title: Text(t.legalTitle)),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
         children: [
-          Text(
-            'Legal & risk notices',
-            style: Theme.of(context).textTheme.headlineSmall,
-          ),
+          Text(t.legalHeading, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 16),
           Text(
-            AppDisclaimers.full,
+            AppDisclaimers.full(locale.lang),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.45),
           ),
         ],
