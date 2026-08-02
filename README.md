@@ -1,29 +1,32 @@
 # Structure Radar
 
-Multi-exchange **USDT market structure scanner** for educational chart analysis.
+Multi-exchange **USDT market structure scanner** — educational heuristics, not lottery signals.
 
-- Exchanges: **Binance · Bybit · Gate.io** (USDT spot only)
-- Detectors: **trend structure shift · MA regime · support/resistance levels**
-- Timeframes: **1h · 4h · 1d**
-- Universe: shortlist of liquid **\*/USDT** pairs
-- Alert profile ready for a future **Telegram** delivery channel (not connected yet)
+## What you get
+
+- Radar / Results / Profile / Glossary — brass terminal chrome
+- Venues: **Binance · Bybit · Gate.io** (USDT spot only)
+- Detectors: **structure shift · MA regime · support/resistance**
+- Timeframes: **1H · 4H · 1D**
+- Parallel scan + score filter + chart detail (EMA / level zone)
+- RU/EN locale · first-run coach · radar guide · scan recap ceremony
+- Telegram alert profile prepared (bot not live yet — local queue)
 
 ## Run
 
 ```bash
 flutter pub get
-flutter run -d chrome
-# or android / ios
+flutter run -d windows
+# or android / chrome / ios
 ```
 
 ## Web demo
 
-GitHub Pages: https://pavelcrypto70.github.io/structure-radar/
+https://pavelcrypto70.github.io/structure-radar/
 
-## Disclaimer
+Browser builds use a CORS relay for public candle APIs (`WEB` badge). Native builds talk to venues directly (`LIVE` badge).
 
-Educational market visualization only. Not financial advice. Not a broker. No trade execution. Heuristic pattern detection can be wrong.
+## Visual system
 
-## Package
-
-`com.structureradar.structure_radar`
+Brass terminal — Space Grotesk + IBM Plex Sans + JetBrains Mono, tabular figures.  
+Educational heuristics only. Not financial advice. No order execution.

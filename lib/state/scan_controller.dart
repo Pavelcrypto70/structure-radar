@@ -40,6 +40,7 @@ class ScanController extends ChangeNotifier {
 
   DetectorKind? resultFilterKind;
   ResultSort resultSort = ResultSort.score;
+  bool justFinishedScan = false;
 
   TelegramBridge get bridge => _bridge;
   AlertProfileStore get store => _store;
@@ -87,6 +88,10 @@ class ScanController extends ChangeNotifier {
     profile = next;
     await _store.save(next);
     notifyListeners();
+  }
+
+  void consumeScanFinished() {
+    justFinishedScan = false;
   }
 
   void selectDetection(Detection? d) {
@@ -168,6 +173,7 @@ class ScanController extends ChangeNotifier {
       );
 
       results = hits;
+      justFinishedScan = true;
       final p = profile;
       if (p != null) {
         for (final d in hits) {

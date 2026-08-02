@@ -1,17 +1,22 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../domain/disclaimers.dart';
 import '../l10n/app_lang.dart';
 import '../state/locale_controller.dart';
 import '../state/scan_controller.dart';
-import '../theme/app_theme.dart';
+import '../theme/tokens.dart';
 import 'screens/detection_detail_screen.dart';
 import 'screens/glossary_screen.dart';
 import 'screens/legal_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/radar_guide_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/scan_screen.dart';
+import 'widgets/first_run_coach.dart';
+import 'widgets/scan_recap_sheet.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -22,6 +27,21 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int index = 0;
+  bool _coachDismissed = false;
+  bool _recapBusy = false;
+  bool _firstRunScheduled = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_firstRunScheduled) return;
+    _firstRunScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final t = context.read<LocaleController>().t;
+      await FirstRunCoach.show(context, t);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +51,29 @@ class _AppShellState extends State<AppShell> {
 
     if (c.loadingProfile) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppTokens.accent)),
+        body: Center(child: CircularProgressIndicator(color: SrColors.accent)),
       );
     }
 
     if (!c.disclaimerAccepted) {
       return const _DisclaimerGate();
+    }
+
+    // Scan ceremony
+    if (!c.scanning && c.justFinishedScan && !_recapBusy) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted || _recapBusy) return;
+        _recapBusy = true;
+        c.consumeScanFinished();
+        await showScanRecapSheet(
+          context,
+          t: t,
+          hits: c.results.length,
+          minScore: c.minScore,
+          onOpenResults: () => setState(() => index = 1),
+        );
+        _recapBusy = false;
+      });
     }
 
     final selected = c.selected;
@@ -48,15 +85,15 @@ class _AppShellState extends State<AppShell> {
         c.selectDetection(null);
         Navigator.of(context).push(
           PageRouteBuilder(
-            transitionDuration: const Duration(milliseconds: 280),
+            transitionDuration: SrMotion.standard,
             pageBuilder: (_, anim, __) => DetectionDetailScreen(detection: d),
             transitionsBuilder: (_, anim, __, child) {
-              final curved = CurvedAnimation(parent: anim, curve: Curves.easeOutCubic);
+              final curved = CurvedAnimation(parent: anim, curve: SrMotion.curveIn);
               return FadeTransition(
                 opacity: curved,
                 child: SlideTransition(
                   position: Tween<Offset>(
-                    begin: const Offset(0.04, 0.02),
+                    begin: const Offset(0.03, 0.02),
                     end: Offset.zero,
                   ).animate(curved),
                   child: child,
@@ -68,41 +105,79 @@ class _AppShellState extends State<AppShell> {
       });
     }
 
-    final pages = const [
-      ScanScreen(),
-      ResultsScreen(),
-      ProfileScreen(),
-      GlossaryScreen(),
+    final pages = [
+      ScanScreen(
+        showCoach: !_coachDismissed,
+        onDismissCoach: () => setState(() => _coachDismissed = true),
+      ),
+      const ResultsScreen(),
+      const ProfileScreen(),
+      const GlossaryScreen(),
     ];
 
     return Scaffold(
-      extendBody: true,
-      body: IndexedStack(index: index, children: pages),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (i) => setState(() => index = i),
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.radar_outlined),
-            selectedIcon: const Icon(Icons.radar),
-            label: t.tabRadar,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.view_list_outlined),
-            selectedIcon: const Icon(Icons.view_list),
-            label: t.tabResults,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.tune_outlined),
-            selectedIcon: const Icon(Icons.tune),
-            label: t.tabProfile,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.menu_book_outlined),
-            selectedIcon: const Icon(Icons.menu_book),
-            label: t.tabGlossary,
-          ),
-        ],
+      backgroundColor: SrColors.bg,
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
+              child: Row(
+                children: [
+                  Text(t.appName, style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(width: 8),
+                  SrModeChip(live: !kIsWeb),
+                  const Spacer(),
+                  IconButton(
+                    tooltip: t.guideCta,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => RadarGuideScreen(t: t),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.menu_book_outlined, size: 20),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      HapticFeedback.selectionClick();
+                      locale.setLang(
+                        locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
+                      );
+                    },
+                    child: Text(
+                      locale.lang == AppLang.ru ? 'EN' : 'RU',
+                      style: const TextStyle(
+                        color: SrColors.accent,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: t.disclaimers,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const LegalScreen()),
+                      );
+                    },
+                    icon: const Icon(Icons.gavel_outlined, size: 20),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(child: IndexedStack(index: index, children: pages)),
+            _TerminalNav(
+              index: index,
+              labels: [t.tabRadar, t.tabResults, t.tabProfile, t.tabGlossary],
+              onSelect: (i) {
+                HapticFeedback.selectionClick();
+                setState(() => index = i);
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: index == 0
@@ -115,8 +190,8 @@ class _AppShellState extends State<AppShell> {
                       child: FloatingActionButton.extended(
                         heroTag: 'cancel',
                         onPressed: c.cancelScan,
-                        backgroundColor: AppTokens.bgSoft,
-                        foregroundColor: AppTokens.textPrimary,
+                        backgroundColor: SrColors.surface2,
+                        foregroundColor: SrColors.text,
                         label: Text(t.cancel),
                       ),
                     ),
@@ -125,9 +200,14 @@ class _AppShellState extends State<AppShell> {
                     flex: c.scanning ? 2 : 1,
                     child: FloatingActionButton.extended(
                       heroTag: 'scan',
-                      onPressed: c.scanning ? null : () => c.runScan(t),
-                      backgroundColor: AppTokens.accent,
-                      foregroundColor: const Color(0xFF1A140C),
+                      onPressed: c.scanning
+                          ? null
+                          : () {
+                              HapticFeedback.mediumImpact();
+                              c.runScan(t);
+                            },
+                      backgroundColor: SrColors.accent,
+                      foregroundColor: SrColors.onAccent,
                       icon: Icon(
                         c.scanning ? Icons.hourglass_top : Icons.play_arrow_rounded,
                       ),
@@ -138,36 +218,111 @@ class _AppShellState extends State<AppShell> {
               ),
             )
           : null,
-      appBar: AppBar(
-        title: Text(
-          t.appName,
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              locale.setLang(
-                locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
-              );
-            },
-            child: Text(
-              locale.lang == AppLang.ru ? 'EN' : 'RU',
-              style: const TextStyle(
-                color: AppTokens.accent,
-                fontWeight: FontWeight.w700,
+    );
+  }
+}
+
+class SrModeChip extends StatelessWidget {
+  const SrModeChip({super.key, required this.live});
+  final bool live;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = live ? SrColors.bull : SrColors.warn;
+    final label = live ? 'LIVE' : 'WEB';
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
+      ),
+    );
+  }
+}
+
+class _TerminalNav extends StatelessWidget {
+  const _TerminalNav({
+    required this.index,
+    required this.labels,
+    required this.onSelect,
+  });
+
+  final int index;
+  final List<String> labels;
+  final ValueChanged<int> onSelect;
+
+  static const _icons = [
+    Icons.radar_outlined,
+    Icons.view_list_outlined,
+    Icons.tune_outlined,
+    Icons.menu_book_outlined,
+  ];
+  static const _iconsSelected = [
+    Icons.radar,
+    Icons.view_list,
+    Icons.tune,
+    Icons.menu_book,
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.fromLTRB(
+        12,
+        8,
+        12,
+        10 + MediaQuery.paddingOf(context).bottom,
+      ),
+      decoration: const BoxDecoration(
+        color: SrColors.bgElevated,
+        border: Border(top: BorderSide(color: SrColors.lineSoft)),
+      ),
+      child: Row(
+        children: List.generate(4, (i) {
+          final selected = index == i;
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => onSelect(i),
+              child: AnimatedContainer(
+                duration: SrMotion.micro,
+                curve: SrMotion.curveToggle,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: selected ? SrColors.accentSoft : Colors.transparent,
+                  borderRadius: BorderRadius.circular(SrRadius.md),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedScale(
+                      scale: selected ? 1.08 : 1,
+                      duration: SrMotion.micro,
+                      child: Icon(
+                        selected ? _iconsSelected[i] : _icons[i],
+                        size: 20,
+                        color: selected ? SrColors.accent : SrColors.faint,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      labels[i],
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: selected ? SrColors.accent : SrColors.faint,
+                            fontWeight:
+                                selected ? FontWeight.w700 : FontWeight.w500,
+                          ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          IconButton(
-            tooltip: t.disclaimers,
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LegalScreen()),
-              );
-            },
-            icon: const Icon(Icons.gavel_outlined, size: 20),
-          ),
-        ],
+          );
+        }),
       ),
     );
   }
@@ -205,16 +360,14 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                     ),
                   ),
                   TextButton(
-                    onPressed: () {
-                      locale.setLang(
-                        locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
-                      );
-                    },
+                    onPressed: () => locale.setLang(
+                      locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
+                    ),
                     child: Text(
                       locale.lang == AppLang.ru ? 'EN' : 'RU',
                       style: const TextStyle(
-                        color: AppTokens.accent,
-                        fontWeight: FontWeight.w700,
+                        color: SrColors.accent,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
@@ -224,7 +377,7 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
               Text(
                 t.beforeContinue,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTokens.accent,
+                      color: SrColors.accent,
                     ),
               ),
               const SizedBox(height: 16),
@@ -232,9 +385,9 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                 child: Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTokens.bgElevated,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppTokens.strokeSoft),
+                    color: SrColors.surface,
+                    borderRadius: BorderRadius.circular(SrRadius.xl),
+                    border: Border.all(color: SrColors.lineSoft),
                   ),
                   child: SingleChildScrollView(
                     child: Text(
@@ -247,12 +400,12 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
               const SizedBox(height: 12),
               CheckboxListTile(
                 value: checked,
-                activeColor: AppTokens.accent,
+                activeColor: SrColors.accent,
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   t.acceptDisclaimer,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppTokens.textPrimary,
+                        color: SrColors.text,
                       ),
                 ),
                 onChanged: (v) => setState(() => checked = v ?? false),
@@ -263,14 +416,10 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                 child: FilledButton(
                   onPressed: checked
                       ? () async {
+                          HapticFeedback.mediumImpact();
                           await c.acceptDisclaimer();
                         }
                       : null,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: AppTokens.accent,
-                    foregroundColor: const Color(0xFF1A140C),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
                   child: Text(t.enterRadar),
                 ),
               ),

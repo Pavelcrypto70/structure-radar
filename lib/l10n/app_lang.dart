@@ -157,4 +157,53 @@ class L10n {
 
   String progressOf(int done, int total, String label) =>
       isRu ? '$done / $total · $label' : '$done / $total · $label';
+
+  String get splashMark => 'STRUCTURE RADAR';
+  String get splashTitle =>
+      isRu ? 'Структура рынка — под контролем.' : 'Market structure, scored.';
+  String get splashSub => isRu
+      ? 'USDT · три биржи · смена структуры · режим MA · уровни.\nОбразовательные эвристики. Не сигналы.'
+      : 'USDT · three venues · structure shift · MA regime · levels.\nEducational heuristics. Not signals.';
+  String get splashCta => isRu ? 'ОТКРЫТЬ РАДАР' : 'ENTER RADAR';
+  String get splashTag => isRu ? 'FREE #2 · EN/RU' : 'FREE #2 · EN/RU';
+
+  String get coachTitle => isRu ? 'ПОДСКАЗКА' : 'COACH';
+  String get coachBody => isRu
+      ? 'Сначала выбери биржи и TF, затем Run scan. Открывай карточку и сверяй график — score не равен входу.'
+      : 'Pick venues and TFs, then Run scan. Open a card and verify the chart — score is not an entry.';
+  String get coachDismiss => isRu ? 'Понятно' : 'Got it';
+
+  String get firstRunKicker => isRu ? '01 · СТАРТ' : '01 · START';
+  String get firstRunTitle1 => isRu ? 'Выбери параметры' : 'Set the lens';
+  String get firstRunBody1 => isRu
+      ? 'Биржи, таймфреймы и детекторы — это твой фильтр. Не включай всё сразу, если хочешь чище читать ленту.'
+      : 'Exchanges, timeframes and detectors are your filter. Don’t arm everything if you want a cleaner tape.';
+  String get firstRunTitle2 => isRu ? 'Запусти скан' : 'Run the scan';
+  String get firstRunBody2 => isRu
+      ? 'Радар параллельно обходит USDT-пары. Прогресс покажет площадку и символ.'
+      : 'Radar walks USDT pairs in parallel. Progress shows venue and symbol.';
+  String get firstRunTitle3 => isRu ? 'Читай график' : 'Read the chart';
+  String get firstRunBody3 => isRu
+      ? 'Каждая детекция — эвристика. Открой карточку, проверь EMA/уровни, сверься с глоссарием.'
+      : 'Every hit is a heuristic. Open the card, check EMA/levels, use the glossary.';
+  String get firstRunNext => isRu ? 'ДАЛЕЕ' : 'NEXT';
+  String get firstRunDone => isRu ? 'К РАДАРУ' : 'TO RADAR';
+
+  String get recapKicker => isRu ? 'СКАН ЗАВЕРШЁН' : 'SCAN COMPLETE';
+  String get recapTitle => isRu ? 'Сводка радара' : 'Radar recap';
+  String get recapOpenResults => isRu ? 'К РЕЗУЛЬТАТАМ' : 'OPEN RESULTS';
+  String get recapClose => isRu ? 'ОСТАТЬСЯ' : 'STAY';
+  String recapHits(int n) => isRu ? '$n сетапов выше порога' : '$n setups above threshold';
+
+  String get emptyResultsTitle =>
+      isRu ? 'Лента пуста' : 'Tape is empty';
+  String get emptyResultsBody => isRu
+      ? 'Запусти скан во вкладке Радар. Здесь появятся сетапы по score.'
+      : 'Run a scan from Radar. Setups will land here sorted by score.';
+
+  String get guideCta => isRu ? 'ГИД РАДАРА' : 'RADAR GUIDE';
+  String get guideTitle => isRu ? 'Гид Structure Radar' : 'Structure Radar guide';
+  String get eduOnly => isRu
+      ? 'Только обучение · без реальных денег · без исполнения ордеров'
+      : 'Educational only · no real money · no order execution';
 }
