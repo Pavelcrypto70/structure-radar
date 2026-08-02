@@ -116,18 +116,40 @@ class MarketSymbol {
   final String display;
 }
 
+enum LevelPattern {
+  horizontal,
+  ascendingTriangle,
+  descendingTriangle,
+}
+
 class LevelZone {
   const LevelZone({
     required this.price,
     required this.side,
     required this.touches,
     required this.strength,
+    this.touchIndexes = const [],
+    this.pattern = LevelPattern.horizontal,
+    this.trendStartIndex,
+    this.trendStartPrice,
+    this.trendEndIndex,
+    this.trendEndPrice,
   });
 
   final double price;
   final LevelSide side;
   final int touches;
   final double strength;
+
+  /// Candle indexes of confirmed touches (full series).
+  final List<int> touchIndexes;
+  final LevelPattern pattern;
+
+  /// Optional diagonal (triangle) endpoints in full-series indexes.
+  final int? trendStartIndex;
+  final double? trendStartPrice;
+  final int? trendEndIndex;
+  final double? trendEndPrice;
 }
 
 class Detection {

@@ -63,13 +63,14 @@ class AppGlossary {
           'A detection is emitted when price is interacting with a zone — '
           'approaching, rejecting, or resting near support or resistance.',
       mechanica:
-          '1) Collect pivot highs and lows.\n'
-          '2) Cluster prices within an ATR-relative tolerance.\n'
-          '3) Rank zones by touch count and compactness.\n'
-          '4) Flag interaction when close is within a proximity band of the zone.',
+          '1) Collect swing highs (resistance) and lows (support) separately.\n'
+          '2) Cluster only tight prices (≈0.22×ATR / ~0.25% of price).\n'
+          '3) Require ≥3 touches separated in time (not adjacent micro-pivots).\n'
+          '4) Emit only when price is approaching an unbroken level.\n'
+          '5) Optionally attach ascending/descending triangle diagonals.',
       limitations:
-          'Markets respect zones, not single ticks. Soft levels and wick noise are common. '
-          'Multi-timeframe confluence is not automatic in v1.',
+          'Markets respect zones, not single ticks. Soft levels and wick noise remain. '
+          'Triangle detection is a heuristic overlay on clean horizontals.',
     ),
     GlossaryEntry(
       id: 'tf_1h',

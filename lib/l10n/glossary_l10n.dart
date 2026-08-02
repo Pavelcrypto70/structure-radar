@@ -46,8 +46,8 @@ class GlossaryLocalized {
             ? 'Собираем повторяющиеся хаи/лоу в горизонтальные зоны и помечаем взаимодействие цены с зоной.'
             : 'Levels aggregates repeated swing highs/lows into horizontal zones and flags price interaction.',
         'mechanica': ru
-            ? '1) Пивоты.\n2) Кластеризация в пределах ATR-tolerance.\n3) Ранг по числу касаний.\n4) Флаг, если close близко к зоне.'
-            : '1) Pivots.\n2) Cluster within ATR tolerance.\n3) Rank by touches.\n4) Flag proximity.',
+            ? '1) Хаи и лои отдельно.\n2) Узкий кластер (~0.22×ATR).\n3) ≥3 касания с разнесением во времени.\n4) Только если цена подходит к несломанному уровню.\n5) Опционально треугольник.'
+            : '1) Highs and lows separately.\n2) Tight cluster (~0.22×ATR).\n3) ≥3 time-separated touches.\n4) Only when price approaches an unbroken level.\n5) Optional triangle overlay.',
         'limitations': ru
             ? 'Рынок уважает зоны, не тики. Ложные проколы фитилями обычны.'
             : 'Markets respect zones, not ticks. Wick noise is common.',

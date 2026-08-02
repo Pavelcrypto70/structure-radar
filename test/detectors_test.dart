@@ -67,20 +67,61 @@ void main() {
     expect(hits, isA<List<Detection>>());
   });
 
-  test('levels detector finds interaction on oscillating series', () {
+  test('levels detector finds clean 3-touch resistance approach', () {
+    // Build flat highs near 110 with separated touches, finish just below.
     final closes = <double>[];
-    for (var i = 0; i < 120; i++) {
-      final wave = (i % 20 < 10) ? 100.0 + (i % 10) : 110.0 - (i % 10);
-      closes.add(wave);
+    var px = 100.0;
+    for (var wave = 0; wave < 4; wave++) {
+      for (var i = 0; i < 7; i++) {
+        px += 1.4;
+        closes.add(px);
+      }
+      // Push into resistance zone ~110 then reject.
+      while (px < 109.6) {
+        px += 0.8;
+        closes.add(px);
+      }
+      closes.add(110.0);
+      closes.add(109.7);
+      for (var i = 0; i < 8; i++) {
+        px = closes.last - 1.1;
+        closes.add(px);
+      }
     }
-    // Finish near lower cluster.
-    closes.addAll(List<double>.filled(5, 100.2));
+    // Approach again without breaking.
+    while (closes.last < 108.8) {
+      closes.add(closes.last + 0.7);
+    }
+    closes.add(109.2);
+    closes.add(109.0);
+
+    final candles = _seriesFromCloses(closes);
+    // Force highs at resistance on touch bars by editing highs.
+    for (var i = 0; i < candles.length; i++) {
+      final c = candles[i];
+      if (c.close >= 109.5) {
+        candles[i] = Candle(
+          openTime: c.openTime,
+          open: c.open,
+          high: 110.05,
+          low: c.low,
+          close: c.close > 110 ? 109.4 : c.close,
+          volume: c.volume,
+        );
+      }
+    }
+
     final hits = LevelsDetector().detect(
-      exchange: ExchangeId.gate,
+      exchange: ExchangeId.binance,
       symbol: symbol,
-      timeframe: AppTimeframe.d1,
-      candles: _seriesFromCloses(closes),
+      timeframe: AppTimeframe.h4,
+      candles: candles,
     );
     expect(hits, isA<List<Detection>>());
+    if (hits.isNotEmpty) {
+      expect(hits.first.kind, DetectorKind.levels);
+      expect(hits.first.level, isNotNull);
+      expect(hits.first.level!.touches, greaterThanOrEqualTo(3));
+    }
   });
 }

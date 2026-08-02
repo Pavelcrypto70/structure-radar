@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../detectors/detector.dart';
@@ -20,8 +22,9 @@ class CandleChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final slice =
-        candles.length > 90 ? candles.sublist(candles.length - 90) : candles;
+    final full = candles;
+    final start = full.length > 90 ? full.length - 90 : 0;
+    final slice = full.sublist(start);
     return Container(
       height: 240,
       decoration: BoxDecoration(
@@ -32,7 +35,13 @@ class CandleChart extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(10, 14, 10, 10),
         child: CustomPaint(
-          painter: _CandlePainter(slice, level, bias, showMa),
+          painter: _CandlePainter(
+            slice,
+            level,
+            bias,
+            showMa,
+            indexOffset: start,
+          ),
           child: const SizedBox.expand(),
         ),
       ),
@@ -41,12 +50,19 @@ class CandleChart extends StatelessWidget {
 }
 
 class _CandlePainter extends CustomPainter {
-  _CandlePainter(this.candles, this.level, this.bias, this.showMa);
+  _CandlePainter(
+    this.candles,
+    this.level,
+    this.bias,
+    this.showMa, {
+    required this.indexOffset,
+  });
 
   final List<Candle> candles;
   final LevelZone? level;
   final StructureBias bias;
   final bool showMa;
+  final int indexOffset;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -59,8 +75,16 @@ class _CandlePainter extends CustomPainter {
       if (c.high > maxP) maxP = c.high;
     }
     if (level != null) {
-      minP = minP < level!.price ? minP : level!.price;
-      maxP = maxP > level!.price ? maxP : level!.price;
+      minP = math.min(minP, level!.price);
+      maxP = math.max(maxP, level!.price);
+      if (level!.trendStartPrice != null) {
+        minP = math.min(minP, level!.trendStartPrice!);
+        maxP = math.max(maxP, level!.trendStartPrice!);
+      }
+      if (level!.trendEndPrice != null) {
+        minP = math.min(minP, level!.trendEndPrice!);
+        maxP = math.max(maxP, level!.trendEndPrice!);
+      }
     }
     final pad = (maxP - minP) * 0.1;
     minP -= pad;
@@ -70,7 +94,6 @@ class _CandlePainter extends CustomPainter {
     double y(double price) =>
         size.height - ((price - minP) / (maxP - minP)) * size.height;
 
-    // Grid
     final grid = Paint()
       ..color = AppTokens.strokeSoft
       ..strokeWidth = 1;
@@ -79,17 +102,56 @@ class _CandlePainter extends CustomPainter {
       canvas.drawLine(Offset(0, gy), Offset(size.width, gy), grid);
     }
 
+    final slot = size.width / candles.length;
+
     if (level != null) {
+      final levelColor = level!.side == LevelSide.resistance
+          ? AppTokens.bear
+          : AppTokens.bull;
       final yp = y(level!.price);
-      final band = Paint()..color = AppTokens.accent.withValues(alpha: 0.08);
-      canvas.drawRect(
-        Rect.fromLTWH(0, yp - 5, size.width, 10),
-        band,
-      );
+      final band = Paint()..color = levelColor.withValues(alpha: 0.10);
+      canvas.drawRect(Rect.fromLTWH(0, yp - 4, size.width, 8), band);
       final paint = Paint()
-        ..color = AppTokens.accent.withValues(alpha: 0.9)
-        ..strokeWidth = 1.3;
+        ..color = levelColor.withValues(alpha: 0.95)
+        ..strokeWidth = 1.5;
       canvas.drawLine(Offset(0, yp), Offset(size.width, yp), paint);
+
+      // Diagonal squeeze line.
+      final ts = level!.trendStartIndex;
+      final te = level!.trendEndIndex;
+      final sp = level!.trendStartPrice;
+      final ep = level!.trendEndPrice;
+      if (ts != null && te != null && sp != null && ep != null) {
+        final i0 = ts - indexOffset;
+        final i1 = te - indexOffset;
+        if (i0 >= 0 && i1 < candles.length) {
+          final x0 = slot * i0 + slot / 2;
+          final x1 = slot * i1 + slot / 2;
+          canvas.drawLine(
+            Offset(x0, y(sp)),
+            Offset(x1, y(ep)),
+            Paint()
+              ..color = AppTokens.info.withValues(alpha: 0.9)
+              ..strokeWidth = 1.4,
+          );
+        }
+      }
+
+      // Touch triangles (Telegram-style markers).
+      for (final fullIdx in level!.touchIndexes) {
+        final i = fullIdx - indexOffset;
+        if (i < 0 || i >= candles.length) continue;
+        final cx = slot * i + slot / 2;
+        final isRes = level!.side == LevelSide.resistance;
+        final tipY = isRes ? yp - 7 : yp + 7;
+        final baseY = isRes ? yp - 1 : yp + 1;
+        final path = Path()
+          ..moveTo(cx, tipY)
+          ..lineTo(cx - 4.5, baseY)
+          ..lineTo(cx + 4.5, baseY)
+          ..close();
+        canvas.drawPath(path, Paint()..color = levelColor);
+      }
     }
 
     if (showMa && candles.length > 25) {
@@ -100,7 +162,6 @@ class _CandlePainter extends CustomPainter {
       _drawLine(canvas, size, e50, y, AppTokens.accentDeep.withValues(alpha: 0.8));
     }
 
-    final slot = size.width / candles.length;
     final bodyW = (slot * 0.58).clamp(1.4, 6.5);
 
     for (var i = 0; i < candles.length; i++) {
@@ -176,6 +237,7 @@ class _CandlePainter extends CustomPainter {
   bool shouldRepaint(covariant _CandlePainter oldDelegate) =>
       oldDelegate.candles != candles ||
       oldDelegate.level?.price != level?.price ||
+      oldDelegate.level?.touches != level?.touches ||
       oldDelegate.bias != bias ||
       oldDelegate.showMa != showMa;
 }

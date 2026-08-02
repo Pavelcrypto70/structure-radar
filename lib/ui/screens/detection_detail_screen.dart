@@ -52,6 +52,7 @@ class DetectionDetailScreen extends StatelessWidget {
             candles: detection.candles,
             level: detection.level,
             bias: detection.bias,
+            showMa: detection.level == null,
           ),
           const SizedBox(height: 16),
           Text(summary, style: Theme.of(context).textTheme.bodyLarge),
