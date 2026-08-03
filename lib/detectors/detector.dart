@@ -98,7 +98,7 @@ double atrPercentLookback(List<Candle> candles, {int period = 14, int lookback =
 bool isVolatileEnough(
   List<Candle> candles, {
   required double minAtrPct,
-  double compressionMax = 0.72,
+  double compressionMax = 0.55,
 }) {
   final now = atrPercent(candles);
   if (now < minAtrPct) return false;
@@ -110,9 +110,9 @@ bool isVolatileEnough(
 }
 
 double minAtrPctForTf(AppTimeframe tf) => switch (tf) {
-      AppTimeframe.m15 => 0.007, // ~0.7% — skip dead 15m ranges
-      AppTimeframe.m30 => 0.009,
-      AppTimeframe.h1 => 0.012, // ~1.2% — midcaps; filters dead ranges
-      AppTimeframe.h4 => 0.018,
-      AppTimeframe.d1 => 0.025,
+      AppTimeframe.m15 => 0.0045,
+      AppTimeframe.m30 => 0.006,
+      AppTimeframe.h1 => 0.008,
+      AppTimeframe.h4 => 0.012,
+      AppTimeframe.d1 => 0.018,
     };

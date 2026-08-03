@@ -1,0 +1,771 @@
+{
+  "universe": "Binance BTC/ETH/SOL · last 240 bars · rolling prefix detect",
+  "objective_note": "Structure target rate@65 ≈ 4–6% of bars. Levels ≈ 8%. Prefer cleaner avgScore.",
+  "structure_ranked": {
+    "1h": [
+      {
+        "label": "lb=2 recent=3 · 1h",
+        "windows": 540,
+        "fires": 94,
+        "fireRatePct": 17.41,
+        "pass65Pct": 12.78,
+        "pass70Pct": 5.19,
+        "pass75Pct": 0.37,
+        "avgScore": 67.9,
+        "objective": 0.204
+      },
+      {
+        "label": "lb=2 recent=5 · 1h",
+        "windows": 540,
+        "fires": 94,
+        "fireRatePct": 17.41,
+        "pass65Pct": 12.78,
+        "pass70Pct": 5.19,
+        "pass75Pct": 0.37,
+        "avgScore": 67.9,
+        "objective": 0.204
+      },
+      {
+        "label": "lb=2 recent=8 · 1h",
+        "windows": 540,
+        "fires": 94,
+        "fireRatePct": 17.41,
+        "pass65Pct": 12.78,
+        "pass70Pct": 5.19,
+        "pass75Pct": 0.37,
+        "avgScore": 67.9,
+        "objective": 0.204
+      },
+      {
+        "label": "lb=3 recent=3 · 1h",
+        "windows": 540,
+        "fires": 96,
+        "fireRatePct": 17.78,
+        "pass65Pct": 13.89,
+        "pass70Pct": 4.44,
+        "pass75Pct": 1.48,
+        "avgScore": 68.1,
+        "objective": 0.204
+      },
+      {
+        "label": "lb=3 recent=5 · 1h",
+        "windows": 540,
+        "fires": 96,
+        "fireRatePct": 17.78,
+        "pass65Pct": 13.89,
+        "pass70Pct": 4.44,
+        "pass75Pct": 1.48,
+        "avgScore": 68.1,
+        "objective": 0.204
+      },
+      {
+        "label": "lb=3 recent=8 · 1h",
+        "windows": 540,
+        "fires": 96,
+        "fireRatePct": 17.78,
+        "pass65Pct": 13.89,
+        "pass70Pct": 4.44,
+        "pass75Pct": 1.48,
+        "avgScore": 68.1,
+        "objective": 0.204
+      },
+      {
+        "label": "lb=5 recent=3 · 1h",
+        "windows": 540,
+        "fires": 77,
+        "fireRatePct": 14.26,
+        "pass65Pct": 9.63,
+        "pass70Pct": 3.52,
+        "pass75Pct": 0.93,
+        "avgScore": 67.4,
+        "objective": 0.202
+      },
+      {
+        "label": "lb=5 recent=5 · 1h",
+        "windows": 540,
+        "fires": 77,
+        "fireRatePct": 14.26,
+        "pass65Pct": 9.63,
+        "pass70Pct": 3.52,
+        "pass75Pct": 0.93,
+        "avgScore": 67.4,
+        "objective": 0.202
+      },
+      {
+        "label": "lb=5 recent=8 · 1h",
+        "windows": 540,
+        "fires": 77,
+        "fireRatePct": 14.26,
+        "pass65Pct": 9.63,
+        "pass70Pct": 3.52,
+        "pass75Pct": 0.93,
+        "avgScore": 67.4,
+        "objective": 0.202
+      },
+      {
+        "label": "lb=4 recent=3 · 1h",
+        "windows": 540,
+        "fires": 73,
+        "fireRatePct": 13.52,
+        "pass65Pct": 9.63,
+        "pass70Pct": 2.59,
+        "pass75Pct": 0.0,
+        "avgScore": 67.0,
+        "objective": 0.201
+      },
+      {
+        "label": "lb=4 recent=5 · 1h",
+        "windows": 540,
+        "fires": 73,
+        "fireRatePct": 13.52,
+        "pass65Pct": 9.63,
+        "pass70Pct": 2.59,
+        "pass75Pct": 0.0,
+        "avgScore": 67.0,
+        "objective": 0.201
+      },
+      {
+        "label": "lb=4 recent=8 · 1h",
+        "windows": 540,
+        "fires": 73,
+        "fireRatePct": 13.52,
+        "pass65Pct": 9.63,
+        "pass70Pct": 2.59,
+        "pass75Pct": 0.0,
+        "avgScore": 67.0,
+        "objective": 0.201
+      }
+    ],
+    "4h": [
+      {
+        "label": "lb=5 recent=3 · 4h",
+        "windows": 540,
+        "fires": 35,
+        "fireRatePct": 6.48,
+        "pass65Pct": 5.19,
+        "pass70Pct": 1.3,
+        "pass75Pct": 0.37,
+        "avgScore": 67.6,
+        "objective": 0.877
+      },
+      {
+        "label": "lb=5 recent=5 · 4h",
+        "windows": 540,
+        "fires": 35,
+        "fireRatePct": 6.48,
+        "pass65Pct": 5.19,
+        "pass70Pct": 1.3,
+        "pass75Pct": 0.37,
+        "avgScore": 67.6,
+        "objective": 0.877
+      },
+      {
+        "label": "lb=5 recent=8 · 4h",
+        "windows": 540,
+        "fires": 35,
+        "fireRatePct": 6.48,
+        "pass65Pct": 5.19,
+        "pass70Pct": 1.3,
+        "pass75Pct": 0.37,
+        "avgScore": 67.6,
+        "objective": 0.877
+      },
+      {
+        "label": "lb=4 recent=3 · 4h",
+        "windows": 540,
+        "fires": 54,
+        "fireRatePct": 10.0,
+        "pass65Pct": 8.15,
+        "pass70Pct": 2.41,
+        "pass75Pct": 0.56,
+        "avgScore": 68.1,
+        "objective": 0.463
+      },
+      {
+        "label": "lb=4 recent=5 · 4h",
+        "windows": 540,
+        "fires": 54,
+        "fireRatePct": 10.0,
+        "pass65Pct": 8.15,
+        "pass70Pct": 2.41,
+        "pass75Pct": 0.56,
+        "avgScore": 68.1,
+        "objective": 0.463
+      },
+      {
+        "label": "lb=4 recent=8 · 4h",
+        "windows": 540,
+        "fires": 57,
+        "fireRatePct": 10.56,
+        "pass65Pct": 8.7,
+        "pass70Pct": 2.96,
+        "pass75Pct": 0.93,
+        "avgScore": 68.5,
+        "objective": 0.387
+      },
+      {
+        "label": "lb=2 recent=3 · 4h",
+        "windows": 540,
+        "fires": 79,
+        "fireRatePct": 14.63,
+        "pass65Pct": 13.33,
+        "pass70Pct": 6.85,
+        "pass75Pct": 2.78,
+        "avgScore": 70.4,
+        "objective": 0.211
+      },
+      {
+        "label": "lb=2 recent=5 · 4h",
+        "windows": 540,
+        "fires": 79,
+        "fireRatePct": 14.63,
+        "pass65Pct": 13.33,
+        "pass70Pct": 6.85,
+        "pass75Pct": 2.78,
+        "avgScore": 70.4,
+        "objective": 0.211
+      },
+      {
+        "label": "lb=2 recent=8 · 4h",
+        "windows": 540,
+        "fires": 79,
+        "fireRatePct": 14.63,
+        "pass65Pct": 13.33,
+        "pass70Pct": 6.85,
+        "pass75Pct": 2.78,
+        "avgScore": 70.4,
+        "objective": 0.211
+      },
+      {
+        "label": "lb=3 recent=3 · 4h",
+        "windows": 540,
+        "fires": 108,
+        "fireRatePct": 20.0,
+        "pass65Pct": 16.85,
+        "pass70Pct": 9.07,
+        "pass75Pct": 3.33,
+        "avgScore": 69.8,
+        "objective": 0.21
+      },
+      {
+        "label": "lb=3 recent=5 · 4h",
+        "windows": 540,
+        "fires": 108,
+        "fireRatePct": 20.0,
+        "pass65Pct": 16.85,
+        "pass70Pct": 9.07,
+        "pass75Pct": 3.33,
+        "avgScore": 69.8,
+        "objective": 0.21
+      },
+      {
+        "label": "lb=3 recent=8 · 4h",
+        "windows": 540,
+        "fires": 110,
+        "fireRatePct": 20.37,
+        "pass65Pct": 17.22,
+        "pass70Pct": 9.44,
+        "pass75Pct": 3.52,
+        "avgScore": 69.9,
+        "objective": 0.21
+      }
+    ],
+    "1d": [
+      {
+        "label": "lb=5 recent=3 · 1d",
+        "windows": 540,
+        "fires": 55,
+        "fireRatePct": 10.19,
+        "pass65Pct": 9.26,
+        "pass70Pct": 8.15,
+        "pass75Pct": 4.44,
+        "avgScore": 73.1,
+        "objective": 0.539
+      },
+      {
+        "label": "lb=5 recent=5 · 1d",
+        "windows": 540,
+        "fires": 55,
+        "fireRatePct": 10.19,
+        "pass65Pct": 9.26,
+        "pass70Pct": 8.15,
+        "pass75Pct": 4.44,
+        "avgScore": 73.1,
+        "objective": 0.539
+      },
+      {
+        "label": "lb=5 recent=8 · 1d",
+        "windows": 540,
+        "fires": 55,
+        "fireRatePct": 10.19,
+        "pass65Pct": 9.26,
+        "pass70Pct": 8.15,
+        "pass75Pct": 4.44,
+        "avgScore": 73.1,
+        "objective": 0.539
+      },
+      {
+        "label": "lb=2 recent=3 · 1d",
+        "windows": 540,
+        "fires": 108,
+        "fireRatePct": 20.0,
+        "pass65Pct": 19.81,
+        "pass70Pct": 15.74,
+        "pass75Pct": 10.93,
+        "avgScore": 74.9,
+        "objective": 0.225
+      },
+      {
+        "label": "lb=2 recent=5 · 1d",
+        "windows": 540,
+        "fires": 108,
+        "fireRatePct": 20.0,
+        "pass65Pct": 19.81,
+        "pass70Pct": 15.74,
+        "pass75Pct": 10.93,
+        "avgScore": 74.9,
+        "objective": 0.225
+      },
+      {
+        "label": "lb=2 recent=8 · 1d",
+        "windows": 540,
+        "fires": 108,
+        "fireRatePct": 20.0,
+        "pass65Pct": 19.81,
+        "pass70Pct": 15.74,
+        "pass75Pct": 10.93,
+        "avgScore": 74.9,
+        "objective": 0.225
+      },
+      {
+        "label": "lb=3 recent=3 · 1d",
+        "windows": 540,
+        "fires": 104,
+        "fireRatePct": 19.26,
+        "pass65Pct": 18.7,
+        "pass70Pct": 16.11,
+        "pass75Pct": 10.56,
+        "avgScore": 74.9,
+        "objective": 0.225
+      },
+      {
+        "label": "lb=3 recent=5 · 1d",
+        "windows": 540,
+        "fires": 104,
+        "fireRatePct": 19.26,
+        "pass65Pct": 18.7,
+        "pass70Pct": 16.11,
+        "pass75Pct": 10.56,
+        "avgScore": 74.9,
+        "objective": 0.225
+      },
+      {
+        "label": "lb=3 recent=8 · 1d",
+        "windows": 540,
+        "fires": 104,
+        "fireRatePct": 19.26,
+        "pass65Pct": 18.7,
+        "pass70Pct": 16.11,
+        "pass75Pct": 10.56,
+        "avgScore": 74.9,
+        "objective": 0.225
+      },
+      {
+        "label": "lb=4 recent=3 · 1d",
+        "windows": 540,
+        "fires": 83,
+        "fireRatePct": 15.37,
+        "pass65Pct": 14.07,
+        "pass70Pct": 11.85,
+        "pass75Pct": 7.96,
+        "avgScore": 73.6,
+        "objective": 0.221
+      },
+      {
+        "label": "lb=4 recent=5 · 1d",
+        "windows": 540,
+        "fires": 83,
+        "fireRatePct": 15.37,
+        "pass65Pct": 14.07,
+        "pass70Pct": 11.85,
+        "pass75Pct": 7.96,
+        "avgScore": 73.6,
+        "objective": 0.221
+      },
+      {
+        "label": "lb=4 recent=8 · 1d",
+        "windows": 540,
+        "fires": 83,
+        "fireRatePct": 15.37,
+        "pass65Pct": 14.07,
+        "pass70Pct": 11.85,
+        "pass75Pct": 7.96,
+        "avgScore": 73.6,
+        "objective": 0.221
+      }
+    ]
+  },
+  "structure_picks": {
+    "1h": {
+      "label": "lb=2 recent=3 · 1h",
+      "windows": 540,
+      "fires": 94,
+      "fireRatePct": 17.41,
+      "pass65Pct": 12.78,
+      "pass70Pct": 5.19,
+      "pass75Pct": 0.37,
+      "avgScore": 67.9,
+      "objective": 0.204
+    },
+    "4h": {
+      "label": "lb=5 recent=3 · 4h",
+      "windows": 540,
+      "fires": 35,
+      "fireRatePct": 6.48,
+      "pass65Pct": 5.19,
+      "pass70Pct": 1.3,
+      "pass75Pct": 0.37,
+      "avgScore": 67.6,
+      "objective": 0.877
+    },
+    "1d": {
+      "label": "lb=5 recent=3 · 1d",
+      "windows": 540,
+      "fires": 55,
+      "fireRatePct": 10.19,
+      "pass65Pct": 9.26,
+      "pass70Pct": 8.15,
+      "pass75Pct": 4.44,
+      "avgScore": 73.1,
+      "objective": 0.539
+    }
+  },
+  "structure_current_lb3_r5": {
+    "1h": {
+      "label": "lb=3 recent=5 · 1h",
+      "windows": 540,
+      "fires": 96,
+      "fireRatePct": 17.78,
+      "pass65Pct": 13.89,
+      "pass70Pct": 4.44,
+      "pass75Pct": 1.48,
+      "avgScore": 68.1,
+      "objective": 0.204
+    },
+    "4h": {
+      "label": "lb=3 recent=5 · 4h",
+      "windows": 540,
+      "fires": 108,
+      "fireRatePct": 20.0,
+      "pass65Pct": 16.85,
+      "pass70Pct": 9.07,
+      "pass75Pct": 3.33,
+      "avgScore": 69.8,
+      "objective": 0.21
+    },
+    "1d": {
+      "label": "lb=3 recent=5 · 1d",
+      "windows": 540,
+      "fires": 104,
+      "fireRatePct": 19.26,
+      "pass65Pct": 18.7,
+      "pass70Pct": 16.11,
+      "pass75Pct": 10.56,
+      "avgScore": 74.9,
+      "objective": 0.225
+    }
+  },
+  "ma_density": [
+    {
+      "label": "ma · 1h",
+      "windows": 90,
+      "fires": 1,
+      "fireRatePct": 1.11,
+      "pass65Pct": 1.11,
+      "pass70Pct": 1.11,
+      "pass75Pct": 0.0,
+      "avgScore": 72.8,
+      "objective": 0.478
+    },
+    {
+      "label": "ma · 4h",
+      "windows": 90,
+      "fires": 1,
+      "fireRatePct": 1.11,
+      "pass65Pct": 1.11,
+      "pass70Pct": 1.11,
+      "pass75Pct": 1.11,
+      "avgScore": 78.9,
+      "objective": 0.496
+    },
+    {
+      "label": "ma · 1d",
+      "windows": 90,
+      "fires": 6,
+      "fireRatePct": 6.67,
+      "pass65Pct": 6.67,
+      "pass70Pct": 5.56,
+      "pass75Pct": 5.56,
+      "avgScore": 83.2,
+      "objective": 0.25
+    }
+  ],
+  "levels_ranked": {
+    "1h": [
+      {
+        "label": "strict touches3 tol0.35 int0.40 piv5 · 1h",
+        "windows": 480,
+        "fires": 72,
+        "fireRatePct": 15.0,
+        "pass65Pct": 9.58,
+        "pass70Pct": 4.58,
+        "pass75Pct": 2.08,
+        "avgScore": 67.9,
+        "objective": 0.765
+      },
+      {
+        "label": "loose touches2 tol0.45 int0.65 piv3 · 1h",
+        "windows": 480,
+        "fires": 275,
+        "fireRatePct": 57.29,
+        "pass65Pct": 44.17,
+        "pass70Pct": 36.67,
+        "pass75Pct": 32.92,
+        "avgScore": 77.8,
+        "objective": 0.233
+      },
+      {
+        "label": "cur touches2 tol0.35 int0.55 piv3 · 1h",
+        "windows": 480,
+        "fires": 251,
+        "fireRatePct": 52.29,
+        "pass65Pct": 36.46,
+        "pass70Pct": 29.58,
+        "pass75Pct": 23.75,
+        "avgScore": 73.3,
+        "objective": 0.22
+      },
+      {
+        "label": "opt touches3 tol0.40 int0.45 piv4 · 1h",
+        "windows": 480,
+        "fires": 144,
+        "fireRatePct": 30.0,
+        "pass65Pct": 22.5,
+        "pass70Pct": 17.5,
+        "pass75Pct": 11.67,
+        "avgScore": 72.7,
+        "objective": 0.218
+      }
+    ],
+    "4h": [
+      {
+        "label": "strict touches3 tol0.35 int0.40 piv5 · 4h",
+        "windows": 480,
+        "fires": 36,
+        "fireRatePct": 7.5,
+        "pass65Pct": 6.04,
+        "pass70Pct": 2.92,
+        "pass75Pct": 2.08,
+        "avgScore": 70.4,
+        "objective": 0.74
+      },
+      {
+        "label": "opt touches3 tol0.40 int0.45 piv4 · 4h",
+        "windows": 480,
+        "fires": 66,
+        "fireRatePct": 13.75,
+        "pass65Pct": 11.46,
+        "pass70Pct": 9.17,
+        "pass75Pct": 7.29,
+        "avgScore": 76.9,
+        "objective": 0.628
+      },
+      {
+        "label": "loose touches2 tol0.45 int0.65 piv3 · 4h",
+        "windows": 480,
+        "fires": 237,
+        "fireRatePct": 49.38,
+        "pass65Pct": 25.0,
+        "pass70Pct": 16.67,
+        "pass75Pct": 12.08,
+        "avgScore": 66.3,
+        "objective": 0.199
+      },
+      {
+        "label": "cur touches2 tol0.35 int0.55 piv3 · 4h",
+        "windows": 480,
+        "fires": 207,
+        "fireRatePct": 43.13,
+        "pass65Pct": 18.75,
+        "pass70Pct": 13.33,
+        "pass75Pct": 8.54,
+        "avgScore": 64.2,
+        "objective": 0.193
+      }
+    ],
+    "1d": [
+      {
+        "label": "opt touches3 tol0.40 int0.45 piv4 · 1d",
+        "windows": 480,
+        "fires": 45,
+        "fireRatePct": 9.38,
+        "pass65Pct": 7.29,
+        "pass70Pct": 5.63,
+        "pass75Pct": 4.79,
+        "avgScore": 76.0,
+        "objective": 0.866
+      },
+      {
+        "label": "strict touches3 tol0.35 int0.40 piv5 · 1d",
+        "windows": 480,
+        "fires": 28,
+        "fireRatePct": 5.83,
+        "pass65Pct": 3.96,
+        "pass70Pct": 1.88,
+        "pass75Pct": 1.25,
+        "avgScore": 70.7,
+        "objective": 0.559
+      },
+      {
+        "label": "cur touches2 tol0.35 int0.55 piv3 · 1d",
+        "windows": 480,
+        "fires": 206,
+        "fireRatePct": 42.92,
+        "pass65Pct": 20.42,
+        "pass70Pct": 13.13,
+        "pass75Pct": 8.96,
+        "avgScore": 65.4,
+        "objective": 0.196
+      },
+      {
+        "label": "loose touches2 tol0.45 int0.65 piv3 · 1d",
+        "windows": 480,
+        "fires": 270,
+        "fireRatePct": 56.25,
+        "pass65Pct": 25.21,
+        "pass70Pct": 17.71,
+        "pass75Pct": 14.37,
+        "avgScore": 65.1,
+        "objective": 0.195
+      }
+    ]
+  },
+  "levels_picks": {
+    "1h": {
+      "label": "strict touches3 tol0.35 int0.40 piv5 · 1h",
+      "windows": 480,
+      "fires": 72,
+      "fireRatePct": 15.0,
+      "pass65Pct": 9.58,
+      "pass70Pct": 4.58,
+      "pass75Pct": 2.08,
+      "avgScore": 67.9,
+      "objective": 0.765
+    },
+    "4h": {
+      "label": "strict touches3 tol0.35 int0.40 piv5 · 4h",
+      "windows": 480,
+      "fires": 36,
+      "fireRatePct": 7.5,
+      "pass65Pct": 6.04,
+      "pass70Pct": 2.92,
+      "pass75Pct": 2.08,
+      "avgScore": 70.4,
+      "objective": 0.74
+    },
+    "1d": {
+      "label": "opt touches3 tol0.40 int0.45 piv4 · 1d",
+      "windows": 480,
+      "fires": 45,
+      "fireRatePct": 9.38,
+      "pass65Pct": 7.29,
+      "pass70Pct": 5.63,
+      "pass75Pct": 4.79,
+      "avgScore": 76.0,
+      "objective": 0.866
+    }
+  },
+  "levels_stock_btc_only": {
+    "1h": {
+      "label": "stock LevelsDetector · 1h",
+      "windows": 160,
+      "fires": 74,
+      "fireRatePct": 46.25,
+      "pass65Pct": 29.38,
+      "pass70Pct": 23.75,
+      "pass75Pct": 18.75,
+      "avgScore": 73.3,
+      "objective": 0.22
+    },
+    "4h": {
+      "label": "stock LevelsDetector · 4h",
+      "windows": 160,
+      "fires": 91,
+      "fireRatePct": 56.88,
+      "pass65Pct": 34.38,
+      "pass70Pct": 29.38,
+      "pass75Pct": 20.0,
+      "avgScore": 69.1,
+      "objective": 0.207
+    },
+    "1d": {
+      "label": "stock LevelsDetector · 1d",
+      "windows": 160,
+      "fires": 63,
+      "fireRatePct": 39.38,
+      "pass65Pct": 18.13,
+      "pass70Pct": 11.25,
+      "pass75Pct": 9.38,
+      "avgScore": 65.7,
+      "objective": 0.197
+    }
+  },
+  "recommended": {
+    "structure": {
+      "h1": {
+        "lookback": 2,
+        "recentBars": 3
+      },
+      "h4": {
+        "lookback": 5,
+        "recentBars": 3
+      },
+      "d1": {
+        "lookback": 5,
+        "recentBars": 3
+      },
+      "fallback_if_single_global": "lookback=4, recentBars=5"
+    },
+    "ma": {
+      "periods": [
+        20,
+        50,
+        200
+      ],
+      "keep": true,
+      "changes": {
+        "confirmBars": 2,
+        "slopeLookback": 5,
+        "oppositeLookback": 8,
+        "sepBonusMax": 6
+      },
+      "observed_pass65_pct": {
+        "ma · 1h": 1.11,
+        "ma · 4h": 1.11,
+        "ma · 1d": 6.67
+      }
+    },
+    "levels": {
+      "minTouches": 3,
+      "clusterTolAtr": 0.4,
+      "interactProximityAtr": 0.45,
+      "pivotLookback": 4,
+      "maxEmit": 2
+    },
+    "minScore": {
+      "ui_default": 70,
+      "relaxed": 60,
+      "telegram": 75
+    }
+  }
+}

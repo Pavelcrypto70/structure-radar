@@ -1,0 +1,413 @@
+{
+  "objective": "precision*0.55 + f1*0.35 + specificity*0.10 (scanner: fewer false hits)",
+  "structure_top": [
+    {
+      "label": "lb=3 recent=3",
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "tn": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "specificity": 1.0,
+      "objective": 0.1,
+      "avgScoreHit": 0.0
+    },
+    {
+      "label": "lb=3 recent=5",
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "tn": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "specificity": 1.0,
+      "objective": 0.1,
+      "avgScoreHit": 0.0
+    },
+    {
+      "label": "lb=3 recent=8",
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "tn": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "specificity": 1.0,
+      "objective": 0.1,
+      "avgScoreHit": 0.0
+    },
+    {
+      "label": "lb=4 recent=3",
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "tn": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "specificity": 1.0,
+      "objective": 0.1,
+      "avgScoreHit": 0.0
+    },
+    {
+      "label": "lb=4 recent=5",
+      "tp": 0,
+      "fp": 0,
+      "fn": 2,
+      "tn": 3,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "specificity": 1.0,
+      "objective": 0.1,
+      "avgScoreHit": 0.0
+    }
+  ],
+  "structure_current": {
+    "label": "lb=3 recent=5",
+    "tp": 0,
+    "fp": 0,
+    "fn": 2,
+    "tn": 3,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "specificity": 1.0,
+    "objective": 0.1,
+    "avgScoreHit": 0.0
+  },
+  "ma_current": {
+    "label": "current_ema20_50_200",
+    "tp": 0,
+    "fp": 0,
+    "fn": 2,
+    "tn": 3,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1": 0.0,
+    "specificity": 1.0,
+    "objective": 0.1,
+    "avgScoreHit": 0.0
+  },
+  "levels_top": [
+    {
+      "label": "maxLevels=4",
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "tn": 2,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.667,
+      "specificity": 0.667,
+      "objective": 0.575,
+      "avgScoreHit": 75.1
+    },
+    {
+      "label": "maxLevels=6",
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "tn": 2,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.667,
+      "specificity": 0.667,
+      "objective": 0.575,
+      "avgScoreHit": 75.1
+    },
+    {
+      "label": "maxLevels=8",
+      "tp": 1,
+      "fp": 1,
+      "fn": 0,
+      "tn": 2,
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.667,
+      "specificity": 0.667,
+      "objective": 0.575,
+      "avgScoreHit": 75.1
+    }
+  ],
+  "live_density": {
+    "1h": {
+      "struct_lb2_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb2_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb2_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "ma": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "levels": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      }
+    },
+    "4h": {
+      "struct_lb2_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb2_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb2_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "ma": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "levels": {
+        "n": 1,
+        "avg": 55.9,
+        "pass65": 0
+      }
+    },
+    "1d": {
+      "struct_lb2_r3": {
+        "n": 1,
+        "avg": 67.7,
+        "pass65": 1
+      },
+      "struct_lb2_r5": {
+        "n": 1,
+        "avg": 67.7,
+        "pass65": 1
+      },
+      "struct_lb2_r8": {
+        "n": 1,
+        "avg": 67.7,
+        "pass65": 1
+      },
+      "struct_lb3_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb3_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb4_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r3": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r5": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "struct_lb5_r8": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "ma": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      },
+      "levels": {
+        "n": 0,
+        "avg": 0,
+        "pass65": 0
+      }
+    }
+  },
+  "recommendations": {
+    "structure": {
+      "current": "lookback=3, recentBars=5",
+      "recommended": "lb=3 recent=3",
+      "live_noise_aware": "struct_lb3_r3",
+      "rationale": "On labeled synth, maximize precision/specificity. Cross-check live H1 density so scanner stays sparse."
+    },
+    "ma": {
+      "current": "EMA20/50/200, 1-bar flip, slope 3 bars",
+      "recommended_logic": {
+        "periods": "20/50/200 keep (market standard)",
+        "confirmBars": 2,
+        "oppositeLookback": 8,
+        "slopeLookback": 5,
+        "distanceBonus": "cap at 6 or remove (extension ≠ quality)",
+        "minScoreInteraction": 68
+      },
+      "synth": {
+        "label": "current_ema20_50_200",
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "tn": 3,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "specificity": 1.0,
+        "objective": 0.1,
+        "avgScoreHit": 0.0
+      },
+      "rationale": "Single-bar stack flips are the main false-positive source on H1. Confirm 2 closes in new regime. EMA lengths are already near-optimal for crypto swing framing."
+    },
+    "levels": {
+      "current": "tol=0.35ATR, interact<=0.55ATR, minTouches=2, maxLevels=6→take 2",
+      "recommended": {
+        "clusterTolAtr": 0.4,
+        "interactProximityAtr": 0.45,
+        "minTouches": 3,
+        "maxEmit": 2,
+        "pivotLookback": 4
+      },
+      "synth_best_maxLevels": "maxLevels=4",
+      "rationale": "minTouches=2 invents weak zones; 3+ is the usual discretionary floor. Tighter interact (0.45) cuts mid-range noise; slightly wider cluster (0.40) fits crypto wick noise."
+    },
+    "minScore": {
+      "current": 65,
+      "recommended_default": 70,
+      "recommended_scan_relaxed": 60,
+      "recommended_telegram": 75,
+      "rationale": "Base scores are ~58 structure / ~62 MA. Default 65 lets weak flips through. 70 keeps cleanPrior/aligned stack. Telegram should be stricter than on-screen scan."
+    },
+    "per_timeframe_pivot": {
+      "h1": 5,
+      "h4": 4,
+      "d1": 3,
+      "rationale": "Same lookback=3 is too sensitive on 1H and a bit late on 1D. Scale pivot window with TF."
+    }
+  }
+}

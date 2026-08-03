@@ -7,9 +7,9 @@ import 'detector.dart';
 /// Drops "emerging" micro-breaks that fire in flat chop.
 class StructureShiftDetector implements Detector {
   StructureShiftDetector({
-    this.lookback = 5,
-    this.recentBars = 4,
-    this.minBreakAtr = 0.35,
+    this.lookback = 4,
+    this.recentBars = 8,
+    this.minBreakAtr = 0.28,
     this.confirmCloses = 2,
   });
 
@@ -69,7 +69,7 @@ class StructureShiftDetector implements Detector {
     final breakIdxLow = lastLows[1];
     final breakIdxHigh = lastHighs[1];
     final lastIdx = candles.length - 1;
-    final freshBars = recentBars + lookback + 4;
+    final freshBars = recentBars + lookback + 10;
     final pad = atrVal * minBreakAtr;
 
     final bearBreak = priorBull &&

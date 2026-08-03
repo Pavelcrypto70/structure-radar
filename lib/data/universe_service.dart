@@ -197,13 +197,21 @@ class UniverseService {
       }
     }
 
+    // Prefer known liquid midcaps first so web's shortlist actually trades on Binance.
+    final preferred = <String>[
+      for (final s in SymbolUniverse.fallbackMidcaps)
+        if (!exclude.contains(s.base)) s.base,
+    ];
+    final rest = bases.where((b) => !preferred.contains(b)).toList()..sort();
+    final ordered = <String>[...preferred, ...rest];
+
     // Prefer Binance as primary when selected; else first selected venue.
     final primary = exchanges.contains(ExchangeId.binance)
         ? ExchangeId.binance
         : exchanges.first;
     final also = exchanges.where((e) => e != primary).toList();
 
-    final entries = bases.map((base) {
+    final entries = ordered.map((base) {
       return UniverseEntry(
         primaryExchange: primary,
         symbol: MarketSymbol(
@@ -220,7 +228,7 @@ class UniverseService {
     return ScanUniverse(
       symbols: entries,
       excludedTopBases: top,
-      rawPairCount: bases.length,
+      rawPairCount: ordered.length,
       source: 'lightweight',
     );
   }

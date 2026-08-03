@@ -11,7 +11,8 @@ enum _Regime { bull, bear, mixed }
 class MaRegimeDetector implements Detector {
   MaRegimeDetector({
     this.confirmBars = 3,
-    this.minBarsSinceFlip = 18,
+    this.minBarsSinceFlip = 12,
+    this.emitWindowBars = 8,
   });
 
   /// Regime must hold this many closes (anti 1-bar whipsaw).
@@ -19,6 +20,9 @@ class MaRegimeDetector implements Detector {
 
   /// After a flip, ignore new flips until this many bars pass.
   final int minBarsSinceFlip;
+
+  /// Keep emitting for this many bars after confirm (scanner ≠ exact-bar only).
+  final int emitWindowBars;
 
   final _uuid = const Uuid();
 
@@ -81,12 +85,14 @@ class MaRegimeDetector implements Detector {
         break;
       }
     }
-    // Emit only on the bar where confirm window just completed.
-    if (runLen != confirmBars) return const [];
+    // Fresh confirmed flip window — not only the exact confirm bar.
+    if (runLen < confirmBars || runLen > confirmBars + emitWindowBars) {
+      return const [];
+    }
 
-    final flipStart = i - confirmBars + 1;
+    final flipStart = i - runLen + 1;
     var lastOther = -1;
-    for (var k = confirmBars; k < confirmBars + minBarsSinceFlip + 60; k++) {
+    for (var k = runLen; k < runLen + minBarsSinceFlip + 60; k++) {
       final idx = i - k;
       if (idx < 0) break;
       final r = regimeAt(idx);
@@ -107,11 +113,13 @@ class MaRegimeDetector implements Detector {
         : (eMid[i] < eSlow[i] ? 10.0 : 0.0);
     final slope = eFast[i] - eFast[i - 5];
     final slopeAligned = bullish ? slope > 0 : slope < 0;
-    var score = 66.0 + stackBonus + (slopeAligned ? 8 : 0);
+    var score = 62.0 + stackBonus + (slopeAligned ? 8 : 0);
     final sep = (closes[i] - eFast[i]).abs() / atrVal;
     score += sep.clamp(0, 1.2) * 6;
     score += ((atrPercent(candles) - 0.01) * 300).clamp(0, 6);
-    score = score.clamp(55, 97);
+    // Fresher confirm = higher score.
+    score += ((confirmBars + emitWindowBars - runLen) * 1.2).clamp(0, 8);
+    score = score.clamp(50, 97);
 
     return [
       Detection(
@@ -140,7 +148,7 @@ class MaRegimeDetector implements Detector {
         detailBullets: [
           'Close: ${_fmt(closes[i])}',
           'EMA${p.fast}: ${_fmt(eFast[i])} · EMA${p.mid}: ${_fmt(eMid[i])} · EMA${p.slow}: ${_fmt(eSlow[i])}',
-          'Confirm: $confirmBars bars · min gap since opposite: $minBarsSinceFlip bars',
+          'Confirm: $confirmBars bars · emit window +$emitWindowBars · min gap $minBarsSinceFlip',
           'ATR%: ${(atrPercent(candles) * 100).toStringAsFixed(2)}% — flat markets filtered.',
         ],
       ),

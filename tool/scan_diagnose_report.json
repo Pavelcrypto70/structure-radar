@@ -1,0 +1,174 @@
+{
+  "universeSize": 468,
+  "excluded": [
+    "BTC",
+    "ETH",
+    "USDT",
+    "BNB",
+    "USDC",
+    "XRP",
+    "SOL",
+    "TRX",
+    "FIGR_HELOC",
+    "WBT",
+    "HYPE",
+    "DOGE",
+    "USDS",
+    "LEO",
+    "RAIN"
+  ],
+  "sample": 50,
+  "fetchOk": 100,
+  "fetchFail": 0,
+  "hitsBy": {
+    "struct5": 12,
+    "struct3": 9,
+    "ma": 3,
+    "levels": 3,
+    "levels_loose": 20
+  },
+  "rawHits": 47,
+  "pass50": 47,
+  "top": [
+    {
+      "sym": "FDUSD/USDT",
+      "tf": "1D",
+      "kind": "levels",
+      "score": 97.0,
+      "title": "Approaching support: 0.997600 (6 touches)"
+    },
+    {
+      "sym": "FDUSD/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 97.0,
+      "title": "Approaching support: 0.997600 (7 touches)"
+    },
+    {
+      "sym": "MMT/USDT",
+      "tf": "4H",
+      "kind": "levels_loose",
+      "score": 96.3,
+      "title": "Approaching support: 0.167800 (3 touches)"
+    },
+    {
+      "sym": "MMT/USDT",
+      "tf": "4H",
+      "kind": "levels",
+      "score": 96.3,
+      "title": "Approaching support: 0.167800 (3 touches)"
+    },
+    {
+      "sym": "1000SATS/USDT",
+      "tf": "4H",
+      "kind": "levels_loose",
+      "score": 94.9,
+      "title": "Approaching support: 0.000009 (5 touches)"
+    },
+    {
+      "sym": "ENA/USDT",
+      "tf": "4H",
+      "kind": "ma",
+      "score": 90.0,
+      "title": "MA regime → Bullish"
+    },
+    {
+      "sym": "PUMP/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 89.1,
+      "title": "Approaching resistance: 0.002194 (2 touches)"
+    },
+    {
+      "sym": "1000SATS/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 88.3,
+      "title": "Approaching resistance: 0.000010 (2 touches)"
+    },
+    {
+      "sym": "XAUT/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 87.3,
+      "title": "Descending triangle · support 4020.00 (2 touches)"
+    },
+    {
+      "sym": "PORTAL/USDT",
+      "tf": "4H",
+      "kind": "levels_loose",
+      "score": 83.7,
+      "title": "Approaching resistance: 0.011430 (2 touches)"
+    },
+    {
+      "sym": "PAXG/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 82.7,
+      "title": "Descending triangle · support 4026.48 (2 touches)"
+    },
+    {
+      "sym": "MIRA/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 81.4,
+      "title": "Approaching support: 0.040700 (2 touches)"
+    },
+    {
+      "sym": "COTI/USDT",
+      "tf": "1D",
+      "kind": "struct3",
+      "score": 81.0,
+      "title": "Bear → Bull structure shift"
+    },
+    {
+      "sym": "NEAR/USDT",
+      "tf": "1D",
+      "kind": "struct3",
+      "score": 80.0,
+      "title": "Bull → Bear structure shift"
+    },
+    {
+      "sym": "PORTAL/USDT",
+      "tf": "4H",
+      "kind": "ma",
+      "score": 80.0,
+      "title": "MA regime → Bullish"
+    },
+    {
+      "sym": "PENGU/USDT",
+      "tf": "4H",
+      "kind": "levels_loose",
+      "score": 79.0,
+      "title": "Approaching resistance: 0.006180 (2 touches)"
+    },
+    {
+      "sym": "MIRA/USDT",
+      "tf": "1D",
+      "kind": "levels_loose",
+      "score": 78.7,
+      "title": "Approaching support: 0.038400 (2 touches)"
+    },
+    {
+      "sym": "ZAMA/USDT",
+      "tf": "1D",
+      "kind": "struct3",
+      "score": 78.0,
+      "title": "Bear → Bull structure shift"
+    },
+    {
+      "sym": "BANK/USDT",
+      "tf": "1D",
+      "kind": "struct5",
+      "score": 78.0,
+      "title": "Bear → Bull structure shift"
+    },
+    {
+      "sym": "ZAMA/USDT",
+      "tf": "4H",
+      "kind": "levels_loose",
+      "score": 77.0,
+      "title": "Approaching support: 0.050000 (2 touches)"
+    }
+  ]
+}

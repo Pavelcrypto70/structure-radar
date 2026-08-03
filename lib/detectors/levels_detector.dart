@@ -291,15 +291,8 @@ class LevelsDetector implements Detector {
     if (!onCorrectSide) return false;
 
     if (proximity <= tightApproachAtr) return true;
-
-    // Drift toward level over last ~8 bars.
-    if (candles.length < 10) return proximity <= approachAtr;
-    final older = candles[candles.length - 9].close;
-    final newer = close;
-    final toward = side == LevelSide.resistance
-        ? newer > older && newer <= level
-        : newer < older && newer >= level;
-    return toward && proximity <= approachAtr;
+    // Near the band is enough for scanner — drift toward is a bonus, not a gate.
+    return proximity <= approachAtr;
   }
 
   _TriangleHint? _tryTriangle({

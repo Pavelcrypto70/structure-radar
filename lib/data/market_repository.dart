@@ -124,7 +124,7 @@ class MarketRepository {
 
     // Fewer pairs when web fans out across extra TFs (15m/30m + primary).
     final maxPairs = kIsWeb
-        ? (timeframes.length >= 3 ? 24 : (timeframes.length == 2 ? 30 : 36))
+        ? (timeframes.length >= 3 ? 32 : 40)
         : universe.symbols.length;
     final entries = universe.symbols.take(maxPairs).toList();
     lastUniverseSize = entries.length;
