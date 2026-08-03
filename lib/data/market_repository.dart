@@ -237,6 +237,8 @@ class MarketRepository {
     if (selected.contains(AppTimeframe.h4)) return AppTimeframe.h4;
     if (selected.contains(AppTimeframe.d1)) return AppTimeframe.d1;
     if (selected.contains(AppTimeframe.h1)) return AppTimeframe.h1;
+    if (selected.contains(AppTimeframe.m30)) return AppTimeframe.m30;
+    if (selected.contains(AppTimeframe.m15)) return AppTimeframe.m15;
     return AppTimeframe.h4;
   }
 
@@ -252,7 +254,7 @@ class MarketRepository {
         return await client.fetchCandles(
           symbol: symbol,
           timeframe: timeframe,
-          limit: 220,
+          limit: 280,
         );
       } catch (e) {
         final msg = '$e';

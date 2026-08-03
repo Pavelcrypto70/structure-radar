@@ -27,6 +27,9 @@ class MaRegimeDetector implements Detector {
 
   /// Slow stack per TF — "quality trend", not scalp cross.
   ({int fast, int mid, int slow}) _periods(AppTimeframe tf) => switch (tf) {
+        // 15m with ~1H-ish framing; 30m with ~2H framing.
+        AppTimeframe.m15 => (fast: 55, mid: 100, slow: 200),
+        AppTimeframe.m30 => (fast: 45, mid: 90, slow: 180),
         // Analog: 1H bars with averages traders put on 4H-ish framing.
         AppTimeframe.h1 => (fast: 55, mid: 100, slow: 200),
         AppTimeframe.h4 => (fast: 40, mid: 80, slow: 180),

@@ -19,6 +19,8 @@ extension ExchangeIdX on ExchangeId {
 }
 
 enum AppTimeframe {
+  m15,
+  m30,
   h1,
   h4,
   d1,
@@ -26,18 +28,24 @@ enum AppTimeframe {
 
 extension AppTimeframeX on AppTimeframe {
   String get label => switch (this) {
+        AppTimeframe.m15 => '15m',
+        AppTimeframe.m30 => '30m',
         AppTimeframe.h1 => '1H',
         AppTimeframe.h4 => '4H',
         AppTimeframe.d1 => '1D',
       };
 
   String get glossaryKey => switch (this) {
+        AppTimeframe.m15 => 'tf_15m',
+        AppTimeframe.m30 => 'tf_30m',
         AppTimeframe.h1 => 'tf_1h',
         AppTimeframe.h4 => 'tf_4h',
         AppTimeframe.d1 => 'tf_1d',
       };
 
   Duration get barDuration => switch (this) {
+        AppTimeframe.m15 => const Duration(minutes: 15),
+        AppTimeframe.m30 => const Duration(minutes: 30),
         AppTimeframe.h1 => const Duration(hours: 1),
         AppTimeframe.h4 => const Duration(hours: 4),
         AppTimeframe.d1 => const Duration(days: 1),

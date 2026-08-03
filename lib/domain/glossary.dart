@@ -43,13 +43,14 @@ class AppGlossary {
       subtitle: 'Slow MA stack regime change',
       body:
           'MA Regime uses a slow EMA stack sized like a higher timeframe on this '
-          'chart (1H→55/100/200, 4H→40/80/180, 1D→30/60/150). A flip emits only '
+          'chart (15m→55/100/200, 30m→45/90/180, 1H→55/100/200, 4H→40/80/180, '
+          '1D→30/60/150). A flip emits only '
           'after confirm closes and a long cooldown since the opposite regime — '
           'quality trend change, not every scalp cross in a flat.',
       mechanica:
           '1) Volatility gate (ATR%) — skip dead flats.\n'
           '2) Slow EMA stack sized like a higher timeframe on this chart '
-          '(1H→55/100/200, 4H→40/80/180, 1D→30/60/150).\n'
+          '(15m→55/100/200, 30m→45/90/180, 1H→55/100/200, 4H→40/80/180, 1D→30/60/150).\n'
           '3) Regime must hold for 3 closes.\n'
           '4) Min ~18 bars since the previous opposite regime (cooldown).',
       limitations:
@@ -72,6 +73,26 @@ class AppGlossary {
       limitations:
           'Markets respect zones, not single ticks. Soft levels and wick noise remain. '
           'Triangle detection is a heuristic overlay on clean horizontals.',
+    ),
+    GlossaryEntry(
+      id: 'tf_15m',
+      title: '15 Minutes',
+      subtitle: 'Fast intraday structure',
+      body:
+          '15m is the fastest frame in Structure Radar. Expect more noise than 1H+; '
+          'detectors use slow MA stacks and volatility gates so flat chop is filtered harder.',
+      mechanica: 'Candles aggregated at 15-minute open boundaries from each exchange API.',
+      limitations: 'Whipsaws and news spikes are common. Prefer with higher-TF context.',
+    ),
+    GlossaryEntry(
+      id: 'tf_30m',
+      title: '30 Minutes',
+      subtitle: 'Short intraday swing',
+      body:
+          '30m sits between scalp noise and 1H structure. Useful for active sessions '
+          'when 1H feels late, without going fully to 15m chatter.',
+      mechanica: 'Candles aggregated at 30-minute open boundaries from each exchange API.',
+      limitations: 'Still noisier than 4H/1D; confirm regime on a higher frame when unsure.',
     ),
     GlossaryEntry(
       id: 'tf_1h',

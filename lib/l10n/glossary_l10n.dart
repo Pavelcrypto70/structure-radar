@@ -27,8 +27,8 @@ class GlossaryLocalized {
             ? 'Смена режима по медленным скользящим'
             : 'Slow MA stack regime change',
         'body': ru
-            ? 'Медленный стек EMA «как с старшего ТФ» на текущем графике (1H→55/100/200, 4H→40/80/180, 1D→30/60/150). Сигнал только после подтверждения и длинного cooldown — не каждый скальп-кросс.'
-            : 'Slow EMA stack sized like a higher timeframe on this chart (1H→55/100/200, 4H→40/80/180, 1D→30/60/150). Emits only after confirm + long cooldown — not every scalp cross.',
+            ? 'Медленный стек EMA «как с старшего ТФ» на текущем графике (15m→55/100/200, 30m→45/90/180, 1H→55/100/200, 4H→40/80/180, 1D→30/60/150). Сигнал только после подтверждения и длинного cooldown — не каждый скальп-кросс.'
+            : 'Slow EMA stack sized like a higher timeframe on this chart (15m→55/100/200, 30m→45/90/180, 1H→55/100/200, 4H→40/80/180, 1D→30/60/150). Emits only after confirm + long cooldown — not every scalp cross.',
         'mechanica': ru
             ? '1) ATR%-гейт — флэт мимо.\n2) Медленный стек по TF.\n3) Режим держится 3 закрытия.\n4) ≥18 баров с прошлого противоположного режима.'
             : '1) ATR% gate — skip flats.\n2) Slow stack per TF.\n3) Regime holds 3 closes.\n4) ≥18 bars since previous opposite regime.',

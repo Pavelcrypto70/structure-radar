@@ -50,7 +50,7 @@ class BinanceClient implements ExchangeClient {
   Future<List<Candle>> fetchCandles({
     required MarketSymbol symbol,
     required AppTimeframe timeframe,
-    int limit = 220,
+    int limit = 280,
   }) async {
     final uri = webSafeUri(Uri.https('api.binance.com', '/api/v3/klines', {
       'symbol': symbol.id,
