@@ -75,3 +75,42 @@ List<double> emaSeries(List<double> values, int period) {
   }
   return out;
 }
+
+/// ATR as % of last close — primary volatility gate.
+double atrPercent(List<Candle> candles, {int period = 14}) {
+  if (candles.isEmpty) return 0;
+  final px = candles.last.close;
+  if (px <= 0) return 0;
+  return atr(candles, period: period) / px;
+}
+
+/// Longer-window ATR% to detect compression (flat / chop).
+double atrPercentLookback(List<Candle> candles, {int period = 14, int lookback = 48}) {
+  if (candles.length < lookback + 1) {
+    return atrPercent(candles, period: period);
+  }
+  final slice = candles.sublist(candles.length - lookback);
+  return atrPercent(slice, period: period);
+}
+
+/// True when market is moving enough for structure/MA flips to mean something.
+/// [minAtrPct] is TF-dependent; also rejects ATR compression vs prior window.
+bool isVolatileEnough(
+  List<Candle> candles, {
+  required double minAtrPct,
+  double compressionMax = 0.72,
+}) {
+  final now = atrPercent(candles);
+  if (now < minAtrPct) return false;
+  final prior = atrPercentLookback(candles, lookback: 56);
+  if (prior <= 0) return now >= minAtrPct;
+  // Flat: current ATR collapsed vs recent history.
+  if (now / prior < compressionMax && now < minAtrPct * 1.35) return false;
+  return true;
+}
+
+double minAtrPctForTf(AppTimeframe tf) => switch (tf) {
+      AppTimeframe.h1 => 0.012, // ~1.2% — midcaps; filters dead ranges
+      AppTimeframe.h4 => 0.018,
+      AppTimeframe.d1 => 0.025,
+    };

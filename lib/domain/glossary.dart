@@ -30,29 +30,30 @@ class AppGlossary {
           'higher-low after an uptrend; a bullish shift when price breaks above '
           'a prior lower-high after a downtrend.',
       mechanica:
-          '1) Find swing highs/lows with a symmetric pivot window.\n'
-          '2) Classify the recent swing sequence as bullish, bearish, or mixed.\n'
-          '3) Detect a break of the last opposing swing within the latest bars.\n'
-          '4) Score by clarity of prior trend, break distance, and recency.',
+          '1) Require enough ATR% for the timeframe (skip flat ranges).\n'
+          '2) Find swing highs/lows with a wider pivot window.\n'
+          '3) Require clean prior HH/HL or LH/LL (no emerging micro-breaks).\n'
+          '4) BOS only if close clears the swing by ≥0.35×ATR for 2 closes.',
       limitations:
-          'Swing detection is parameter-sensitive. Sideways markets produce noise. '
-          'This is not Smart Money Concepts certification — it is a transparent heuristic.',
+          'Still heuristic. Low-liquidity wicks can fake a break. Not a trade signal.',
     ),
     GlossaryEntry(
       id: 'det_ma',
       title: 'MA Regime',
-      subtitle: 'Moving-average trend regime change',
+      subtitle: 'Slow MA stack regime change',
       body:
-          'MA Regime classifies price relative to an EMA stack (20 / 50 / 200) and '
-          'flags a regime change when the stack relationship flips from bullish '
-          'to bearish (or reverse) on recent bars.',
+          'MA Regime uses a slow EMA stack sized like a higher timeframe on this '
+          'chart (1H→55/100/200, 4H→40/80/180, 1D→30/60/150). A flip emits only '
+          'after confirm closes and a long cooldown since the opposite regime — '
+          'quality trend change, not every scalp cross in a flat.',
       mechanica:
-          '1) Compute EMA20, EMA50, EMA200 on closed bars.\n'
-          '2) Bull regime: price above EMA20 and EMA20 above EMA50 (stack alignment).\n'
-          '3) Bear regime: price below EMA20 and EMA20 below EMA50.\n'
-          '4) Emit when regime on the last closed bar differs from the prior regime.',
+          '1) Volatility gate (ATR%) — skip dead flats.\n'
+          '2) Slow EMA stack sized like a higher timeframe on this chart '
+          '(1H→55/100/200, 4H→40/80/180, 1D→30/60/150).\n'
+          '3) Regime must hold for 3 closes.\n'
+          '4) Min ~18 bars since the previous opposite regime (cooldown).',
       limitations:
-          'EMAs lag. Chop around the averages creates false flips. Always confirm on the chart.',
+          'EMAs lag. Cooldown reduces whipsaws but also delays recognition of sharp reversals.',
     ),
     GlossaryEntry(
       id: 'det_levels',

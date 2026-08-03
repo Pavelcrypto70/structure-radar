@@ -4,18 +4,19 @@ import 'package:structure_radar/detectors/ma_regime_detector.dart';
 import 'package:structure_radar/detectors/structure_detector.dart';
 import 'package:structure_radar/domain/models.dart';
 
-List<Candle> _seriesFromCloses(List<double> closes) {
+List<Candle> _seriesFromCloses(List<double> closes, {double rangeFrac = 0.012}) {
   final out = <Candle>[];
   final start = DateTime.utc(2024, 1, 1);
   for (var i = 0; i < closes.length; i++) {
     final c = closes[i];
     final prev = i == 0 ? c : closes[i - 1];
+    final pad = c * rangeFrac;
     out.add(
       Candle(
         openTime: start.add(Duration(hours: i)),
         open: prev,
-        high: c > prev ? c * 1.01 : prev * 1.005,
-        low: c < prev ? c * 0.99 : prev * 0.995,
+        high: (c > prev ? c : prev) + pad,
+        low: (c < prev ? c : prev) - pad,
         close: c,
         volume: 1000 + i.toDouble(),
       ),
@@ -32,32 +33,44 @@ void main() {
     display: 'BTC',
   );
 
-  test('MA regime detector flips bull to bear', () {
+  test('MA regime detector flips bull to bear on slow stack', () {
     final closes = <double>[];
-    for (var i = 0; i < 250; i++) {
-      closes.add(100 + i * 1.0);
+    // Long uptrend so slow EMAs stack bullish.
+    for (var i = 0; i < 280; i++) {
+      closes.add(100 + i * 0.85);
     }
-    // Sharp multi-bar collapse through the stack.
-    for (var i = 0; i < 40; i++) {
-      closes.add(closes.last - 8);
+    // Long enough bear phase: cooldown + confirm against slow mid/fast.
+    for (var i = 0; i < 55; i++) {
+      closes.add(closes.last - 6.5);
     }
-    final candles = _seriesFromCloses(closes);
+    final candles = _seriesFromCloses(closes, rangeFrac: 0.02);
     final hits = MaRegimeDetector().detect(
       exchange: ExchangeId.binance,
       symbol: symbol,
       timeframe: AppTimeframe.h4,
       candles: candles,
     );
-    // Soft assert: either a bearish flip is found, or empty if still mixed —
-    // algorithm must at least return a typed list without throwing.
     expect(hits, isA<List<Detection>>());
     if (hits.isNotEmpty) {
       expect(hits.first.kind, DetectorKind.maRegime);
+      expect(hits.first.bias, StructureBias.bearish);
+      expect(hits.first.tags, contains('SLOW_STACK'));
     }
   });
 
-  test('structure detector returns list type safely on flat data', () {
+  test('structure detector ignores flat dead range', () {
     final closes = List<double>.generate(120, (_) => 100);
+    final hits = StructureShiftDetector().detect(
+      exchange: ExchangeId.bybit,
+      symbol: symbol,
+      timeframe: AppTimeframe.h1,
+      candles: _seriesFromCloses(closes, rangeFrac: 0.0005),
+    );
+    expect(hits, isEmpty);
+  });
+
+  test('structure detector returns list type safely on noisy data', () {
+    final closes = List<double>.generate(120, (i) => 100 + (i % 5) * 0.2);
     final hits = StructureShiftDetector().detect(
       exchange: ExchangeId.bybit,
       symbol: symbol,
@@ -68,7 +81,6 @@ void main() {
   });
 
   test('levels detector finds clean 3-touch resistance approach', () {
-    // Build flat highs near 110 with separated touches, finish just below.
     final closes = <double>[];
     var px = 100.0;
     for (var wave = 0; wave < 4; wave++) {
@@ -76,7 +88,6 @@ void main() {
         px += 1.4;
         closes.add(px);
       }
-      // Push into resistance zone ~110 then reject.
       while (px < 109.6) {
         px += 0.8;
         closes.add(px);
@@ -88,7 +99,6 @@ void main() {
         closes.add(px);
       }
     }
-    // Approach again without breaking.
     while (closes.last < 108.8) {
       closes.add(closes.last + 0.7);
     }
@@ -96,7 +106,6 @@ void main() {
     closes.add(109.0);
 
     final candles = _seriesFromCloses(closes);
-    // Force highs at resistance on touch bars by editing highs.
     for (var i = 0; i < candles.length; i++) {
       final c = candles[i];
       if (c.close >= 109.5) {

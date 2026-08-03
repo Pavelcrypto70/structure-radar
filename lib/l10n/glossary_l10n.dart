@@ -14,27 +14,27 @@ class GlossaryLocalized {
             ? 'Ищем смену свинговой структуры: higher-highs / higher-lows переходят в lower-highs / lower-lows (или наоборот). Медвежий сдвиг обычно при пробое прошлого higher-low после аптренда; бычий — при пробое прошлого lower-high после даунтренда.'
             : 'Structure Shift looks for a change in swing structure: higher-highs / higher-lows flipping into lower-highs / lower-lows (or the reverse).',
         'mechanica': ru
-            ? '1) Находим swing high/low симметричным окном.\n2) Классифицируем недавнюю последовательность.\n3) Ловим пробой последнего встречного свинга.\n4) Score по чистоте тренда, дистанции пробоя и свежести.'
-            : '1) Find swing highs/lows.\n2) Classify recent sequence.\n3) Detect break of last opposing swing.\n4) Score by clarity, separation, recency.',
+            ? '1) Фильтр волатильности (ATR%) — мёртвый флэт отбрасываем.\n2) Шире окно пивотов.\n3) Только чистая геометрия HH/HL или LH/LL (без «emerging»).\n4) BOS: close за свингом ≥0.35×ATR на 2 закрытиях.'
+            : '1) ATR% volatility gate — skip dead flats.\n2) Wider pivot window.\n3) Clean prior HH/HL or LH/LL only (no emerging).\n4) BOS: close clears swing by ≥0.35×ATR for 2 closes.',
         'limitations': ru
-            ? 'Пивоты зависят от параметров. Флэт даёт шум. Это прозрачная эвристика, не «истина SMC».'
-            : 'Swing detection is parameter-sensitive. Sideways markets produce noise.',
+            ? 'Эвристика. Тонкие рынки и фитили всё ещё могут обмануть. Не торговый сигнал.'
+            : 'Still heuristic. Thin markets and wicks can fake a break. Not a trade signal.',
       },
       {
         'id': 'det_ma',
         'title': ru ? 'Режим MA' : 'MA Regime',
         'subtitle': ru
-            ? 'Смена режима по скользящим средним'
-            : 'Moving-average trend regime change',
+            ? 'Смена режима по медленным скользящим'
+            : 'Slow MA stack regime change',
         'body': ru
-            ? 'Классифицируем цену относительно стека EMA (20 / 50 / 200) и фиксируем смену режима, когда выравнивание стека переворачивается.'
-            : 'MA Regime classifies price relative to an EMA stack (20 / 50 / 200) and flags a regime change when the stack relationship flips.',
+            ? 'Медленный стек EMA «как с старшего ТФ» на текущем графике (1H→55/100/200, 4H→40/80/180, 1D→30/60/150). Сигнал только после подтверждения и длинного cooldown — не каждый скальп-кросс.'
+            : 'Slow EMA stack sized like a higher timeframe on this chart (1H→55/100/200, 4H→40/80/180, 1D→30/60/150). Emits only after confirm + long cooldown — not every scalp cross.',
         'mechanica': ru
-            ? '1) Считаем EMA20/50/200.\n2) Бычий режим: цена > EMA20 > EMA50.\n3) Медвежий: цена < EMA20 < EMA50.\n4) Сигнал, если режим последнего бара отличается от предыдущего.'
-            : '1) Compute EMA20/50/200.\n2) Bull: price > EMA20 > EMA50.\n3) Bear: opposite.\n4) Emit on flip.',
+            ? '1) ATR%-гейт — флэт мимо.\n2) Медленный стек по TF.\n3) Режим держится 3 закрытия.\n4) ≥18 баров с прошлого противоположного режима.'
+            : '1) ATR% gate — skip flats.\n2) Slow stack per TF.\n3) Regime holds 3 closes.\n4) ≥18 bars since previous opposite regime.',
         'limitations': ru
-            ? 'EMA запаздывают. Пила вокруг средних даёт ложные флипы.'
-            : 'EMAs lag. Chop around averages creates false flips.',
+            ? 'EMA запаздывают. Cooldown режет пилу, но и откладывает резкие развороты.'
+            : 'EMAs lag. Cooldown cuts whipsaws but also delays sharp reversals.',
       },
       {
         'id': 'det_levels',

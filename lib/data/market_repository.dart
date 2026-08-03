@@ -54,7 +54,7 @@ class MarketRepository {
             },
         detectors = detectors ??
             [
-              StructureShiftDetector(lookback: 4, recentBars: 5),
+              StructureShiftDetector(),
               MaRegimeDetector(),
               LevelsDetector(
                 minTouches: 3,

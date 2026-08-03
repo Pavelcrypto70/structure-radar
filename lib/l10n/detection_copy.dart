@@ -30,21 +30,21 @@ class DetectionCopy {
       case DetectorKind.structureShift:
         if (d.bias == StructureBias.bearish) {
           return ru
-              ? 'Цена пробила предыдущий higher-low. Геометрия свингов уходит из аптренда к lower highs / lower lows.'
-              : 'Price broke below a prior higher-low. Swing structure is flipping from uptrend geometry toward lower highs / lower lows.';
+              ? 'После чистого HH/HL цена закрылась ниже higher-low с запасом по ATR (2 закрытия) — качественный BOS, не укол во флэте.'
+              : 'After clean HH/HL, price closed below the higher-low with ATR pad (2 closes) — quality BOS, not a range poke.';
         }
         return ru
-            ? 'Цена пробила предыдущий lower-high. Геометрия свингов уходит из даунтренда к higher highs / higher lows.'
-            : 'Price broke above a prior lower-high. Swing structure is flipping from downtrend geometry toward higher highs / higher lows.';
+            ? 'После чистого LH/LL цена закрылась выше lower-high с запасом по ATR (2 закрытия) — качественный BOS, не укол во флэте.'
+            : 'After clean LH/LL, price closed above the lower-high with ATR pad (2 closes) — quality BOS, not a range poke.';
       case DetectorKind.maRegime:
         if (d.bias == StructureBias.bullish) {
           return ru
-              ? 'Цена и стек EMA20/EMA50 перешли в бычий режим на последнем баре.'
-              : 'Price and EMA20/EMA50 stack flipped into a bullish regime on the latest bar.';
+              ? 'Медленный стек EMA подтвердил бычий режим (3 бара) после cooldown — не скальп-кросс.'
+              : 'Slow EMA stack confirmed bullish (3 bars) after cooldown — not a scalp cross.';
         }
         return ru
-            ? 'Цена и стек EMA20/EMA50 перешли в медвежий режим на последнем баре.'
-            : 'Price and EMA20/EMA50 stack flipped into a bearish regime on the latest bar.';
+            ? 'Медленный стек EMA подтвердил медвежий режим (3 бара) после cooldown — не скальп-кросс.'
+            : 'Slow EMA stack confirmed bearish (3 bars) after cooldown — not a scalp cross.';
       case DetectorKind.levels:
         return _levelsSummary(d, ru);
     }

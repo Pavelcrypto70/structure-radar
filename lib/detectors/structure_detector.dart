@@ -3,11 +3,25 @@ import 'package:uuid/uuid.dart';
 import '../domain/models.dart';
 import 'detector.dart';
 
+/// Quality structure shift: clean prior swing geometry + ATR-sized BOS.
+/// Drops "emerging" micro-breaks that fire in flat chop.
 class StructureShiftDetector implements Detector {
-  StructureShiftDetector({this.lookback = 4, this.recentBars = 5});
+  StructureShiftDetector({
+    this.lookback = 5,
+    this.recentBars = 4,
+    this.minBreakAtr = 0.35,
+    this.confirmCloses = 2,
+  });
 
   final int lookback;
   final int recentBars;
+
+  /// Close must clear the swing by at least this × ATR (anti false spike).
+  final double minBreakAtr;
+
+  /// Need this many recent closes beyond the level (not a single wick poke).
+  final int confirmCloses;
+
   final _uuid = const Uuid();
 
   @override
@@ -20,7 +34,13 @@ class StructureShiftDetector implements Detector {
     required AppTimeframe timeframe,
     required List<Candle> candles,
   }) {
-    if (candles.length < 60) return const [];
+    if (candles.length < 80) return const [];
+    if (!isVolatileEnough(candles, minAtrPct: minAtrPctForTf(timeframe))) {
+      return const [];
+    }
+
+    final atrVal = atr(candles);
+    if (atrVal <= 0) return const [];
 
     final highs = pivotHighIndexes(candles, left: lookback, right: lookback);
     final lows = pivotLowIndexes(candles, left: lookback, right: lookback);
@@ -40,6 +60,8 @@ class StructureShiftDetector implements Detector {
 
     final priorBull = hh && hl;
     final priorBear = lh && ll;
+    // Only clean prior geometry — no emerging LH/LL spam in ranges.
+    if (!priorBull && !priorBear) return const [];
 
     final close = candles.last.close;
     final prevSwingLow = candles[lastLows[1]].low;
@@ -47,34 +69,33 @@ class StructureShiftDetector implements Detector {
     final breakIdxLow = lastLows[1];
     final breakIdxHigh = lastHighs[1];
     final lastIdx = candles.length - 1;
-    // Freshness window — keep wide enough for midcap TF noise.
-    final freshBars = recentBars + lookback + 6;
+    final freshBars = recentBars + lookback + 4;
+    final pad = atrVal * minBreakAtr;
 
-    final recentBearBreak = priorBull &&
-        close < prevSwingLow &&
-        (lastIdx - breakIdxLow) <= freshBars;
-    final recentBullBreak = priorBear &&
-        close > prevSwingHigh &&
-        (lastIdx - breakIdxHigh) <= freshBars;
-
-    final emergingBear = !priorBear &&
-        candles[lastHighs[2]].high < candles[lastHighs[1]].high &&
-        candles[lastLows[2]].low < candles[lastLows[1]].low &&
-        close < candles[lastLows[1]].low &&
-        (lastIdx - lastLows[2]) <= 14;
-    final emergingBull = !priorBull &&
-        candles[lastHighs[2]].high > candles[lastHighs[1]].high &&
-        candles[lastLows[2]].low > candles[lastLows[1]].low &&
-        close > candles[lastHighs[1]].high &&
-        (lastIdx - lastHighs[2]) <= 14;
+    final bearBreak = priorBull &&
+        close < prevSwingLow - pad &&
+        (lastIdx - breakIdxLow) <= freshBars &&
+        _closesBeyond(
+          candles,
+          below: prevSwingLow - pad,
+          count: confirmCloses,
+        );
+    final bullBreak = priorBear &&
+        close > prevSwingHigh + pad &&
+        (lastIdx - breakIdxHigh) <= freshBars &&
+        _closesBeyond(
+          candles,
+          above: prevSwingHigh + pad,
+          count: confirmCloses,
+        );
 
     final out = <Detection>[];
 
-    if (recentBearBreak || emergingBear) {
+    if (bearBreak) {
       final score = _score(
-        cleanPrior: priorBull,
-        separation: (prevSwingLow - close).abs() / prevSwingLow,
-        recencyBars: lastIdx - (recentBearBreak ? breakIdxLow : lastLows[2]),
+        separationAtr: (prevSwingLow - close) / atrVal,
+        recencyBars: lastIdx - breakIdxLow,
+        atrPct: atrPercent(candles),
       );
       out.add(
         Detection(
@@ -85,33 +106,34 @@ class StructureShiftDetector implements Detector {
           timeframe: timeframe,
           title: 'Bull → Bear structure shift',
           summary:
-              'Price broke below a prior higher-low. Swing structure is flipping from uptrend geometry toward lower highs / lower lows.',
+              'Confirmed break below a prior higher-low after clean HH/HL geometry. ATR-filtered to skip flat spikes.',
           score: score,
           detectedAt: candles.last.openTime,
           bias: StructureBias.bearish,
           candles: candles,
           price: close,
           tags: [
-            if (priorBull) 'PRIOR_HH_HL',
+            'PRIOR_HH_HL',
             'BOS_DOWN',
+            'ATR_CONFIRM',
             timeframe.label,
             exchange.short,
           ],
           detailBullets: [
-            'Prior swing low reference: ${_fmt(prevSwingLow)}',
-            'Last close: ${_fmt(close)}',
-            if (priorBull) 'Prior sequence showed higher-highs and higher-lows.',
-            'Heuristic only — confirm invalidation and context on the chart.',
+            'Prior swing low: ${_fmt(prevSwingLow)}',
+            'Last close: ${_fmt(close)} (pad ${minBreakAtr.toStringAsFixed(2)}×ATR)',
+            'ATR%: ${(atrPercent(candles) * 100).toStringAsFixed(2)}%',
+            'Heuristic only — confirm invalidation on the chart.',
           ],
         ),
       );
     }
 
-    if (recentBullBreak || emergingBull) {
+    if (bullBreak) {
       final score = _score(
-        cleanPrior: priorBear,
-        separation: (close - prevSwingHigh).abs() / prevSwingHigh,
-        recencyBars: lastIdx - (recentBullBreak ? breakIdxHigh : lastHighs[2]),
+        separationAtr: (close - prevSwingHigh) / atrVal,
+        recencyBars: lastIdx - breakIdxHigh,
+        atrPct: atrPercent(candles),
       );
       out.add(
         Detection(
@@ -122,23 +144,24 @@ class StructureShiftDetector implements Detector {
           timeframe: timeframe,
           title: 'Bear → Bull structure shift',
           summary:
-              'Price broke above a prior lower-high. Swing structure is flipping from downtrend geometry toward higher highs / higher lows.',
+              'Confirmed break above a prior lower-high after clean LH/LL geometry. ATR-filtered to skip flat spikes.',
           score: score,
           detectedAt: candles.last.openTime,
           bias: StructureBias.bullish,
           candles: candles,
           price: close,
           tags: [
-            if (priorBear) 'PRIOR_LH_LL',
+            'PRIOR_LH_LL',
             'BOS_UP',
+            'ATR_CONFIRM',
             timeframe.label,
             exchange.short,
           ],
           detailBullets: [
-            'Prior swing high reference: ${_fmt(prevSwingHigh)}',
-            'Last close: ${_fmt(close)}',
-            if (priorBear) 'Prior sequence showed lower-highs and lower-lows.',
-            'Heuristic only — confirm invalidation and context on the chart.',
+            'Prior swing high: ${_fmt(prevSwingHigh)}',
+            'Last close: ${_fmt(close)} (pad ${minBreakAtr.toStringAsFixed(2)}×ATR)',
+            'ATR%: ${(atrPercent(candles) * 100).toStringAsFixed(2)}%',
+            'Heuristic only — confirm invalidation on the chart.',
           ],
         ),
       );
@@ -147,16 +170,32 @@ class StructureShiftDetector implements Detector {
     return out;
   }
 
-  double _score({
-    required bool cleanPrior,
-    required double separation,
-    required int recencyBars,
+  bool _closesBeyond(
+    List<Candle> candles, {
+    double? above,
+    double? below,
+    required int count,
   }) {
-    var s = 58.0;
-    if (cleanPrior) s += 16;
-    s += (separation * 400).clamp(0, 14);
-    s += (12 - recencyBars).clamp(0, 12).toDouble();
-    return s.clamp(0, 99);
+    if (candles.length < count) return false;
+    var n = 0;
+    for (var i = candles.length - count; i < candles.length; i++) {
+      final c = candles[i].close;
+      if (above != null && c > above) n++;
+      if (below != null && c < below) n++;
+    }
+    return n >= count;
+  }
+
+  double _score({
+    required double separationAtr,
+    required int recencyBars,
+    required double atrPct,
+  }) {
+    var s = 64.0;
+    s += separationAtr.clamp(0, 2) * 8;
+    s += (10 - recencyBars).clamp(0, 10).toDouble();
+    s += ((atrPct - 0.01) * 400).clamp(0, 8);
+    return s.clamp(55, 97);
   }
 
   String _fmt(double v) {
