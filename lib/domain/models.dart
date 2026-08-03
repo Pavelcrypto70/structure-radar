@@ -184,6 +184,15 @@ class LevelZone {
   final double? trendStartPrice;
   final int? trendEndIndex;
   final double? trendEndPrice;
+
+  /// Price band only — safe to overlay on another timeframe chart.
+  LevelZone get priceBandOnly => LevelZone(
+        price: price,
+        side: side,
+        touches: touches,
+        strength: strength,
+        pattern: LevelPattern.horizontal,
+      );
 }
 
 class Detection {

@@ -44,7 +44,7 @@ class L10n {
       ? 'Снова 429/сеть. Нужен жёсткий Ctrl+F5 (не обычный refresh). Потом только Binance, один TF — 4H.'
       : '429/network again. Hard Ctrl+F5 (not normal refresh). Then Binance only, one TF — 4H.';
 
-  String get buildStamp => 'r7';
+  String get buildStamp => 'r8';
 
   String universeRecap(int unique, int raw) => isRu
       ? 'Уник. пар: $unique (сырых листингов: $raw)'
@@ -139,6 +139,13 @@ class L10n {
       isRu ? 'Юридические и риск-уведомления' : 'Legal & risk notices';
 
   String get detectedBar => isRu ? 'Бар детекции' : 'Detected bar';
+  String get chartTf => isRu ? 'Таймфрейм графика' : 'Chart timeframe';
+  String chartSignalOn(String tf) => isRu
+      ? 'Сигнал найден на $tf · уровень/контекст можно сверить на других TF'
+      : 'Signal found on $tf · check level/context on other TFs';
+  String get chartLoading => isRu ? 'Гружу свечи…' : 'Loading candles…';
+  String get chartLoadFailed =>
+      isRu ? 'Не удалось загрузить этот TF' : 'Could not load this timeframe';
   String get notAdviceFooter => isRu
       ? 'Не финансовый совет. Эвристики паттернов могут ошибаться. Делай собственное исследование.'
       : 'Not financial advice. Pattern heuristics can fail. Do your own research.';

@@ -281,6 +281,24 @@ class MarketRepository {
     return AppTimeframe.h4;
   }
 
+  Future<List<Candle>> fetchCandles({
+    required ExchangeId exchange,
+    required MarketSymbol symbol,
+    required AppTimeframe timeframe,
+  }) async {
+    // Web: Binance vision CORS only — same as scan path.
+    final ex = kIsWeb ? ExchangeId.binance : exchange;
+    final client = clients[ex];
+    if (client == null) {
+      throw StateError('No client for ${ex.label}');
+    }
+    return _fetchCandlesWithRetry(
+      client: client,
+      symbol: symbol,
+      timeframe: timeframe,
+    );
+  }
+
   Future<List<Candle>> _fetchCandlesWithRetry({
     required ExchangeClient client,
     required MarketSymbol symbol,

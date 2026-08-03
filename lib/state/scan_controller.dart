@@ -223,4 +223,16 @@ class ScanController extends ChangeNotifier {
     cancelRequested = true;
     notifyListeners();
   }
+
+  Future<List<Candle>> fetchCandlesFor({
+    required ExchangeId exchange,
+    required MarketSymbol symbol,
+    required AppTimeframe timeframe,
+  }) {
+    return _repository.fetchCandles(
+      exchange: exchange,
+      symbol: symbol,
+      timeframe: timeframe,
+    );
+  }
 }
