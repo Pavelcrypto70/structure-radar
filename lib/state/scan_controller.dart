@@ -74,6 +74,12 @@ class ScanController extends ChangeNotifier {
       selectedExchanges = ExchangeId.values.toSet();
     }
     selectedTimeframes = {...profile!.timeframes};
+    // Ensure 15m/30m are armed after upgrade (Levels short-TF search).
+    selectedTimeframes = {
+      ...selectedTimeframes,
+      AppTimeframe.m15,
+      AppTimeframe.m30,
+    };
     selectedDetectors = {...profile!.enabledDetectors};
     minScore = profile!.minScore;
     loadingProfile = false;

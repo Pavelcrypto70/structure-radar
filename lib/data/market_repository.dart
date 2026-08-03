@@ -97,13 +97,13 @@ class MarketRepository {
             : {request.exchanges.first})
         : request.exchanges;
 
-    // Web: one TF only to stay under IP weight. Prefer 4H.
-    final timeframes = kIsWeb
-        ? [_pickWebTf(request.timeframes)]
-        : request.timeframes.toList();
-
     final activeDetectors =
         detectors.where((d) => request.detectors.contains(d.kind)).toList();
+
+    // Web: keep weight low, but always include 15m/30m for Levels when selected.
+    final timeframes = kIsWeb
+        ? _webTimeframes(request.timeframes, request.detectors)
+        : request.timeframes.toList();
 
     onProgress?.call(ScanProgress(done: 0, total: 1, label: 'Universe…'));
 
@@ -122,7 +122,10 @@ class MarketRepository {
       throw StateError('EMPTY_UNIVERSE');
     }
 
-    final maxPairs = kIsWeb ? 36 : universe.symbols.length;
+    // Fewer pairs when web fans out across extra TFs (15m/30m + primary).
+    final maxPairs = kIsWeb
+        ? (timeframes.length >= 3 ? 24 : (timeframes.length == 2 ? 30 : 36))
+        : universe.symbols.length;
     final entries = universe.symbols.take(maxPairs).toList();
     lastUniverseSize = entries.length;
 
@@ -233,7 +236,43 @@ class MarketRepository {
     return _finalize(hits, request.minScore);
   }
 
-  AppTimeframe _pickWebTf(Set<AppTimeframe> selected) {
+  /// Web TF set: one primary higher frame + 15m/30m when Levels is armed.
+  List<AppTimeframe> _webTimeframes(
+    Set<AppTimeframe> selected,
+    Set<DetectorKind> detectors,
+  ) {
+    if (selected.isEmpty) return const [AppTimeframe.h4];
+    final out = <AppTimeframe>{};
+
+    final primary = _pickWebPrimaryTf(selected);
+    out.add(primary);
+
+    final levelsOn = detectors.contains(DetectorKind.levels);
+    if (levelsOn) {
+      if (selected.contains(AppTimeframe.m15)) out.add(AppTimeframe.m15);
+      if (selected.contains(AppTimeframe.m30)) out.add(AppTimeframe.m30);
+    } else {
+      // No Levels → still honor explicit short TFs if that is all the user picked.
+      if (primary != AppTimeframe.m15 && selected.contains(AppTimeframe.m15)) {
+        out.add(AppTimeframe.m15);
+      }
+      if (primary != AppTimeframe.m30 && selected.contains(AppTimeframe.m30)) {
+        out.add(AppTimeframe.m30);
+      }
+    }
+
+    // Stable order: short → long.
+    final order = [
+      AppTimeframe.m15,
+      AppTimeframe.m30,
+      AppTimeframe.h1,
+      AppTimeframe.h4,
+      AppTimeframe.d1,
+    ];
+    return order.where(out.contains).toList();
+  }
+
+  AppTimeframe _pickWebPrimaryTf(Set<AppTimeframe> selected) {
     if (selected.contains(AppTimeframe.h4)) return AppTimeframe.h4;
     if (selected.contains(AppTimeframe.d1)) return AppTimeframe.d1;
     if (selected.contains(AppTimeframe.h1)) return AppTimeframe.h1;
