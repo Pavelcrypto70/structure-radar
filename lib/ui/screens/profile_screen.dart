@@ -62,6 +62,44 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(t.joinCommunity, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                Text(t.joinCommunityBody, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: () async {
+                    final uri = TelegramBridge.communityHubUri();
+                    final ok =
+                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    if (!ok && context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Could not open $uri')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.forum_outlined),
+                  label: Text(t.openCommunity),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: AppTokens.accent,
+                    foregroundColor: AppTokens.bg,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  TelegramBridge.communityHubHandle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTokens.accent,
+                      ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          _card(
+            context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Text(t.telegramBridge, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
                 SwitchListTile.adaptive(

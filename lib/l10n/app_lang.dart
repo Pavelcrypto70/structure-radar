@@ -99,6 +99,14 @@ class L10n {
   String get alertProfileBody => isRu
       ? 'Настрой, какие детекции позже уйдут в Telegram. Доставка подготовлена локально; бот ещё не подключён.'
       : 'Configure which detections should fan out to Telegram later. Delivery is prepared on-device; the bot is not connected yet.';
+
+  String get joinCommunity => isRu ? 'Сообщество Desk Club' : 'Join Desk Club';
+  String get joinCommunityBody => isRu
+      ? 'EN-хаб портфеля: разборы структуры, Paper League, академия. Это не бот алертов.'
+      : 'EN portfolio hub: structure talks, Paper League, academy. This is not the alert bot.';
+  String get openCommunity =>
+      isRu ? 'Открыть Desk Club' : 'Open Desk Club';
+
   String get telegramBridge => isRu ? 'Мост Telegram' : 'Telegram bridge';
   String get armTelegram =>
       isRu ? 'Вооружить доставку в Telegram' : 'Arm Telegram delivery';

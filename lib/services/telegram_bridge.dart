@@ -14,6 +14,12 @@ class TelegramBridge {
   /// Placeholder bot username until production bot is provisioned.
   static const botUsername = 'StructureRadarBot';
 
+  /// EN portfolio community (separate from alert bot).
+  static const communityHubUrl = 'https://t.me/Desk_Club';
+  static const communityHubHandle = '@Desk_Club';
+
+  static Uri communityHubUri() => Uri.parse(communityHubUrl);
+
   Uri deepLink(AlertProfile profile) {
     return Uri.parse('https://t.me/$botUsername?start=${profile.linkCode}');
   }
