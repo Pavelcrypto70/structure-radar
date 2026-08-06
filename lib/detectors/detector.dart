@@ -11,7 +11,11 @@ abstract class Detector {
   });
 }
 
-List<int> pivotHighIndexes(List<Candle> candles, {int left = 3, int right = 3}) {
+List<int> pivotHighIndexes(
+  List<Candle> candles, {
+  int left = 3,
+  int right = 3,
+}) {
   final out = <int>[];
   for (var i = left; i < candles.length - right; i++) {
     final h = candles[i].high;
@@ -85,7 +89,11 @@ double atrPercent(List<Candle> candles, {int period = 14}) {
 }
 
 /// Longer-window ATR% to detect compression (flat / chop).
-double atrPercentLookback(List<Candle> candles, {int period = 14, int lookback = 48}) {
+double atrPercentLookback(
+  List<Candle> candles, {
+  int period = 14,
+  int lookback = 48,
+}) {
   if (candles.length < lookback + 1) {
     return atrPercent(candles, period: period);
   }
@@ -110,9 +118,9 @@ bool isVolatileEnough(
 }
 
 double minAtrPctForTf(AppTimeframe tf) => switch (tf) {
-      AppTimeframe.m15 => 0.0045,
-      AppTimeframe.m30 => 0.006,
-      AppTimeframe.h1 => 0.008,
-      AppTimeframe.h4 => 0.012,
-      AppTimeframe.d1 => 0.018,
-    };
+  AppTimeframe.m15 => 0.0045,
+  AppTimeframe.m30 => 0.006,
+  AppTimeframe.h1 => 0.008,
+  AppTimeframe.h4 => 0.012,
+  AppTimeframe.d1 => 0.018,
+};

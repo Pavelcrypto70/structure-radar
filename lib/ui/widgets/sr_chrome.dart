@@ -87,13 +87,16 @@ class SrStatTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label.toUpperCase(), style: Theme.of(context).textTheme.labelSmall),
+          Text(
+            label.toUpperCase(),
+            style: Theme.of(context).textTheme.labelSmall,
+          ),
           const SizedBox(height: 6),
           Text(
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
           ),
           if (sub != null) ...[
             const SizedBox(height: 4),
@@ -114,9 +117,9 @@ class SrKicker extends StatelessWidget {
     return Text(
       text.toUpperCase(),
       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: SrColors.accent,
-            letterSpacing: 1.4,
-          ),
+        color: SrColors.accent,
+        letterSpacing: 1.4,
+      ),
     );
   }
 }
@@ -190,15 +193,15 @@ class SrSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget bar(double w) => Container(
-          width: w,
-          height: 10,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(99),
-            gradient: const LinearGradient(
-              colors: [SrColors.surface2, SrColors.surface3, SrColors.surface2],
-            ),
-          ),
-        );
+      width: w,
+      height: 10,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(99),
+        gradient: const LinearGradient(
+          colors: [SrColors.surface2, SrColors.surface3, SrColors.surface2],
+        ),
+      ),
+    );
 
     return SrSurface(
       child: Column(

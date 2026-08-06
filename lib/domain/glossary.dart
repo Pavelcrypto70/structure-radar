@@ -81,8 +81,10 @@ class AppGlossary {
       body:
           '15m is the fastest frame in Structure Radar. Expect more noise than 1H+; '
           'detectors use slow MA stacks and volatility gates so flat chop is filtered harder.',
-      mechanica: 'Candles aggregated at 15-minute open boundaries from each exchange API.',
-      limitations: 'Whipsaws and news spikes are common. Prefer with higher-TF context.',
+      mechanica:
+          'Candles aggregated at 15-minute open boundaries from each exchange API.',
+      limitations:
+          'Whipsaws and news spikes are common. Prefer with higher-TF context.',
     ),
     GlossaryEntry(
       id: 'tf_30m',
@@ -91,8 +93,10 @@ class AppGlossary {
       body:
           '30m sits between scalp noise and 1H structure. Useful for active sessions '
           'when 1H feels late, without going fully to 15m chatter.',
-      mechanica: 'Candles aggregated at 30-minute open boundaries from each exchange API.',
-      limitations: 'Still noisier than 4H/1D; confirm regime on a higher frame when unsure.',
+      mechanica:
+          'Candles aggregated at 30-minute open boundaries from each exchange API.',
+      limitations:
+          'Still noisier than 4H/1D; confirm regime on a higher frame when unsure.',
     ),
     GlossaryEntry(
       id: 'tf_1h',
@@ -101,7 +105,8 @@ class AppGlossary {
       body:
           '1H balances responsiveness and noise. Useful for active monitoring, '
           'but expects more false structure flips than 4H/1D.',
-      mechanica: 'Candles aggregated at 60-minute open boundaries from each exchange API.',
+      mechanica:
+          'Candles aggregated at 60-minute open boundaries from each exchange API.',
       limitations: 'News spikes and thin books distort swings.',
     ),
     GlossaryEntry(
@@ -111,8 +116,10 @@ class AppGlossary {
       body:
           '4H is the default “read the market” frame for many discretionary traders. '
           'Structure and MA flips here tend to be more meaningful than on 1H.',
-      mechanica: 'Candles aggregated at 4-hour open boundaries from each exchange API.',
-      limitations: 'Still lagging versus the tape; not a substitute for risk management.',
+      mechanica:
+          'Candles aggregated at 4-hour open boundaries from each exchange API.',
+      limitations:
+          'Still lagging versus the tape; not a substitute for risk management.',
     ),
     GlossaryEntry(
       id: 'tf_1d',
@@ -120,8 +127,10 @@ class AppGlossary {
       subtitle: 'Higher-timeframe bias',
       body:
           '1D emphasizes regime and major levels. Fewer signals, usually higher context value.',
-      mechanica: 'Daily candles from each exchange API (exchange timezone rules may differ slightly).',
-      limitations: 'Slow to update; do not expect many daily prints per scan cycle.',
+      mechanica:
+          'Daily candles from each exchange API (exchange timezone rules may differ slightly).',
+      limitations:
+          'Slow to update; do not expect many daily prints per scan cycle.',
     ),
     GlossaryEntry(
       id: 'exchanges',

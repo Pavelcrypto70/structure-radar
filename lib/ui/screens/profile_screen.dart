@@ -28,30 +28,52 @@ class ProfileScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 120),
         children: [
-          Text(t.alertProfile, style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            t.alertProfile,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 8),
-          Text(t.alertProfileBody, style: Theme.of(context).textTheme.bodyMedium),
+          Text(
+            t.alertProfileBody,
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
           const SizedBox(height: 18),
           _card(
             context,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.language, style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  t.language,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 10),
-                Row(
-                  children: [
-                    FilterChipToggle(
-                      label: 'Русский',
-                      selected: locale.lang == AppLang.ru,
-                      onTap: () => locale.setLang(AppLang.ru),
+                Wrap(
+                  children: AppLang.values
+                      .map(
+                        (lang) => FilterChipToggle(
+                          label: lang.nativeLabel,
+                          selected: locale.lang == lang,
+                          onTap: () => locale.setLang(lang),
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 8),
+                TextButton.icon(
+                  onPressed: () async {
+                    await locale.resetLanguageChoice();
+                    await c.clearDisclaimerAccepted();
+                  },
+                  icon: const Icon(Icons.restart_alt, size: 18),
+                  label: Text(
+                    t.t(
+                      'Choose language from start',
+                      es: 'Elegir idioma desde el inicio',
+                      pt: 'Escolher idioma desde o início',
+                      ru: 'Выбрать язык с начала',
                     ),
-                    FilterChipToggle(
-                      label: 'English',
-                      selected: locale.lang == AppLang.en,
-                      onTap: () => locale.setLang(AppLang.en),
-                    ),
-                  ],
+                  ),
                 ),
               ],
             ),
@@ -62,15 +84,23 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.joinCommunity, style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  t.joinCommunity,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
-                Text(t.joinCommunityBody, style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  t.joinCommunityBody,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 const SizedBox(height: 12),
                 FilledButton.icon(
                   onPressed: () async {
                     final uri = TelegramBridge.communityHubUri();
-                    final ok =
-                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    final ok = await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    );
                     if (!ok && context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Could not open $uri')),
@@ -87,9 +117,9 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   TelegramBridge.communityHubHandle,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppTokens.accent,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: AppTokens.accent),
                 ),
               ],
             ),
@@ -100,7 +130,10 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.telegramBridge, style: Theme.of(context).textTheme.titleMedium),
+                Text(
+                  t.telegramBridge,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
                 const SizedBox(height: 8),
                 SwitchListTile.adaptive(
                   contentPadding: EdgeInsets.zero,
@@ -120,7 +153,8 @@ class ProfileScreen extends StatelessWidget {
                     Expanded(
                       child: SelectableText(
                         p.linkCode,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               color: AppTokens.accent,
                               letterSpacing: 1.2,
                             ),
@@ -128,11 +162,13 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () async {
-                        await Clipboard.setData(ClipboardData(text: p.linkCode));
+                        await Clipboard.setData(
+                          ClipboardData(text: p.linkCode),
+                        );
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(t.copied)),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(t.copied)));
                         }
                       },
                       icon: const Icon(Icons.copy_rounded, size: 18),
@@ -143,8 +179,10 @@ class ProfileScreen extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () async {
                     final uri = c.bridge.deepLink(p);
-                    final ok =
-                        await launchUrl(uri, mode: LaunchMode.externalApplication);
+                    final ok = await launchUrl(
+                      uri,
+                      mode: LaunchMode.externalApplication,
+                    );
                     if (!ok && context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Could not open $uri')),
@@ -170,7 +208,10 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(t.detectorsForAlerts, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            t.detectorsForAlerts,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           Wrap(
             children: DetectorKind.values.map((e) {
@@ -186,7 +227,10 @@ class ProfileScreen extends StatelessWidget {
               );
             }).toList(),
           ),
-          Text(t.timeframesForAlerts, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            t.timeframesForAlerts,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           Wrap(
             children: AppTimeframe.values.map((e) {
@@ -202,7 +246,10 @@ class ProfileScreen extends StatelessWidget {
               );
             }).toList(),
           ),
-          Text(t.exchangesForAlerts, style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            t.exchangesForAlerts,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           const SizedBox(height: 8),
           Wrap(
             children: ExchangeId.values.map((e) {
@@ -221,13 +268,16 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              Text(t.alertMinScore, style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                t.alertMinScore,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const Spacer(),
               Text(
                 p.minScore.toStringAsFixed(0),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppTokens.accent,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: AppTokens.accent),
               ),
             ],
           ),

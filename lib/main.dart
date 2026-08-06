@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'state/locale_controller.dart';
 import 'state/scan_controller.dart';
 import 'theme/app_theme.dart';
-import 'ui/screens/splash_screen.dart';
 import 'ui/shell.dart';
 
 Future<void> main() async {
@@ -14,32 +13,29 @@ Future<void> main() async {
   runApp(StructureRadarApp(locale: locale));
 }
 
-class StructureRadarApp extends StatefulWidget {
+class StructureRadarApp extends StatelessWidget {
   const StructureRadarApp({super.key, required this.locale});
 
   final LocaleController locale;
 
   @override
-  State<StructureRadarApp> createState() => _StructureRadarAppState();
-}
-
-class _StructureRadarAppState extends State<StructureRadarApp> {
-  bool showSplash = true;
-
-  @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: widget.locale),
+        ChangeNotifierProvider.value(value: locale),
         ChangeNotifierProvider(create: (_) => ScanController()..bootstrap()),
       ],
       child: MaterialApp(
         title: 'Structure Radar',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.dark(),
-        home: showSplash
-            ? SplashScreen(onDone: () => setState(() => showSplash = false))
-            : const AppShell(),
+        supportedLocales: const [
+          Locale('en'),
+          Locale('es'),
+          Locale('pt'),
+          Locale('ru'),
+        ],
+        home: const AppShell(),
       ),
     );
   }

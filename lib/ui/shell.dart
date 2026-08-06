@@ -4,13 +4,13 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../domain/disclaimers.dart';
-import '../l10n/app_lang.dart';
 import '../state/locale_controller.dart';
 import '../state/scan_controller.dart';
 import '../theme/tokens.dart';
 import 'screens/detection_detail_screen.dart';
 import 'screens/glossary_screen.dart';
 import 'screens/legal_screen.dart';
+import 'screens/language_gate_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/radar_guide_screen.dart';
 import 'screens/results_screen.dart';
@@ -32,18 +32,6 @@ class _AppShellState extends State<AppShell> {
   bool _firstRunScheduled = false;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_firstRunScheduled) return;
-    _firstRunScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      final t = context.read<LocaleController>().t;
-      await FirstRunCoach.show(context, t);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     final c = context.watch<ScanController>();
     final locale = context.watch<LocaleController>();
@@ -55,8 +43,20 @@ class _AppShellState extends State<AppShell> {
       );
     }
 
+    if (!locale.languageChosen) {
+      return LanguageGateScreen(onPick: locale.chooseLanguage);
+    }
+
     if (!c.disclaimerAccepted) {
       return const _DisclaimerGate();
+    }
+
+    if (!_firstRunScheduled) {
+      _firstRunScheduled = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await FirstRunCoach.show(context, context.read<LocaleController>().t);
+      });
     }
 
     // Scan ceremony
@@ -90,7 +90,10 @@ class _AppShellState extends State<AppShell> {
             transitionDuration: SrMotion.standard,
             pageBuilder: (_, anim, __) => DetectionDetailScreen(detection: d),
             transitionsBuilder: (_, anim, __, child) {
-              final curved = CurvedAnimation(parent: anim, curve: SrMotion.curveIn);
+              final curved = CurvedAnimation(
+                parent: anim,
+                curve: SrMotion.curveIn,
+              );
               return FadeTransition(
                 opacity: curved,
                 child: SlideTransition(
@@ -127,7 +130,10 @@ class _AppShellState extends State<AppShell> {
               padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
               child: Row(
                 children: [
-                  Text(t.appName, style: Theme.of(context).textTheme.titleMedium),
+                  Text(
+                    t.appName,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
                   const SizedBox(width: 8),
                   SrModeChip(live: !kIsWeb, stamp: t.buildStamp),
                   const Spacer(),
@@ -142,21 +148,6 @@ class _AppShellState extends State<AppShell> {
                     },
                     icon: const Icon(Icons.menu_book_outlined, size: 20),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      HapticFeedback.selectionClick();
-                      locale.setLang(
-                        locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
-                      );
-                    },
-                    child: Text(
-                      locale.lang == AppLang.ru ? 'EN' : 'RU',
-                      style: const TextStyle(
-                        color: SrColors.accent,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
                   IconButton(
                     tooltip: t.disclaimers,
                     onPressed: () {
@@ -169,7 +160,9 @@ class _AppShellState extends State<AppShell> {
                 ],
               ),
             ),
-            Expanded(child: IndexedStack(index: index, children: pages)),
+            Expanded(
+              child: IndexedStack(index: index, children: pages),
+            ),
             if (index == 0)
               _ScanActionDock(
                 scanning: c.scanning,
@@ -260,7 +253,9 @@ class _ScanActionDock extends StatelessWidget {
                   style: FilledButton.styleFrom(
                     backgroundColor: SrColors.accent,
                     foregroundColor: SrColors.onAccent,
-                    disabledBackgroundColor: SrColors.accent.withValues(alpha: 0.55),
+                    disabledBackgroundColor: SrColors.accent.withValues(
+                      alpha: 0.55,
+                    ),
                     disabledForegroundColor: SrColors.onAccent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(SrRadius.md),
@@ -369,10 +364,11 @@ class _TerminalNav extends StatelessWidget {
                     Text(
                       labels[i],
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                            color: selected ? SrColors.accent : SrColors.faint,
-                            fontWeight:
-                                selected ? FontWeight.w700 : FontWeight.w500,
-                          ),
+                        color: selected ? SrColors.accent : SrColors.faint,
+                        fontWeight: selected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -408,34 +404,13 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      t.appName,
-                      style: Theme.of(context).textTheme.headlineLarge,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => locale.setLang(
-                      locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
-                    ),
-                    child: Text(
-                      locale.lang == AppLang.ru ? 'EN' : 'RU',
-                      style: const TextStyle(
-                        color: SrColors.accent,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              Text(t.appName, style: Theme.of(context).textTheme.headlineLarge),
               const SizedBox(height: 8),
               Text(
                 t.beforeContinue,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: SrColors.accent,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: SrColors.accent),
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -461,9 +436,9 @@ class _DisclaimerGateState extends State<_DisclaimerGate> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(
                   t.acceptDisclaimer,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: SrColors.text,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: SrColors.text),
                 ),
                 onChanged: (v) => setState(() => checked = v ?? false),
               ),

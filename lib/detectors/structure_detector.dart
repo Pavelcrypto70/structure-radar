@@ -49,13 +49,17 @@ class StructureShiftDetector implements Detector {
     final lastHighs = highs.sublist(highs.length - 3);
     final lastLows = lows.sublist(lows.length - 3);
 
-    final hh = candles[lastHighs[2]].high > candles[lastHighs[1]].high &&
+    final hh =
+        candles[lastHighs[2]].high > candles[lastHighs[1]].high &&
         candles[lastHighs[1]].high > candles[lastHighs[0]].high;
-    final hl = candles[lastLows[2]].low > candles[lastLows[1]].low &&
+    final hl =
+        candles[lastLows[2]].low > candles[lastLows[1]].low &&
         candles[lastLows[1]].low > candles[lastLows[0]].low;
-    final lh = candles[lastHighs[2]].high < candles[lastHighs[1]].high &&
+    final lh =
+        candles[lastHighs[2]].high < candles[lastHighs[1]].high &&
         candles[lastHighs[1]].high < candles[lastHighs[0]].high;
-    final ll = candles[lastLows[2]].low < candles[lastLows[1]].low &&
+    final ll =
+        candles[lastLows[2]].low < candles[lastLows[1]].low &&
         candles[lastLows[1]].low < candles[lastLows[0]].low;
 
     final priorBull = hh && hl;
@@ -72,15 +76,13 @@ class StructureShiftDetector implements Detector {
     final freshBars = recentBars + lookback + 10;
     final pad = atrVal * minBreakAtr;
 
-    final bearBreak = priorBull &&
+    final bearBreak =
+        priorBull &&
         close < prevSwingLow - pad &&
         (lastIdx - breakIdxLow) <= freshBars &&
-        _closesBeyond(
-          candles,
-          below: prevSwingLow - pad,
-          count: confirmCloses,
-        );
-    final bullBreak = priorBear &&
+        _closesBeyond(candles, below: prevSwingLow - pad, count: confirmCloses);
+    final bullBreak =
+        priorBear &&
         close > prevSwingHigh + pad &&
         (lastIdx - breakIdxHigh) <= freshBars &&
         _closesBeyond(

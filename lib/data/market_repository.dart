@@ -46,28 +46,30 @@ class MarketRepository {
     List<Detector>? detectors,
     UniverseService? universeService,
     int? concurrency,
-  })  : clients = clients ??
-            {
-              ExchangeId.binance: BinanceClient(),
-              ExchangeId.bybit: BybitClient(),
-              ExchangeId.gate: GateClient(),
-            },
-        detectors = detectors ??
-            [
-              StructureShiftDetector(),
-              MaRegimeDetector(),
-              LevelsDetector(
-                minTouches: 3,
-                minTouchGapBars: 4,
-                minTouchSpanBars: 10,
-                clusterTolAtr: 0.28,
-                approachAtr: 1.25,
-                tightApproachAtr: 0.7,
-                breakToleranceAtr: 0.35,
-              ),
-            ],
-        universeService = universeService ?? UniverseService(),
-        concurrency = concurrency ?? (kIsWeb ? 1 : 14);
+  }) : clients =
+           clients ??
+           {
+             ExchangeId.binance: BinanceClient(),
+             ExchangeId.bybit: BybitClient(),
+             ExchangeId.gate: GateClient(),
+           },
+       detectors =
+           detectors ??
+           [
+             StructureShiftDetector(),
+             MaRegimeDetector(),
+             LevelsDetector(
+               minTouches: 3,
+               minTouchGapBars: 4,
+               minTouchSpanBars: 10,
+               clusterTolAtr: 0.28,
+               approachAtr: 1.25,
+               tightApproachAtr: 0.7,
+               breakToleranceAtr: 0.35,
+             ),
+           ],
+       universeService = universeService ?? UniverseService(),
+       concurrency = concurrency ?? (kIsWeb ? 1 : 14);
 
   final Map<ExchangeId, ExchangeClient> clients;
   final List<Detector> detectors;
@@ -93,12 +95,13 @@ class MarketRepository {
     // Web: never fan-out to Gate/Bybit candle APIs (CORS relays → 429).
     final scanExchanges = kIsWeb
         ? (request.exchanges.contains(ExchangeId.binance)
-            ? {ExchangeId.binance}
-            : {request.exchanges.first})
+              ? {ExchangeId.binance}
+              : {request.exchanges.first})
         : request.exchanges;
 
-    final activeDetectors =
-        detectors.where((d) => request.detectors.contains(d.kind)).toList();
+    final activeDetectors = detectors
+        .where((d) => request.detectors.contains(d.kind))
+        .toList();
 
     // Web: keep weight low, but always include 15m/30m for Levels when selected.
     final timeframes = kIsWeb
@@ -130,8 +133,9 @@ class MarketRepository {
     lastUniverseSize = entries.length;
 
     if (kIsWeb && request.exchanges.length > 1) {
-      final also =
-          request.exchanges.where((e) => e != ExchangeId.binance).toList();
+      final also = request.exchanges
+          .where((e) => e != ExchangeId.binance)
+          .toList();
       for (var i = 0; i < entries.length; i++) {
         final e = entries[i];
         entries[i] = UniverseEntry(
@@ -156,8 +160,7 @@ class MarketRepository {
 
     Future<void> runJob(_Job job) async {
       if (isCancelled?.call() == true) return;
-      final exchange =
-          kIsWeb ? ExchangeId.binance : job.entry.primaryExchange;
+      final exchange = kIsWeb ? ExchangeId.binance : job.entry.primaryExchange;
       final client = clients[exchange];
       if (client == null) return;
 
@@ -205,11 +208,13 @@ class MarketRepository {
       } finally {
         done++;
         if (done == 1 || done % 2 == 0 || done == total) {
-          onProgress?.call(ScanProgress(
-            done: done,
-            total: total,
-            label: '${exchange.short} · ${sym.display} · ${job.tf.label}',
-          ));
+          onProgress?.call(
+            ScanProgress(
+              done: done,
+              total: total,
+              label: '${exchange.short} · ${sym.display} · ${job.tf.label}',
+            ),
+          );
         }
       }
     }
@@ -224,9 +229,7 @@ class MarketRepository {
       }
     }
 
-    await Future.wait(
-      List.generate(concurrency.clamp(1, 32), (_) => worker()),
-    );
+    await Future.wait(List.generate(concurrency.clamp(1, 32), (_) => worker()));
 
     if (lastFetchOk == 0 && lastFetchFail > 0) {
       throw StateError('ALL_FETCHES_FAILED');

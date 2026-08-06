@@ -1,11 +1,74 @@
 import '../l10n/app_lang.dart';
 
 class AppDisclaimers {
-  static String shortBanner(AppLang lang) => lang == AppLang.ru
-      ? 'Образовательные эвристики по графику. Не финансовый совет. Не брокер. Сделки не исполняются. Детекции могут ошибаться.'
-      : 'Educational simulation of chart heuristics only. Not financial advice. Not a broker. No orders are placed. Detections can be wrong.';
+  static String shortBanner(AppLang lang) => switch (lang) {
+    AppLang.es =>
+      'Heurísticas educativas de gráficos. No es asesoramiento financiero ni un bróker. No se ejecutan órdenes. Las detecciones pueden fallar.',
+    AppLang.pt =>
+      'Heurísticas educacionais de gráficos. Não é aconselhamento financeiro nem corretora. Nenhuma ordem é executada. As detecções podem falhar.',
+    AppLang.ru =>
+      'Образовательные эвристики по графику. Не финансовый совет. Не брокер. Сделки не исполняются. Детекции могут ошибаться.',
+    AppLang.en =>
+      'Educational simulation of chart heuristics only. Not financial advice. Not a broker. No orders are placed. Detections can be wrong.',
+  };
 
   static String full(AppLang lang) {
+    if (lang == AppLang.es) {
+      return '''
+STRUCTURE RADAR — AVISOS IMPORTANTES
+
+1) Finalidad educativa
+Structure Radar es una herramienta educativa de visualización de mercado. Resalta condiciones heurísticas de gráficos; no ofrece asesoramiento de inversión, trading, fiscal ni legal.
+
+2) No es un bróker / sin ejecución
+La aplicación no acepta depósitos, no custodia activos y no coloca, enruta ni ejecuta órdenes en ningún exchange. Cualquier operación ocurre en plataformas de terceros bajo tu propia responsabilidad.
+
+3) Sin promesa de rendimiento
+La estructura pasada, los indicadores y el score no predicen resultados futuros. Un score alto no es una probabilidad de ganancia y los patrones pueden invalidarse de inmediato.
+
+4) Límites de las heurísticas
+Los detectores son aproximaciones basadas en reglas. Pueden omitir setups válidos, crear falsos positivos, retrasarse o diferir entre exchanges y temporalidades. Revisa siempre el contexto del gráfico.
+
+5) Datos de terceros
+Las velas provienen de API públicas de Binance, Bybit y Gate.io para pares spot USDT. Los datos pueden retrasarse, ser incompletos, diferir entre plataformas o no estar disponibles temporalmente.
+
+6) Alertas de Telegram
+Los perfiles preparan la entrega opcional a Telegram. Hasta conectar el backend del bot y activar el opt-in, no se envían mensajes.
+
+7) Regulación y riesgo
+Las normas sobre cripto difieren por país. Eres responsable de cumplir la ley aplicable. Operar e invertir implica un riesgo sustancial de pérdida; nunca uses dinero que no puedas perder.
+
+Al usar Structure Radar confirmas que entiendes estos avisos.
+''';
+    }
+    if (lang == AppLang.pt) {
+      return '''
+STRUCTURE RADAR — AVISOS IMPORTANTES
+
+1) Finalidade educacional
+Structure Radar é uma ferramenta educacional de visualização de mercado. Ela destaca condições heurísticas de gráficos e não oferece aconselhamento de investimento, trade, tributário ou jurídico.
+
+2) Não é corretora / sem execução
+O app não aceita depósitos, não guarda ativos e não envia, roteia ou executa ordens em nenhuma corretora. Qualquer operação ocorre em plataformas de terceiros sob sua própria responsabilidade.
+
+3) Sem promessa de desempenho
+Estrutura passada, indicadores e score não preveem resultados futuros. Score alto não é probabilidade de lucro e padrões podem ser invalidados imediatamente.
+
+4) Limites das heurísticas
+Os detectores são aproximações baseadas em regras. Podem perder setups válidos, criar falsos positivos, atrasar ou divergir entre corretoras e períodos. Sempre confira o contexto do gráfico.
+
+5) Dados de terceiros
+Os candles vêm de APIs públicas da Binance, Bybit e Gate.io para pares spot USDT. Os dados podem atrasar, ser incompletos, diferir entre corretoras ou ficar indisponíveis.
+
+6) Alertas do Telegram
+Os perfis preparam a entrega opcional ao Telegram. Até o backend do bot ser conectado e você ativar o opt-in, nenhuma mensagem será enviada.
+
+7) Regulação e risco
+As regras para cripto variam por país. Você é responsável por cumprir as leis aplicáveis. Operar e investir envolvem risco substancial de perda; nunca use dinheiro que não pode perder.
+
+Ao usar o Structure Radar, você confirma que entende estes avisos.
+''';
+    }
     if (lang == AppLang.ru) {
       return '''
 STRUCTURE RADAR — ВАЖНЫЕ ДИСКЛЕЙМЕРЫ

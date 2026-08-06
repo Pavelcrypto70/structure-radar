@@ -29,7 +29,9 @@ class FirstRunCoach {
       enableDrag: false,
       backgroundColor: SrColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(SrRadius.sheet)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(SrRadius.sheet),
+        ),
       ),
       builder: (_) => _FirstRunBody(t: t),
     );

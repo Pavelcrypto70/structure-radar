@@ -24,25 +24,25 @@ class ExchangeException implements Exception {
 }
 
 String binanceInterval(AppTimeframe tf) => switch (tf) {
-      AppTimeframe.m15 => '15m',
-      AppTimeframe.m30 => '30m',
-      AppTimeframe.h1 => '1h',
-      AppTimeframe.h4 => '4h',
-      AppTimeframe.d1 => '1d',
-    };
+  AppTimeframe.m15 => '15m',
+  AppTimeframe.m30 => '30m',
+  AppTimeframe.h1 => '1h',
+  AppTimeframe.h4 => '4h',
+  AppTimeframe.d1 => '1d',
+};
 
 String bybitInterval(AppTimeframe tf) => switch (tf) {
-      AppTimeframe.m15 => '15',
-      AppTimeframe.m30 => '30',
-      AppTimeframe.h1 => '60',
-      AppTimeframe.h4 => '240',
-      AppTimeframe.d1 => 'D',
-    };
+  AppTimeframe.m15 => '15',
+  AppTimeframe.m30 => '30',
+  AppTimeframe.h1 => '60',
+  AppTimeframe.h4 => '240',
+  AppTimeframe.d1 => 'D',
+};
 
 String gateInterval(AppTimeframe tf) => switch (tf) {
-      AppTimeframe.m15 => '15m',
-      AppTimeframe.m30 => '30m',
-      AppTimeframe.h1 => '1h',
-      AppTimeframe.h4 => '4h',
-      AppTimeframe.d1 => '1d',
-    };
+  AppTimeframe.m15 => '15m',
+  AppTimeframe.m30 => '30m',
+  AppTimeframe.h1 => '1h',
+  AppTimeframe.h4 => '4h',
+  AppTimeframe.d1 => '1d',
+};

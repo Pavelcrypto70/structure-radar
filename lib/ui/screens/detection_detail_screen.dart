@@ -197,9 +197,9 @@ class _DetectionDetailScreenState extends State<DetectionDetailScreen> {
             const SizedBox(height: 8),
             Text(
               _loadError!,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: AppTokens.bear,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: AppTokens.bear),
             ),
           ],
           const SizedBox(height: 16),
@@ -213,7 +213,10 @@ class _DetectionDetailScreenState extends State<DetectionDetailScreen> {
                 children: [
                   const Text('·  ', style: TextStyle(color: AppTokens.accent)),
                   Expanded(
-                    child: Text(b, style: Theme.of(context).textTheme.bodyMedium),
+                    child: Text(
+                      b,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
                 ],
               ),
@@ -223,11 +226,17 @@ class _DetectionDetailScreenState extends State<DetectionDetailScreen> {
             const SizedBox(height: 24),
             Text(t.mechanic, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(glossary['mechanica']!, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              glossary['mechanica']!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             const SizedBox(height: 16),
             Text(t.limitations, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
-            Text(glossary['limitations']!, style: Theme.of(context).textTheme.bodyMedium),
+            Text(
+              glossary['limitations']!,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ],
           const SizedBox(height: 24),
           Text(t.notAdviceFooter, style: Theme.of(context).textTheme.bodySmall),

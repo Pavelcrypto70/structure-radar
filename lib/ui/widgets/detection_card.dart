@@ -62,9 +62,7 @@ class DetectionCard extends StatelessWidget {
                           children: [
                             Text(
                               t.detectorShort(detection.kind.name),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .labelLarge
+                              style: Theme.of(context).textTheme.labelLarge
                                   ?.copyWith(
                                     color: AppTokens.accent,
                                     fontSize: 11,
@@ -83,20 +81,21 @@ class DetectionCard extends StatelessWidget {
                         if (detection.symbol.alsoListedOn.isNotEmpty) ...[
                           const SizedBox(height: 4),
                           Text(
-                            detection.symbol.alsoOnLabel(ru: lang == AppLang.ru),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppTokens.textMuted,
-                                ),
+                            detection.symbol.alsoOnLabel(
+                              ru: lang == AppLang.ru,
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppTokens.textMuted),
                           ),
                         ],
                         const SizedBox(height: 6),
                         Text(
                           title,
-                          style:
-                              Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                    color: AppTokens.textPrimary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(
+                                color: AppTokens.textPrimary,
+                                fontWeight: FontWeight.w600,
+                              ),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -150,9 +149,9 @@ class _ScorePill extends StatelessWidget {
           Text(
             score.toStringAsFixed(0),
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: AppTokens.textPrimary,
-                  fontSize: 12,
-                ),
+              color: AppTokens.textPrimary,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
@@ -193,9 +192,9 @@ class FilterChipToggle extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: selected ? AppTokens.accent : AppTokens.textSecondary,
-                  fontSize: 12,
-                ),
+              color: selected ? AppTokens.accent : AppTokens.textSecondary,
+              fontSize: 12,
+            ),
           ),
         ),
       ),
@@ -217,11 +216,7 @@ class AmbientPanel extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF151922),
-            Color(0xFF10141B),
-            Color(0xFF1A1712),
-          ],
+          colors: [Color(0xFF151922), Color(0xFF10141B), Color(0xFF1A1712)],
         ),
         border: Border.all(color: AppTokens.strokeSoft),
       ),

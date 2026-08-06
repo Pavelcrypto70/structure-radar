@@ -22,7 +22,10 @@ class ResultsScreen extends StatelessWidget {
       return ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          Text(t.resultsTitle, style: Theme.of(context).textTheme.headlineMedium),
+          Text(
+            t.resultsTitle,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
           const SizedBox(height: 16),
           SrEmptyState(
             icon: Icons.view_list_outlined,
@@ -55,9 +58,9 @@ class ResultsScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   t.heuristicsOnly,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: SrColors.warn,
-                      ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelMedium?.copyWith(color: SrColors.warn),
                 ),
                 const SizedBox(height: 14),
                 SingleChildScrollView(

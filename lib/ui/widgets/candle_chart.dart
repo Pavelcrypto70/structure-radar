@@ -159,7 +159,13 @@ class _CandlePainter extends CustomPainter {
       final e20 = emaSeries(closes, 20);
       final e50 = emaSeries(closes, 50);
       _drawLine(canvas, size, e20, y, AppTokens.info.withValues(alpha: 0.85));
-      _drawLine(canvas, size, e50, y, AppTokens.accentDeep.withValues(alpha: 0.8));
+      _drawLine(
+        canvas,
+        size,
+        e50,
+        y,
+        AppTokens.accentDeep.withValues(alpha: 0.8),
+      );
     }
 
     final bodyW = (slot * 0.58).clamp(1.4, 6.5);
@@ -196,10 +202,7 @@ class _CandlePainter extends CustomPainter {
       ..shader = LinearGradient(
         begin: Alignment.centerLeft,
         end: Alignment.centerRight,
-        colors: [
-          Colors.transparent,
-          washColor.withValues(alpha: 0.07),
-        ],
+        colors: [Colors.transparent, washColor.withValues(alpha: 0.07)],
       ).createShader(Offset.zero & size);
     canvas.drawRect(Offset.zero & size, wash);
   }

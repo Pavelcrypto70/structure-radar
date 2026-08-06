@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
-import '../../l10n/app_lang.dart';
 import '../../state/locale_controller.dart';
 import '../../theme/tokens.dart';
 
@@ -43,8 +42,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final locale = context.watch<LocaleController>();
-    final t = locale.t;
+    final t = context.watch<LocaleController>().t;
     final reduce = MediaQuery.disableAnimationsOf(context);
 
     return Scaffold(
@@ -66,26 +64,9 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Text(
-                        t.splashMark,
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      const Spacer(),
-                      TextButton(
-                        onPressed: () => locale.setLang(
-                          locale.lang == AppLang.ru ? AppLang.en : AppLang.ru,
-                        ),
-                        child: Text(
-                          locale.lang == AppLang.ru ? 'EN' : 'RU',
-                          style: const TextStyle(
-                            color: SrColors.accent,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    t.splashMark,
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                   const Spacer(),
                   FadeTransition(
@@ -93,16 +74,19 @@ class _SplashScreenState extends State<SplashScreen>
                         ? const AlwaysStoppedAnimation(1)
                         : CurvedAnimation(
                             parent: _enter,
-                            curve: const Interval(0.2, 0.7, curve: Curves.easeOut),
+                            curve: const Interval(
+                              0.2,
+                              0.7,
+                              curve: Curves.easeOut,
+                            ),
                           ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           t.splashTag,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: SrColors.accent,
-                              ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: SrColors.accent),
                         ),
                         const SizedBox(height: 12),
                         Text(
@@ -129,10 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
-                    t.eduOnly,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(t.eduOnly, style: Theme.of(context).textTheme.bodySmall),
                 ],
               ),
             ),

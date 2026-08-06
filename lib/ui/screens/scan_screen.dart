@@ -38,21 +38,27 @@ class ScanScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  SrKicker(t.isRu ? 'РАДАР' : 'RADAR'),
+                  SrKicker(t.tabRadar.toUpperCase()),
                   const Spacer(),
                   SrModeBadge(live: !kIsWeb),
                 ],
               ),
               const SizedBox(height: 10),
-              Text(t.scanTitle, style: Theme.of(context).textTheme.headlineMedium),
+              Text(
+                t.scanTitle,
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
               const SizedBox(height: 8),
-              Text(t.scanSubtitle, style: Theme.of(context).textTheme.bodyMedium),
+              Text(
+                t.scanSubtitle,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
               const SizedBox(height: 10),
               Text(
                 t.etaHint,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: SrColors.accent,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: SrColors.accent),
               ),
             ],
           ),
@@ -116,9 +122,9 @@ class ScanScreen extends StatelessWidget {
             const Spacer(),
             Text(
               c.minScore.toStringAsFixed(0),
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                    color: SrColors.accent,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.labelLarge?.copyWith(color: SrColors.accent),
             ),
           ],
         ),
@@ -164,7 +170,9 @@ class ScanScreen extends StatelessWidget {
           const SizedBox(height: 18),
           SrSectionTitle('${t.latestResults} (${c.results.length})'),
           const SizedBox(height: 10),
-          ...c.results.take(6).map(
+          ...c.results
+              .take(6)
+              .map(
                 (d) => Padding(
                   padding: const EdgeInsets.only(bottom: 24),
                   child: DetectionCard(
@@ -175,7 +183,10 @@ class ScanScreen extends StatelessWidget {
                 ),
               ),
           if (c.results.length > 6)
-            Text(t.openResultsHint, style: Theme.of(context).textTheme.bodySmall),
+            Text(
+              t.openResultsHint,
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
         ],
       ],
     );

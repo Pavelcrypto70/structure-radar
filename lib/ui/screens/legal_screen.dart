@@ -19,11 +19,16 @@ class LegalScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 40),
         children: [
-          Text(t.legalHeading, style: Theme.of(context).textTheme.headlineSmall),
+          Text(
+            t.legalHeading,
+            style: Theme.of(context).textTheme.headlineSmall,
+          ),
           const SizedBox(height: 16),
           Text(
             AppDisclaimers.full(locale.lang),
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(height: 1.45),
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(height: 1.45),
           ),
         ],
       ),

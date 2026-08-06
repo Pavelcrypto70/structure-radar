@@ -5,11 +5,7 @@ import '../../theme/tokens.dart';
 import 'sr_chrome.dart';
 
 class CoachBanner extends StatelessWidget {
-  const CoachBanner({
-    super.key,
-    required this.t,
-    required this.onDismiss,
-  });
+  const CoachBanner({super.key, required this.t, required this.onDismiss});
 
   final L10n t;
   final VoidCallback onDismiss;
@@ -28,7 +24,10 @@ class CoachBanner extends StatelessWidget {
               children: [
                 SrKicker(t.coachTitle),
                 const SizedBox(height: 6),
-                Text(t.coachBody, style: Theme.of(context).textTheme.bodyMedium),
+                Text(
+                  t.coachBody,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ],
             ),
           ),
@@ -36,7 +35,10 @@ class CoachBanner extends StatelessWidget {
             onPressed: onDismiss,
             child: Text(
               t.coachDismiss,
-              style: const TextStyle(color: SrColors.accent, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                color: SrColors.accent,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

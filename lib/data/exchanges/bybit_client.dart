@@ -16,13 +16,15 @@ class BybitClient implements ExchangeClient {
 
   @override
   Future<List<MarketSymbol>> listUsdtSpotPairs() async {
-    final infoUri = webSafeUri(Uri.https('api.bybit.com', '/v5/market/instruments-info', {
-      'category': 'spot',
-      'limit': '1000',
-    }));
-    final tickUri = webSafeUri(Uri.https('api.bybit.com', '/v5/market/tickers', {
-      'category': 'spot',
-    }));
+    final infoUri = webSafeUri(
+      Uri.https('api.bybit.com', '/v5/market/instruments-info', {
+        'category': 'spot',
+        'limit': '1000',
+      }),
+    );
+    final tickUri = webSafeUri(
+      Uri.https('api.bybit.com', '/v5/market/tickers', {'category': 'spot'}),
+    );
     final results = await Future.wait([
       _http.get(infoUri).timeout(const Duration(seconds: 40)),
       _http.get(tickUri).timeout(const Duration(seconds: 40)),
@@ -38,8 +40,9 @@ class BybitClient implements ExchangeClient {
       throw ExchangeException(id, '${infoBody['retMsg']}');
     }
     final list =
-        (infoBody['result'] as Map<String, dynamic>)['list'] as List<dynamic>? ??
-            [];
+        (infoBody['result'] as Map<String, dynamic>)['list']
+            as List<dynamic>? ??
+        [];
     final tradable = <String, String>{}; // symbol -> base
     for (final row in list) {
       final m = row as Map<String, dynamic>;
@@ -53,18 +56,23 @@ class BybitClient implements ExchangeClient {
     // Bybit instruments-info is paginated; fetch remaining pages if needed.
     var next = (infoBody['result'] as Map<String, dynamic>)['nextPageCursor'];
     while (next != null && '$next'.isNotEmpty) {
-      final pageUri = webSafeUri(Uri.https('api.bybit.com', '/v5/market/instruments-info', {
-        'category': 'spot',
-        'limit': '1000',
-        'cursor': '$next',
-      }));
-      final pageRes = await _http.get(pageUri).timeout(const Duration(seconds: 40));
+      final pageUri = webSafeUri(
+        Uri.https('api.bybit.com', '/v5/market/instruments-info', {
+          'category': 'spot',
+          'limit': '1000',
+          'cursor': '$next',
+        }),
+      );
+      final pageRes = await _http
+          .get(pageUri)
+          .timeout(const Duration(seconds: 40));
       if (pageRes.statusCode != 200) break;
       final pageBody = jsonDecode(pageRes.body) as Map<String, dynamic>;
       if ('${pageBody['retCode']}' != '0') break;
       final pageList =
-          (pageBody['result'] as Map<String, dynamic>)['list'] as List<dynamic>? ??
-              [];
+          (pageBody['result'] as Map<String, dynamic>)['list']
+              as List<dynamic>? ??
+          [];
       for (final row in pageList) {
         final m = row as Map<String, dynamic>;
         if (m['status'] != 'Trading') continue;
@@ -81,8 +89,9 @@ class BybitClient implements ExchangeClient {
       throw ExchangeException(id, '${tickBody['retMsg']}');
     }
     final ticks =
-        (tickBody['result'] as Map<String, dynamic>)['list'] as List<dynamic>? ??
-            [];
+        (tickBody['result'] as Map<String, dynamic>)['list']
+            as List<dynamic>? ??
+        [];
     final out = <MarketSymbol>[];
     for (final row in ticks) {
       final m = row as Map<String, dynamic>;
@@ -111,12 +120,14 @@ class BybitClient implements ExchangeClient {
     required AppTimeframe timeframe,
     int limit = 280,
   }) async {
-    final uri = webSafeUri(Uri.https('api.bybit.com', '/v5/market/kline', {
-      'category': 'spot',
-      'symbol': symbol.id,
-      'interval': bybitInterval(timeframe),
-      'limit': '$limit',
-    }));
+    final uri = webSafeUri(
+      Uri.https('api.bybit.com', '/v5/market/kline', {
+        'category': 'spot',
+        'symbol': symbol.id,
+        'interval': bybitInterval(timeframe),
+        'limit': '$limit',
+      }),
+    );
     final res = await _http.get(uri).timeout(const Duration(seconds: 20));
     if (res.statusCode != 200) {
       throw ExchangeException(id, 'HTTP ${res.statusCode}');
@@ -127,7 +138,7 @@ class BybitClient implements ExchangeClient {
     }
     final list =
         (body['result'] as Map<String, dynamic>)['list'] as List<dynamic>? ??
-            [];
+        [];
     final candles = list.map((row) {
       final r = row as List<dynamic>;
       return Candle(

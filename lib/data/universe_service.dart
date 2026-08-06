@@ -23,17 +23,15 @@ class ScanUniverse {
 }
 
 class UniverseEntry {
-  const UniverseEntry({
-    required this.primaryExchange,
-    required this.symbol,
-  });
+  const UniverseEntry({required this.primaryExchange, required this.symbol});
 
   final ExchangeId primaryExchange;
   final MarketSymbol symbol;
 }
 
 class UniverseService {
-  UniverseService({http.Client? httpClient}) : _http = httpClient ?? http.Client();
+  UniverseService({http.Client? httpClient})
+    : _http = httpClient ?? http.Client();
 
   final http.Client _http;
 
@@ -124,15 +122,17 @@ class UniverseService {
     final top = await fetchTopMarketCapBases(15);
     final exclude = {...top, ...pegBases};
     final listings = <ExchangeId, List<MarketSymbol>>{};
-    await Future.wait(exchanges.map((ex) async {
-      final client = clients[ex];
-      if (client == null) return;
-      try {
-        listings[ex] = await client.listUsdtSpotPairs();
-      } catch (_) {
-        listings[ex] = const [];
-      }
-    }));
+    await Future.wait(
+      exchanges.map((ex) async {
+        final client = clients[ex];
+        if (client == null) return;
+        try {
+          listings[ex] = await client.listUsdtSpotPairs();
+        } catch (_) {
+          listings[ex] = const [];
+        }
+      }),
+    );
 
     var raw = 0;
     final byBase = <String, Map<ExchangeId, MarketSymbol>>{};

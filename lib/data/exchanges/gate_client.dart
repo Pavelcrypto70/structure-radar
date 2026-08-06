@@ -18,8 +18,12 @@ class GateClient implements ExchangeClient {
 
   @override
   Future<List<MarketSymbol>> listUsdtSpotPairs() async {
-    final pairsUri = webSafeUri(Uri.https('api.gateio.ws', '/api/v4/spot/currency_pairs'));
-    final tickUri = webSafeUri(Uri.https('api.gateio.ws', '/api/v4/spot/tickers'));
+    final pairsUri = webSafeUri(
+      Uri.https('api.gateio.ws', '/api/v4/spot/currency_pairs'),
+    );
+    final tickUri = webSafeUri(
+      Uri.https('api.gateio.ws', '/api/v4/spot/tickers'),
+    );
     final results = await Future.wait([
       _http.get(pairsUri).timeout(const Duration(seconds: 40)),
       _http.get(tickUri).timeout(const Duration(seconds: 40)),
@@ -70,11 +74,13 @@ class GateClient implements ExchangeClient {
     required AppTimeframe timeframe,
     int limit = 280,
   }) async {
-    final uri = webSafeUri(Uri.https('api.gateio.ws', '/api/v4/spot/candlesticks', {
-      'currency_pair': _pair(symbol),
-      'interval': gateInterval(timeframe),
-      'limit': '$limit',
-    }));
+    final uri = webSafeUri(
+      Uri.https('api.gateio.ws', '/api/v4/spot/candlesticks', {
+        'currency_pair': _pair(symbol),
+        'interval': gateInterval(timeframe),
+        'limit': '$limit',
+      }),
+    );
     final res = await _http.get(uri).timeout(const Duration(seconds: 20));
     if (res.statusCode != 200) {
       throw ExchangeException(id, 'HTTP ${res.statusCode}');

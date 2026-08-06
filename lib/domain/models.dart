@@ -1,93 +1,72 @@
-enum ExchangeId {
-  binance,
-  bybit,
-  gate,
-}
+enum ExchangeId { binance, bybit, gate }
 
 extension ExchangeIdX on ExchangeId {
   String get label => switch (this) {
-        ExchangeId.binance => 'Binance',
-        ExchangeId.bybit => 'Bybit',
-        ExchangeId.gate => 'Gate.io',
-      };
+    ExchangeId.binance => 'Binance',
+    ExchangeId.bybit => 'Bybit',
+    ExchangeId.gate => 'Gate.io',
+  };
 
   String get short => switch (this) {
-        ExchangeId.binance => 'BIN',
-        ExchangeId.bybit => 'BYB',
-        ExchangeId.gate => 'GATE',
-      };
+    ExchangeId.binance => 'BIN',
+    ExchangeId.bybit => 'BYB',
+    ExchangeId.gate => 'GATE',
+  };
 }
 
-enum AppTimeframe {
-  m15,
-  m30,
-  h1,
-  h4,
-  d1,
-}
+enum AppTimeframe { m15, m30, h1, h4, d1 }
 
 extension AppTimeframeX on AppTimeframe {
   String get label => switch (this) {
-        AppTimeframe.m15 => '15m',
-        AppTimeframe.m30 => '30m',
-        AppTimeframe.h1 => '1H',
-        AppTimeframe.h4 => '4H',
-        AppTimeframe.d1 => '1D',
-      };
+    AppTimeframe.m15 => '15m',
+    AppTimeframe.m30 => '30m',
+    AppTimeframe.h1 => '1H',
+    AppTimeframe.h4 => '4H',
+    AppTimeframe.d1 => '1D',
+  };
 
   String get glossaryKey => switch (this) {
-        AppTimeframe.m15 => 'tf_15m',
-        AppTimeframe.m30 => 'tf_30m',
-        AppTimeframe.h1 => 'tf_1h',
-        AppTimeframe.h4 => 'tf_4h',
-        AppTimeframe.d1 => 'tf_1d',
-      };
+    AppTimeframe.m15 => 'tf_15m',
+    AppTimeframe.m30 => 'tf_30m',
+    AppTimeframe.h1 => 'tf_1h',
+    AppTimeframe.h4 => 'tf_4h',
+    AppTimeframe.d1 => 'tf_1d',
+  };
 
   Duration get barDuration => switch (this) {
-        AppTimeframe.m15 => const Duration(minutes: 15),
-        AppTimeframe.m30 => const Duration(minutes: 30),
-        AppTimeframe.h1 => const Duration(hours: 1),
-        AppTimeframe.h4 => const Duration(hours: 4),
-        AppTimeframe.d1 => const Duration(days: 1),
-      };
+    AppTimeframe.m15 => const Duration(minutes: 15),
+    AppTimeframe.m30 => const Duration(minutes: 30),
+    AppTimeframe.h1 => const Duration(hours: 1),
+    AppTimeframe.h4 => const Duration(hours: 4),
+    AppTimeframe.d1 => const Duration(days: 1),
+  };
 }
 
-enum DetectorKind {
-  structureShift,
-  maRegime,
-  levels,
-}
+enum DetectorKind { structureShift, maRegime, levels }
 
 extension DetectorKindX on DetectorKind {
   String get label => switch (this) {
-        DetectorKind.structureShift => 'Structure Shift',
-        DetectorKind.maRegime => 'MA Regime',
-        DetectorKind.levels => 'Support / Resistance',
-      };
+    DetectorKind.structureShift => 'Structure Shift',
+    DetectorKind.maRegime => 'MA Regime',
+    DetectorKind.levels => 'Support / Resistance',
+  };
 
   String get short => switch (this) {
-        DetectorKind.structureShift => 'STRUCTURE',
-        DetectorKind.maRegime => 'MA REGIME',
-        DetectorKind.levels => 'LEVELS',
-      };
+    DetectorKind.structureShift => 'STRUCTURE',
+    DetectorKind.maRegime => 'MA REGIME',
+    DetectorKind.levels => 'LEVELS',
+  };
 
   String get glossaryKey => switch (this) {
-        DetectorKind.structureShift => 'det_structure',
-        DetectorKind.maRegime => 'det_ma',
-        DetectorKind.levels => 'det_levels',
-      };
+    DetectorKind.structureShift => 'det_structure',
+    DetectorKind.maRegime => 'det_ma',
+    DetectorKind.levels => 'det_levels',
+  };
 }
 
-enum StructureBias {
-  bullish,
-  bearish,
-  neutral,
-}
+enum StructureBias { bullish, bearish, neutral }
 
-enum LevelSide {
-  support,
-  resistance,
-}
+enum LevelSide { support, resistance }
 
 class Candle {
   const Candle({
@@ -150,11 +129,7 @@ class MarketSymbol {
   }
 }
 
-enum LevelPattern {
-  horizontal,
-  ascendingTriangle,
-  descendingTriangle,
-}
+enum LevelPattern { horizontal, ascendingTriangle, descendingTriangle }
 
 class LevelZone {
   const LevelZone({
@@ -187,12 +162,12 @@ class LevelZone {
 
   /// Price band only — safe to overlay on another timeframe chart.
   LevelZone get priceBandOnly => LevelZone(
-        price: price,
-        side: side,
-        touches: touches,
-        strength: strength,
-        pattern: LevelPattern.horizontal,
-      );
+    price: price,
+    side: side,
+    touches: touches,
+    strength: strength,
+    pattern: LevelPattern.horizontal,
+  );
 }
 
 class Detection {
@@ -284,13 +259,13 @@ class AlertProfile {
   final int? quietHoursEnd;
 
   static AlertProfile defaults(String linkCode) => AlertProfile(
-        enabledDetectors: DetectorKind.values.toSet(),
-        timeframes: AppTimeframe.values.toSet(),
-        exchanges: ExchangeId.values.toSet(),
-        minScore: 65,
-        telegramOptIn: false,
-        linkCode: linkCode,
-      );
+    enabledDetectors: DetectorKind.values.toSet(),
+    timeframes: AppTimeframe.values.toSet(),
+    exchanges: ExchangeId.values.toSet(),
+    minScore: 65,
+    telegramOptIn: false,
+    linkCode: linkCode,
+  );
 
   AlertProfile copyWith({
     String? displayName,
@@ -312,35 +287,37 @@ class AlertProfile {
       minScore: minScore ?? this.minScore,
       telegramOptIn: telegramOptIn ?? this.telegramOptIn,
       linkCode: linkCode ?? this.linkCode,
-      quietHoursStart:
-          clearQuietHours ? null : (quietHoursStart ?? this.quietHoursStart),
-      quietHoursEnd:
-          clearQuietHours ? null : (quietHoursEnd ?? this.quietHoursEnd),
+      quietHoursStart: clearQuietHours
+          ? null
+          : (quietHoursStart ?? this.quietHoursStart),
+      quietHoursEnd: clearQuietHours
+          ? null
+          : (quietHoursEnd ?? this.quietHoursEnd),
     );
   }
 
   Map<String, dynamic> toJson() => {
-        'displayName': displayName,
-        'enabledDetectors': enabledDetectors.map((e) => e.name).toList(),
-        'timeframes': timeframes.map((e) => e.name).toList(),
-        'exchanges': exchanges.map((e) => e.name).toList(),
-        'minScore': minScore,
-        'telegramOptIn': telegramOptIn,
-        'linkCode': linkCode,
-        'quietHoursStart': quietHoursStart,
-        'quietHoursEnd': quietHoursEnd,
-      };
+    'displayName': displayName,
+    'enabledDetectors': enabledDetectors.map((e) => e.name).toList(),
+    'timeframes': timeframes.map((e) => e.name).toList(),
+    'exchanges': exchanges.map((e) => e.name).toList(),
+    'minScore': minScore,
+    'telegramOptIn': telegramOptIn,
+    'linkCode': linkCode,
+    'quietHoursStart': quietHoursStart,
+    'quietHoursEnd': quietHoursEnd,
+  };
 
   factory AlertProfile.fromJson(Map<String, dynamic> json) {
     T parseEnum<T extends Enum>(List<T> values, String name, T fallback) {
-      return values.firstWhere(
-        (e) => e.name == name,
-        orElse: () => fallback,
-      );
+      return values.firstWhere((e) => e.name == name, orElse: () => fallback);
     }
 
     final detectors = (json['enabledDetectors'] as List? ?? [])
-        .map((e) => parseEnum(DetectorKind.values, '$e', DetectorKind.structureShift))
+        .map(
+          (e) =>
+              parseEnum(DetectorKind.values, '$e', DetectorKind.structureShift),
+        )
         .toSet();
     final tfs = (json['timeframes'] as List? ?? [])
         .map((e) => parseEnum(AppTimeframe.values, '$e', AppTimeframe.h4))
@@ -353,8 +330,9 @@ class AlertProfile {
 
     return AlertProfile(
       displayName: json['displayName'] as String? ?? 'Primary',
-      enabledDetectors:
-          detectors.isEmpty ? DetectorKind.values.toSet() : detectors,
+      enabledDetectors: detectors.isEmpty
+          ? DetectorKind.values.toSet()
+          : detectors,
       timeframes: tfs.isEmpty ? AppTimeframe.values.toSet() : tfs,
       exchanges: exs.isEmpty ? ExchangeId.values.toSet() : exs,
       minScore: (json['minScore'] as num?)?.toDouble() ?? 65,
@@ -367,15 +345,15 @@ class AlertProfile {
 
   /// Payload shape reserved for the future Telegram worker.
   Map<String, dynamic> toTelegramBridgePayload() => {
-        'schema': 'structure_radar.alert_profile.v1',
-        'profile': toJson(),
-        'delivery': {
-          'channel': 'telegram',
-          'status': telegramOptIn ? 'armed_local' : 'disabled',
-          'note':
-              'Bot delivery is prepared in-app; outbound Telegram send is not live yet.',
-        },
-      };
+    'schema': 'structure_radar.alert_profile.v1',
+    'profile': toJson(),
+    'delivery': {
+      'channel': 'telegram',
+      'status': telegramOptIn ? 'armed_local' : 'disabled',
+      'note':
+          'Bot delivery is prepared in-app; outbound Telegram send is not live yet.',
+    },
+  };
 }
 
 /// Queued alert event ready for a future bot worker.

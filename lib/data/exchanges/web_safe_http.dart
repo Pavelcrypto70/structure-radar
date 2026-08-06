@@ -16,7 +16,9 @@ Uri webSafeUri(Uri target) {
       scheme: 'https',
       host: 'data-api.binance.vision',
       path: target.path.replaceFirst('/fapi/', '/api/'),
-      queryParameters: target.queryParameters.isEmpty ? null : target.queryParameters,
+      queryParameters: target.queryParameters.isEmpty
+          ? null
+          : target.queryParameters,
     );
   }
 

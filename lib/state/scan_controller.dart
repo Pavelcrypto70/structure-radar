@@ -13,8 +13,8 @@ class ScanController extends ChangeNotifier {
     MarketRepository? repository,
     AlertProfileStore? store,
     TelegramBridge? bridge,
-  })  : _repository = repository ?? MarketRepository(),
-        _store = store ?? AlertProfileStore() {
+  }) : _repository = repository ?? MarketRepository(),
+       _store = store ?? AlertProfileStore() {
     _bridge = bridge ?? TelegramBridge(_store);
   }
 
@@ -89,6 +89,12 @@ class ScanController extends ChangeNotifier {
   Future<void> acceptDisclaimer() async {
     await _store.setDisclaimerAccepted(true);
     disclaimerAccepted = true;
+    notifyListeners();
+  }
+
+  Future<void> clearDisclaimerAccepted() async {
+    await _store.setDisclaimerAccepted(false);
+    disclaimerAccepted = false;
     notifyListeners();
   }
 
@@ -176,8 +182,8 @@ class ScanController extends ChangeNotifier {
             label: p.label == 'Done'
                 ? t.done
                 : p.label.startsWith('Universe')
-                    ? t.buildingUniverse
-                    : p.label,
+                ? t.buildingUniverse
+                : p.label,
           );
           notifyListeners();
         },

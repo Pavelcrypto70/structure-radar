@@ -57,7 +57,10 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
         bodyLarge: body.bodyLarge?.copyWith(color: SrColors.text, height: 1.4),
-        bodyMedium: body.bodyMedium?.copyWith(color: SrColors.muted, height: 1.45),
+        bodyMedium: body.bodyMedium?.copyWith(
+          color: SrColors.muted,
+          height: 1.45,
+        ),
         bodySmall: body.bodySmall?.copyWith(color: SrColors.faint, height: 1.4),
         labelLarge: mono.labelLarge?.copyWith(
           color: SrColors.text,
@@ -98,7 +101,10 @@ class AppTheme {
           minimumSize: const Size.fromHeight(52),
           backgroundColor: SrColors.accent,
           foregroundColor: SrColors.onAccent,
-          textStyle: const TextStyle(fontWeight: FontWeight.w800, letterSpacing: 0.4),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(SrRadius.md),
           ),
@@ -107,7 +113,9 @@ class AppTheme {
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: SrColors.surface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(SrRadius.sheet)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(SrRadius.sheet),
+          ),
         ),
       ),
       snackBarTheme: SnackBarThemeData(

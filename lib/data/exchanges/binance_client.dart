@@ -7,7 +7,8 @@ import 'exchange_client.dart';
 import 'web_safe_http.dart';
 
 class BinanceClient implements ExchangeClient {
-  BinanceClient({http.Client? httpClient}) : _http = httpClient ?? http.Client();
+  BinanceClient({http.Client? httpClient})
+    : _http = httpClient ?? http.Client();
 
   final http.Client _http;
 
@@ -17,7 +18,9 @@ class BinanceClient implements ExchangeClient {
   @override
   Future<List<MarketSymbol>> listUsdtSpotPairs() async {
     // Ticker alone is enough and much lighter than exchangeInfo+ticker (avoids 429).
-    final tickUri = webSafeUri(Uri.https('api.binance.com', '/api/v3/ticker/24hr'));
+    final tickUri = webSafeUri(
+      Uri.https('api.binance.com', '/api/v3/ticker/24hr'),
+    );
     final res = await _http.get(tickUri).timeout(const Duration(seconds: 40));
     if (res.statusCode != 200) {
       throw ExchangeException(id, 'HTTP ${res.statusCode}');
@@ -52,11 +55,13 @@ class BinanceClient implements ExchangeClient {
     required AppTimeframe timeframe,
     int limit = 280,
   }) async {
-    final uri = webSafeUri(Uri.https('api.binance.com', '/api/v3/klines', {
-      'symbol': symbol.id,
-      'interval': binanceInterval(timeframe),
-      'limit': '$limit',
-    }));
+    final uri = webSafeUri(
+      Uri.https('api.binance.com', '/api/v3/klines', {
+        'symbol': symbol.id,
+        'interval': binanceInterval(timeframe),
+        'limit': '$limit',
+      }),
+    );
     final res = await _http.get(uri).timeout(const Duration(seconds: 20));
     if (res.statusCode == 429) {
       throw ExchangeException(id, 'HTTP 429 Too Many Requests');

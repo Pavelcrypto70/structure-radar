@@ -166,7 +166,8 @@ class LevelsDetector implements Detector {
             'Level: ${_fmt(cand.price)}',
             'Touches: ${cand.touchIndexes.length} (span ${cand.touchIndexes.last - cand.touchIndexes.first} bars)',
             'Distance ≈ ${prox.toStringAsFixed(2)} × ATR',
-            if (triangle != null) 'Triangle squeeze detected on opposing swings.',
+            if (triangle != null)
+              'Triangle squeeze detected on opposing swings.',
             'Heuristic — confirm rejection/break on the chart.',
           ],
         ),
@@ -186,9 +187,8 @@ class LevelsDetector implements Detector {
   }) {
     if (pivotIndexes.length < minTouches) return const [];
 
-    final points = [
-      for (final i in pivotIndexes) (i, priceOf(candles[i])),
-    ]..sort((a, b) => a.$2.compareTo(b.$2));
+    final points = [for (final i in pivotIndexes) (i, priceOf(candles[i]))]
+      ..sort((a, b) => a.$2.compareTo(b.$2));
 
     final clusters = <List<(int, double)>>[];
     for (final p in points) {
@@ -412,9 +412,7 @@ class LevelsDetector implements Detector {
     for (final h in hits) {
       final p = h.level?.price;
       if (p == null) continue;
-      final clash = kept.any(
-        (k) => (k.level!.price - p).abs() < atrVal * 0.35,
-      );
+      final clash = kept.any((k) => (k.level!.price - p).abs() < atrVal * 0.35);
       if (!clash) kept.add(h);
     }
     return kept;

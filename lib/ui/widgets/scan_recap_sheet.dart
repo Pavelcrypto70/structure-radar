@@ -42,13 +42,16 @@ Future<void> showScanRecapSheet(
             const SizedBox(height: 16),
             SrKicker(t.recapKicker),
             const SizedBox(height: 10),
-            Text(t.recapTitle, style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              t.recapTitle,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
                   child: SrStatTile(
-                    label: t.isRu ? 'ХИТЫ' : 'HITS',
+                    label: t.hitsLabel,
                     value: SrFormat.score(hits),
                     sub: t.recapHits(hits),
                   ),
