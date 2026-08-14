@@ -43,6 +43,8 @@ class ScanController extends ChangeNotifier {
   bool justFinishedScan = false;
   int lastUniverseSize = 0;
   int lastRawPairCount = 0;
+  int lastFetchOk = 0;
+  int lastFetchFail = 0;
 
   TelegramBridge get bridge => _bridge;
   AlertProfileStore get store => _store;
@@ -197,6 +199,8 @@ class ScanController extends ChangeNotifier {
       results = hits;
       lastUniverseSize = _repository.lastUniverseSize;
       lastRawPairCount = _repository.lastRawPairCount;
+      lastFetchOk = _repository.lastFetchOk;
+      lastFetchFail = _repository.lastFetchFail;
       if (hits.isEmpty && _repository.lastFetchOk > 0) {
         // Completed but quiet market / strict filters — not an error.
         justFinishedScan = true;
@@ -216,7 +220,7 @@ class ScanController extends ChangeNotifier {
       } else if (msg.contains('ALL_FETCHES_FAILED')) {
         error = t.allFetchesFailed;
       } else {
-        error = msg;
+        error = t.scanErrorGeneric;
       }
     } finally {
       scanning = false;

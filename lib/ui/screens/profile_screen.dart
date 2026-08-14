@@ -96,6 +96,9 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 FilledButton.icon(
                   onPressed: () async {
+                    debugPrint(
+                      'tg_cta_tap source=${TelegramBridge.communitySource}',
+                    );
                     final uri = TelegramBridge.communityHubUri();
                     final ok = await launchUrl(
                       uri,

@@ -17,6 +17,11 @@ class TelegramBridge {
   /// EN portfolio community (separate from alert bot).
   static const communityHubUrl = 'https://t.me/Desk_Club';
   static const communityHubHandle = '@Desk_Club';
+  static const communitySource = 'structure-radar';
+  static const privacyUrl =
+      'https://pavelcrypto70.github.io/structure-radar-privacy.html';
+  static const termsUrl =
+      'https://pavelcrypto70.github.io/structure-radar-terms.html';
 
   static Uri communityHubUri() => Uri.parse(communityHubUrl);
 

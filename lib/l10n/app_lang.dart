@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 enum AppLang { en, es, pt, ru }
 
 extension AppLangX on AppLang {
@@ -22,6 +24,15 @@ extension AppLangX on AppLang {
     _ => AppLang.en,
   };
 }
+
+/// Shared EN/ES/PT/RU picker for glossary + detection copy.
+String srLocalized(AppLang lang, String en, {String? es, String? pt, String? ru}) =>
+    switch (lang) {
+      AppLang.ru => ru ?? en,
+      AppLang.es => es ?? en,
+      AppLang.pt => pt ?? en,
+      AppLang.en => en,
+    };
 
 /// Compact EN/ES/PT/RU dictionary for Structure Radar UI.
 class L10n {
@@ -91,11 +102,31 @@ class L10n {
     pt: 'Não foi possível montar o universo de pares. Verifique a conexão e tente novamente.',
     ru: 'Не удалось собрать список пар. Проверь сеть и попробуй снова.',
   );
-  String get allFetchesFailed => t(
-    '429/network again. Hard Ctrl+F5 (not normal refresh). Then Binance only, one TF — 4H.',
-    es: '429/red otra vez. Haz Ctrl+F5 (no una recarga normal). Después usa solo Binance y un TF: 4H.',
-    pt: '429/rede novamente. Use Ctrl+F5 (não uma recarga normal). Depois, apenas Binance e um TF: 4H.',
-    ru: 'Снова 429/сеть. Нужен жёсткий Ctrl+F5 (не обычный refresh). Потом только Binance, один TF — 4H.',
+  String get allFetchesFailed => kIsWeb
+      ? t(
+          '429/network again. Hard Ctrl+F5 (not normal refresh). Then Binance only, one TF — 4H.',
+          es: '429/red otra vez. Haz Ctrl+F5 (no una recarga normal). Después usa solo Binance y un TF: 4H.',
+          pt: '429/rede novamente. Use Ctrl+F5 (não uma recarga normal). Depois, apenas Binance e um TF: 4H.',
+          ru: 'Снова 429/сеть. Нужен жёсткий Ctrl+F5 (не обычный refresh). Потом только Binance, один TF — 4H.',
+        )
+      : allFetchesFailedNative;
+  String get allFetchesFailedNative => t(
+    'Could not load candles. Check Wi‑Fi/mobile data, retry, or reduce exchanges / timeframes.',
+    es: 'No se pudieron cargar velas. Revisa Wi‑Fi/datos móviles, reintenta o reduce exchanges / temporalidades.',
+    pt: 'Não foi possível carregar candles. Verifique Wi‑Fi/dados móveis, tente de novo ou reduza corretoras / períodos.',
+    ru: 'Не удалось загрузить свечи. Проверь Wi‑Fi/мобильный интернет, повтори или урежь биржи / ТФ.',
+  );
+  String get scanErrorGeneric => t(
+    'Scan failed. Check network and try again.',
+    es: 'El escaneo falló. Revisa la conexión e inténtalo de nuevo.',
+    pt: 'A varredura falhou. Verifique a conexão e tente novamente.',
+    ru: 'Скан не удался. Проверь сеть и попробуй снова.',
+  );
+  String partialFetchWarning(int failed, int ok) => t(
+    '$failed pair fetches failed ($ok OK). Results may be incomplete.',
+    es: '$failed lecturas de pares fallaron ($ok OK). Los resultados pueden estar incompletos.',
+    pt: '$failed leituras de pares falharam ($ok OK). Os resultados podem estar incompletos.',
+    ru: '$failed запросов пар не удалось ($ok OK). Результаты могут быть неполными.',
   );
   String get buildStamp => 'r11';
 
@@ -339,6 +370,18 @@ class L10n {
   String get mechanic =>
       t('Mechanic', es: 'Mecánica', pt: 'Mecânica', ru: 'Механика');
   String get legalTitle => disclaimers;
+  String get privacyPolicy => t(
+    'Privacy Policy',
+    es: 'Política de privacidad',
+    pt: 'Política de privacidade',
+    ru: 'Политика конфиденциальности',
+  );
+  String get termsOfService => t(
+    'Terms of Service',
+    es: 'Términos de servicio',
+    pt: 'Termos de serviço',
+    ru: 'Условия использования',
+  );
   String get legalHeading => t(
     'Legal & risk notices',
     es: 'Avisos legales y de riesgo',

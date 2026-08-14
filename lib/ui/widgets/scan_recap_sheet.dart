@@ -13,6 +13,8 @@ Future<void> showScanRecapSheet(
   required double minScore,
   required int universeSize,
   required int rawPairCount,
+  int fetchOk = 0,
+  int fetchFail = 0,
   required VoidCallback onOpenResults,
 }) {
   HapticFeedback.heavyImpact();
@@ -70,6 +72,15 @@ Future<void> showScanRecapSheet(
               Text(
                 t.universeRecap(universeSize, rawPairCount),
                 style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (fetchFail > 0 && fetchOk > 0) ...[
+              const SizedBox(height: 8),
+              Text(
+                t.partialFetchWarning(fetchFail, fetchOk),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: SrColors.warn,
+                    ),
               ),
             ],
             const SizedBox(height: 18),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/disclaimers.dart';
+import '../../services/telegram_bridge.dart';
 import '../../state/locale_controller.dart';
 import '../../theme/app_theme.dart';
 
@@ -29,6 +31,21 @@ class LegalScreen extends StatelessWidget {
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(height: 1.45),
+          ),
+          const SizedBox(height: 20),
+          TextButton(
+            onPressed: () => launchUrl(
+              Uri.parse(TelegramBridge.privacyUrl),
+              mode: LaunchMode.externalApplication,
+            ),
+            child: Text(t.privacyPolicy),
+          ),
+          TextButton(
+            onPressed: () => launchUrl(
+              Uri.parse(TelegramBridge.termsUrl),
+              mode: LaunchMode.externalApplication,
+            ),
+            child: Text(t.termsOfService),
           ),
         ],
       ),
