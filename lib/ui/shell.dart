@@ -15,7 +15,6 @@ import 'screens/profile_screen.dart';
 import 'screens/radar_guide_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/scan_screen.dart';
-import 'widgets/first_run_coach.dart';
 import 'widgets/scan_recap_sheet.dart';
 
 class AppShell extends StatefulWidget {
@@ -29,7 +28,6 @@ class _AppShellState extends State<AppShell> {
   int index = 0;
   bool _coachDismissed = false;
   bool _recapBusy = false;
-  bool _firstRunScheduled = false;
 
   @override
   Widget build(BuildContext context) {
@@ -51,20 +49,13 @@ class _AppShellState extends State<AppShell> {
       return const _DisclaimerGate();
     }
 
-    if (!_firstRunScheduled) {
-      _firstRunScheduled = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
-        await FirstRunCoach.show(context, context.read<LocaleController>().t);
-      });
-    }
-
     // Scan ceremony
     if (!c.scanning && c.justFinishedScan && !_recapBusy) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted || _recapBusy) return;
         _recapBusy = true;
         c.consumeScanFinished();
+        if (c.firstGestureDone) {
         await showScanRecapSheet(
           context,
           t: t,
@@ -76,6 +67,7 @@ class _AppShellState extends State<AppShell> {
           fetchFail: c.lastFetchFail,
           onOpenResults: () => setState(() => index = 1),
         );
+        }
         _recapBusy = false;
       });
     }
@@ -114,7 +106,7 @@ class _AppShellState extends State<AppShell> {
 
     final pages = [
       ScanScreen(
-        showCoach: !_coachDismissed,
+        showCoach: !_coachDismissed && !c.firstGestureDone,
         onDismissCoach: () => setState(() => _coachDismissed = true),
       ),
       const ResultsScreen(),
@@ -170,6 +162,7 @@ class _AppShellState extends State<AppShell> {
                 scanning: c.scanning,
                 cancelLabel: t.cancel,
                 scanLabel: c.scanning ? t.scanning : t.runScan,
+                pulse: !c.firstGestureDone && !c.scanning && c.results.isEmpty,
                 onCancel: c.cancelScan,
                 onScan: () {
                   HapticFeedback.mediumImpact();
@@ -179,7 +172,15 @@ class _AppShellState extends State<AppShell> {
             _TerminalNav(
               index: index,
               labels: [t.tabRadar, t.tabResults, t.tabProfile, t.tabGlossary],
+              locked: !c.firstGestureDone,
+              lockHint: t.gestureTabsLocked,
               onSelect: (i) {
+                if (!c.firstGestureDone && i != 0) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(t.gestureTabsLocked)),
+                  );
+                  return;
+                }
                 HapticFeedback.selectionClick();
                 setState(() => index = i);
               },
@@ -198,6 +199,7 @@ class _ScanActionDock extends StatelessWidget {
     required this.scanLabel,
     required this.onCancel,
     required this.onScan,
+    this.pulse = false,
   });
 
   final bool scanning;
@@ -205,6 +207,7 @@ class _ScanActionDock extends StatelessWidget {
   final String scanLabel;
   final VoidCallback onCancel;
   final VoidCallback onScan;
+  final bool pulse;
 
   @override
   Widget build(BuildContext context) {
@@ -243,8 +246,21 @@ class _ScanActionDock extends StatelessWidget {
             ],
             Expanded(
               flex: scanning ? 2 : 1,
-              child: SizedBox(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 700),
                 height: 52,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(SrRadius.md),
+                  boxShadow: pulse
+                      ? [
+                          BoxShadow(
+                            color: SrColors.accent.withValues(alpha: 0.45),
+                            blurRadius: 16,
+                            spreadRadius: 1,
+                          ),
+                        ]
+                      : null,
+                ),
                 child: FilledButton.icon(
                   onPressed: scanning ? null : onScan,
                   icon: Icon(
@@ -304,11 +320,15 @@ class _TerminalNav extends StatelessWidget {
     required this.index,
     required this.labels,
     required this.onSelect,
+    this.locked = false,
+    this.lockHint = '',
   });
 
   final int index;
   final List<String> labels;
   final ValueChanged<int> onSelect;
+  final bool locked;
+  final String lockHint;
 
   static const _icons = [
     Icons.radar_outlined,
@@ -357,7 +377,9 @@ class _TerminalNav extends StatelessWidget {
                       scale: selected ? 1.08 : 1,
                       duration: SrMotion.micro,
                       child: Icon(
-                        selected ? _iconsSelected[i] : _icons[i],
+                        (locked && i != 0)
+                            ? Icons.lock_outline
+                            : (selected ? _iconsSelected[i] : _icons[i]),
                         size: 20,
                         color: selected ? SrColors.accent : SrColors.faint,
                       ),

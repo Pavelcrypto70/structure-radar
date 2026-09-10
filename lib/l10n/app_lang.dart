@@ -169,10 +169,10 @@ class L10n {
     ru: 'Порог score 50–90: слабее порога — в ленту не попадёт. Это не цена и не риск, а фильтр «насколько чисто выглядит сетап».',
   );
   String get runScan => t(
-    'Run scan',
-    es: 'Iniciar escaneo',
-    pt: 'Iniciar varredura',
-    ru: 'Запустить скан',
+    'Find',
+    es: 'Buscar',
+    pt: 'Buscar',
+    ru: 'Найти',
   );
   String get scanning =>
       t('Scanning…', es: 'Escaneando…', pt: 'Escaneando…', ru: 'Сканирование…');
@@ -434,22 +434,22 @@ class L10n {
   String detectorLabel(String key) {
     return switch (key) {
       'structureShift' => t(
-        'Structure Shift',
-        es: 'Cambio de estructura',
-        pt: 'Mudança de estrutura',
-        ru: 'Смена структуры',
+        'Direction change',
+        es: 'Cambio de dirección',
+        pt: 'Mudança de direção',
+        ru: 'Смена направления',
       ),
       'maRegime' => t(
-        'MA Regime',
-        es: 'Régimen de MA',
-        pt: 'Regime de MA',
-        ru: 'Режим MA',
+        'Strong trend',
+        es: 'Tendencia fuerte',
+        pt: 'Tendência forte',
+        ru: 'Сильный тренд',
       ),
       'levels' => t(
-        'Support / Resistance',
-        es: 'Soporte / resistencia',
-        pt: 'Suporte / resistência',
-        ru: 'Поддержка / сопротивление',
+        'Price wall',
+        es: 'Pared de precio',
+        pt: 'Parede de preço',
+        ru: 'Цена у стенки',
       ),
       _ => key,
     };
@@ -500,10 +500,10 @@ class L10n {
 
   String get coachTitle => t('COACH', es: 'GUÍA', pt: 'GUIA', ru: 'ПОДСКАЗКА');
   String get coachBody => t(
-    'Pick venues and TFs, then Run scan. Open a card and verify the chart — score is not an entry.',
-    es: 'Elige exchanges y TF, luego inicia el escaneo. Abre una tarjeta y verifica el gráfico: el score no es una entrada.',
-    pt: 'Escolha corretoras e TFs, depois inicie a varredura. Abra um cartão e confira o gráfico: score não é entrada.',
-    ru: 'Сначала выбери биржи и TF, затем Run scan. Открывай карточку и сверяй график — score не равен входу.',
+    'Press Find. Then open one card and look at the line on the chart.',
+    es: 'Pulsa Buscar. Luego abre una tarjeta y mira la línea en el gráfico.',
+    pt: 'Toque Buscar. Depois abra um cartão e veja a linha no gráfico.',
+    ru: 'Нажми Найти. Потом открой одну карточку и посмотри линию на графике.',
   );
   String get coachDismiss =>
       t('Got it', es: 'Entendido', pt: 'Entendi', ru: 'Понятно');
@@ -604,5 +604,11 @@ class L10n {
     es: 'Solo educativo · sin dinero real · sin ejecución de órdenes',
     pt: 'Somente educacional · sem dinheiro real · sem execução de ordens',
     ru: 'Только обучение · без реальных денег · без исполнения ордеров',
+  );
+  String get gestureTabsLocked => t(
+    'Open one card first.',
+    es: 'Abre una tarjeta primero.',
+    pt: 'Abra um cartão primeiro.',
+    ru: 'Сначала открой одну карточку.',
   );
 }

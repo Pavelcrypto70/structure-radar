@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/market_repository.dart';
 import '../domain/models.dart';
@@ -45,6 +48,7 @@ class ScanController extends ChangeNotifier {
   int lastRawPairCount = 0;
   int lastFetchOk = 0;
   int lastFetchFail = 0;
+  bool firstGestureDone = false;
 
   TelegramBridge get bridge => _bridge;
   AlertProfileStore get store => _store;
@@ -84,7 +88,17 @@ class ScanController extends ChangeNotifier {
     };
     selectedDetectors = {...profile!.enabledDetectors};
     minScore = profile!.minScore;
+    final prefs = await SharedPreferences.getInstance();
+    firstGestureDone = prefs.getBool('first_gesture_v1') ?? false;
     loadingProfile = false;
+    notifyListeners();
+  }
+
+  Future<void> markFirstGestureDone() async {
+    if (firstGestureDone) return;
+    firstGestureDone = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('first_gesture_v1', true);
     notifyListeners();
   }
 
@@ -112,6 +126,9 @@ class ScanController extends ChangeNotifier {
 
   void selectDetection(Detection? d) {
     selected = d;
+    if (d != null && !firstGestureDone) {
+      unawaited(markFirstGestureDone());
+    }
     notifyListeners();
   }
 
