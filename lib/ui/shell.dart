@@ -4,9 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../domain/disclaimers.dart';
+import '../l10n/app_lang.dart';
+import '../l10n/path_l10n.dart';
 import '../state/locale_controller.dart';
+import '../state/path_controller.dart';
 import '../state/scan_controller.dart';
 import '../theme/tokens.dart';
+import 'path/academy_bridge.dart';
+import 'path/club_bridge.dart';
+import 'path/empty_hit_sheet.dart';
+import 'path/glossary_tour.dart';
+import 'path/literacy_home.dart';
+import 'path/orientation_flow.dart';
+import 'path/phase2_bridge.dart';
 import 'screens/detection_detail_screen.dart';
 import 'screens/glossary_screen.dart';
 import 'screens/legal_screen.dart';
@@ -15,6 +25,7 @@ import 'screens/profile_screen.dart';
 import 'screens/radar_guide_screen.dart';
 import 'screens/results_screen.dart';
 import 'screens/scan_screen.dart';
+import 'screens/splash_screen.dart';
 import 'widgets/scan_recap_sheet.dart';
 
 class AppShell extends StatefulWidget {
@@ -34,20 +45,35 @@ class _AppShellState extends State<AppShell> {
     final c = context.watch<ScanController>();
     final locale = context.watch<LocaleController>();
     final t = locale.t;
+    final path = context.watch<PathController>();
+    final pl = PathL10n(locale.lang);
 
-    if (c.loadingProfile) {
+    if (c.loadingProfile || !path.loaded) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator(color: SrColors.accent)),
       );
     }
 
+    // Open a tapped detection even if a path bridge flips in at the same time
+    // (e.g. the 3rd opened hit unlocks the glossary tour).
+    _openSelectedDetection(c);
+
+    // Gate cascade: language → splash → disclaimer → path phases → terminal.
     if (!locale.languageChosen) {
       return LanguageGateScreen(onPick: locale.chooseLanguage);
     }
-
+    if (!path.splashSeen) {
+      return SplashScreen(onDone: path.markSplashSeen);
+    }
     if (!c.disclaimerAccepted) {
       return const _DisclaimerGate();
     }
+    if (path.showOrientation) return const OrientationFlow();
+    if (path.showLiteracyHome) return const LiteracyHome();
+    if (path.showPhase2Bridge) return const Phase2Bridge();
+    if (path.showGlossaryTour) return const GlossaryTour();
+    if (path.showClubBridge) return const ClubBridge();
+    if (path.showAcademyBridge) return const AcademyBridge();
 
     // Scan ceremony
     if (!c.scanning && c.justFinishedScan && !_recapBusy) {
@@ -55,23 +81,55 @@ class _AppShellState extends State<AppShell> {
         if (!mounted || _recapBusy) return;
         _recapBusy = true;
         c.consumeScanFinished();
-        if (c.firstGestureDone) {
-        await showScanRecapSheet(
-          context,
-          t: t,
-          hits: c.results.length,
-          minScore: c.minScore,
-          universeSize: c.lastUniverseSize,
-          rawPairCount: c.lastRawPairCount,
-          fetchOk: c.lastFetchOk,
-          fetchFail: c.lastFetchFail,
-          onOpenResults: () => setState(() => index = 1),
-        );
+        if (path.inMission) {
+          // Mission scan with nothing to read → teach why that is normal.
+          if (c.results.isEmpty && c.error == null && c.lensScanDone) {
+            await showEmptyHitSheet(
+              context,
+              pl: pl,
+              onContinue: () => path.completeMission(emptyOk: true),
+            );
+          }
+        } else if (c.firstGestureDone) {
+          await showScanRecapSheet(
+            context,
+            t: t,
+            hits: c.results.length,
+            minScore: c.minScore,
+            universeSize: c.lastUniverseSize,
+            rawPairCount: c.lastRawPairCount,
+            fetchOk: c.lastFetchOk,
+            fetchFail: c.lastFetchFail,
+            onOpenResults: () => setState(() => index = 1),
+          );
         }
         _recapBusy = false;
       });
     }
 
+    // Tabs: Radar always; Results also during a mission once hits exist.
+    bool tabLocked(int i) {
+      if (i == 0 || path.tabsUnlocked) return false;
+      return !(path.inMission && i == 1 && c.results.isNotEmpty);
+    }
+
+    final tabIndex = tabLocked(index) ? 0 : index;
+
+    final pages = [
+      ScanScreen(
+        showCoach: !_coachDismissed && !c.firstGestureDone && !path.inMission,
+        onDismissCoach: () => setState(() => _coachDismissed = true),
+        onOpenResults: () => setState(() => index = 1),
+      ),
+      const ResultsScreen(),
+      const ProfileScreen(),
+      const GlossaryScreen(),
+    ];
+
+    return _terminal(context, c, t, pl, path, pages, tabIndex, tabLocked);
+  }
+
+  void _openSelectedDetection(ScanController c) {
     final selected = c.selected;
     if (selected != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -103,17 +161,18 @@ class _AppShellState extends State<AppShell> {
         );
       });
     }
+  }
 
-    final pages = [
-      ScanScreen(
-        showCoach: !_coachDismissed && !c.firstGestureDone,
-        onDismissCoach: () => setState(() => _coachDismissed = true),
-      ),
-      const ResultsScreen(),
-      const ProfileScreen(),
-      const GlossaryScreen(),
-    ];
-
+  Widget _terminal(
+    BuildContext context,
+    ScanController c,
+    L10n t,
+    PathL10n pl,
+    PathController path,
+    List<Widget> pages,
+    int tabIndex,
+    bool Function(int) tabLocked,
+  ) {
     return Scaffold(
       backgroundColor: SrColors.bg,
       body: SafeArea(
@@ -155,14 +214,17 @@ class _AppShellState extends State<AppShell> {
               ),
             ),
             Expanded(
-              child: IndexedStack(index: index, children: pages),
+              child: IndexedStack(index: tabIndex, children: pages),
             ),
-            if (index == 0)
+            if (tabIndex == 0)
               _ScanActionDock(
                 scanning: c.scanning,
                 cancelLabel: t.cancel,
                 scanLabel: c.scanning ? t.scanning : t.runScan,
-                pulse: !c.firstGestureDone && !c.scanning && c.results.isEmpty,
+                pulse:
+                    (path.inMission || !c.firstGestureDone) &&
+                    !c.scanning &&
+                    c.results.isEmpty,
                 onCancel: c.cancelScan,
                 onScan: () {
                   HapticFeedback.mediumImpact();
@@ -170,14 +232,20 @@ class _AppShellState extends State<AppShell> {
                 },
               ),
             _TerminalNav(
-              index: index,
+              index: tabIndex,
               labels: [t.tabRadar, t.tabResults, t.tabProfile, t.tabGlossary],
-              locked: !c.firstGestureDone,
-              lockHint: t.gestureTabsLocked,
+              lockedTabs: {
+                for (var i = 1; i < 4; i++)
+                  if (tabLocked(i)) i,
+              },
               onSelect: (i) {
-                if (!c.firstGestureDone && i != 0) {
+                if (tabLocked(i)) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(t.gestureTabsLocked)),
+                    SnackBar(
+                      content: Text(
+                        path.inMission ? pl.tabsLockedMission : t.gestureTabsLocked,
+                      ),
+                    ),
                   );
                   return;
                 }
@@ -320,15 +388,13 @@ class _TerminalNav extends StatelessWidget {
     required this.index,
     required this.labels,
     required this.onSelect,
-    this.locked = false,
-    this.lockHint = '',
+    this.lockedTabs = const {},
   });
 
   final int index;
   final List<String> labels;
   final ValueChanged<int> onSelect;
-  final bool locked;
-  final String lockHint;
+  final Set<int> lockedTabs;
 
   static const _icons = [
     Icons.radar_outlined,
@@ -377,7 +443,7 @@ class _TerminalNav extends StatelessWidget {
                       scale: selected ? 1.08 : 1,
                       duration: SrMotion.micro,
                       child: Icon(
-                        (locked && i != 0)
+                        lockedTabs.contains(i)
                             ? Icons.lock_outline
                             : (selected ? _iconsSelected[i] : _icons[i]),
                         size: 20,

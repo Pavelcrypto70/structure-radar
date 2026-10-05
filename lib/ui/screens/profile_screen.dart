@@ -5,10 +5,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../domain/models.dart';
 import '../../l10n/app_lang.dart';
+import '../../l10n/path_l10n.dart';
 import '../../services/telegram_bridge.dart';
 import '../../state/locale_controller.dart';
 import '../../state/scan_controller.dart';
 import '../../theme/app_theme.dart';
+import '../path/journey_map.dart';
+import '../path/path_kit.dart';
 import '../widgets/detection_card.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -19,6 +22,7 @@ class ProfileScreen extends StatelessWidget {
     final c = context.watch<ScanController>();
     final locale = context.watch<LocaleController>();
     final t = locale.t;
+    final pl = PathL10n(locale.lang);
     final p = c.profile;
     if (p == null) {
       return const Center(child: CircularProgressIndicator());
@@ -74,6 +78,31 @@ class ProfileScreen extends StatelessWidget {
                       ru: 'Выбрать язык с начала',
                     ),
                   ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          _card(
+            context,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  pl.profileMapTitle,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  pl.profileMapBody,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 12),
+                PathButton(
+                  label: pl.profileMapCta,
+                  icon: Icons.map_outlined,
+                  secondary: true,
+                  onPressed: () => JourneyMapScreen.open(context),
                 ),
               ],
             ),

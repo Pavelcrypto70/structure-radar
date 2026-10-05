@@ -479,24 +479,29 @@ class L10n {
 
   String get splashMark => 'STRUCTURE RADAR';
   String get splashTitle => t(
-    'Market structure, scored.',
-    es: 'Estructura de mercado, evaluada.',
-    pt: 'Estrutura de mercado, pontuada.',
-    ru: 'Структура рынка — под контролем.',
+    'Learn to read market structure.',
+    es: 'Aprende a leer la estructura del mercado.',
+    pt: 'Aprenda a ler a estrutura do mercado.',
+    ru: 'Учись читать структуру рынка.',
   );
   String get splashSub => t(
-    'USDT · three venues · structure shift · MA regime · levels.\nEducational heuristics. Not signals.',
-    es: 'USDT · tres exchanges · cambio de estructura · régimen MA · niveles.\nHeurísticas educativas. No son señales.',
-    pt: 'USDT · três corretoras · mudança de estrutura · regime MA · níveis.\nHeurísticas educacionais. Não são sinais.',
-    ru: 'USDT · три биржи · смена структуры · режим MA · уровни.\nОбразовательные эвристики. Не сигналы.',
+    'Structure shift · MA regime · levels — on real USDT charts.\nYou read the chart. The radar gives no advice.',
+    es: 'Cambio de estructura · régimen MA · niveles, en gráficos USDT reales.\nTú lees el gráfico. El radar no da consejos.',
+    pt: 'Mudança de estrutura · regime MA · níveis, em gráficos USDT reais.\nVocê lê o gráfico. O radar não dá conselhos.',
+    ru: 'Смена структуры · режим MA · уровни — на реальных USDT-графиках.\nГрафик читаешь ты. Радар ничего не советует.',
   );
   String get splashCta => t(
-    'ENTER RADAR',
-    es: 'ENTRAR AL RADAR',
-    pt: 'ENTRAR NO RADAR',
-    ru: 'ОТКРЫТЬ РАДАР',
+    'CONTINUE',
+    es: 'CONTINUAR',
+    pt: 'CONTINUAR',
+    ru: 'ПРОДОЛЖИТЬ',
   );
-  String get splashTag => 'FREE #2 · EN/ES/PT/RU';
+  String get splashTag => t(
+    'LITERACY · FREE #2',
+    es: 'LECTURA · GRATIS #2',
+    pt: 'LEITURA · GRÁTIS #2',
+    ru: 'ГРАМОТНОСТЬ · FREE #2',
+  );
 
   String get coachTitle => t('COACH', es: 'GUÍA', pt: 'GUIA', ru: 'ПОДСКАЗКА');
   String get coachBody => t(

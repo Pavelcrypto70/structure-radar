@@ -8,6 +8,7 @@ import '../domain/models.dart';
 import '../l10n/app_lang.dart';
 import '../services/alert_profile_store.dart';
 import '../services/telegram_bridge.dart';
+import 'path_controller.dart';
 
 enum ResultSort { score, time }
 
@@ -50,6 +51,23 @@ class ScanController extends ChangeNotifier {
   int lastFetchFail = 0;
   bool firstGestureDone = false;
 
+  /// A scan finished (not cancelled) since the last lens change — drives the
+  /// mission banner's empty-scan state.
+  bool lensScanDone = false;
+
+  PathController? _path;
+
+  /// Wire the literacy path: scan hooks call into it, and it can drive the
+  /// mission lens + first-gesture flag here.
+  void attachPath(PathController path) {
+    _path = path;
+    path.bindScan(
+      applyLens: applyMissionLens,
+      firstGestureDone: () => firstGestureDone,
+      markFirstGesture: markFirstGestureDone,
+    );
+  }
+
   TelegramBridge get bridge => _bridge;
   AlertProfileStore get store => _store;
 
@@ -90,6 +108,11 @@ class ScanController extends ChangeNotifier {
     minScore = profile!.minScore;
     final prefs = await SharedPreferences.getInstance();
     firstGestureDone = prefs.getBool('first_gesture_v1') ?? false;
+    // Resume an in-progress mission after restart.
+    final path = _path;
+    if (path != null && path.inMission) {
+      _setLens(path.activeMissionKind, clearResults: false);
+    }
     loadingProfile = false;
     notifyListeners();
   }
@@ -126,10 +149,57 @@ class ScanController extends ChangeNotifier {
 
   void selectDetection(Detection? d) {
     selected = d;
-    if (d != null && !firstGestureDone) {
-      unawaited(markFirstGestureDone());
+    if (d != null) {
+      _path?.recordHitOpen(d.kind);
+      // During missions the gesture is marked by finishing mission 4.
+      if (!firstGestureDone && !(_path?.inMission ?? false)) {
+        unawaited(markFirstGestureDone());
+      }
     }
     notifyListeners();
+  }
+
+  /// Mission lens: only [kind] (TF 1H/4H, + 15m/30m for levels, score >= 55).
+  /// `null` restores full defaults (all detectors / TFs, profile min score).
+  void applyMissionLens(DetectorKind? kind) {
+    if (scanning) cancelScan();
+    _setLens(kind, clearResults: true);
+    notifyListeners();
+  }
+
+  void _setLens(DetectorKind? kind, {required bool clearResults}) {
+    if (kind == null) {
+      final exchanges = profile?.exchanges ?? ExchangeId.values.toSet();
+      selectedExchanges = exchanges.isEmpty
+          ? ExchangeId.values.toSet()
+          : {...exchanges};
+      selectedTimeframes = AppTimeframe.values.toSet();
+      selectedDetectors = DetectorKind.values.toSet();
+      minScore = profile?.minScore ?? 65;
+    } else {
+      if (kIsWeb) {
+        selectedExchanges = {ExchangeId.binance};
+      } else if (selectedExchanges.isEmpty) {
+        selectedExchanges = ExchangeId.values.toSet();
+      }
+      selectedDetectors = {kind};
+      selectedTimeframes = {
+        AppTimeframe.h1,
+        AppTimeframe.h4,
+        if (kind == DetectorKind.levels) ...[
+          AppTimeframe.m15,
+          AppTimeframe.m30,
+        ],
+      };
+      minScore = 55;
+    }
+    lensScanDone = false;
+    if (clearResults) {
+      results = [];
+      resultFilterKind = null;
+      justFinishedScan = false;
+      error = null;
+    }
   }
 
   void setResultFilter(DetectorKind? kind) {
@@ -214,6 +284,10 @@ class ScanController extends ChangeNotifier {
       );
 
       results = hits;
+      if (!cancelRequested) {
+        lensScanDone = true;
+        _path?.recordScan();
+      }
       lastUniverseSize = _repository.lastUniverseSize;
       lastRawPairCount = _repository.lastRawPairCount;
       lastFetchOk = _repository.lastFetchOk;

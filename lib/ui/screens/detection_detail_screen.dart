@@ -6,9 +6,12 @@ import '../../domain/models.dart';
 import '../../l10n/app_lang.dart';
 import '../../l10n/detection_copy.dart';
 import '../../l10n/glossary_l10n.dart';
+import '../../l10n/path_l10n.dart';
 import '../../state/locale_controller.dart';
+import '../../state/path_controller.dart';
 import '../../state/scan_controller.dart';
 import '../../theme/app_theme.dart';
+import '../path/path_kit.dart';
 import '../widgets/candle_chart.dart';
 import '../widgets/detection_card.dart';
 
@@ -112,12 +115,43 @@ class _DetectionDetailScreenState extends State<DetectionDetailScreen> {
       }
     }
 
+    final path = context.watch<PathController>();
+    final pl = PathL10n(locale.lang);
+    final mission = path.activeMission;
+    final missionReady = mission != null && path.missionHitReady;
+
     return Scaffold(
       backgroundColor: AppTokens.bg,
       appBar: AppBar(title: Text(d.symbol.display)),
+      bottomNavigationBar: missionReady
+          ? SafeArea(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                decoration: const BoxDecoration(
+                  color: AppTokens.bg,
+                  border: Border(top: BorderSide(color: AppTokens.strokeSoft)),
+                ),
+                child: PathButton(
+                  label: pl.missionCompleteNext(mission),
+                  icon: Icons.check_circle_outline,
+                  onPressed: () {
+                    path.completeMission();
+                    Navigator.of(context).maybePop();
+                  },
+                ),
+              ),
+            )
+          : null,
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         children: [
+          if (mission != null) ...[
+            CoachBubble(
+              kicker: pl.detailCoachKicker,
+              text: pl.missionLookFor(mission),
+            ),
+            const SizedBox(height: 16),
+          ],
           Text(title, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 8),
           Text(

@@ -5,8 +5,11 @@ import 'package:provider/provider.dart';
 import '../../domain/disclaimers.dart';
 import '../../domain/models.dart';
 import '../../state/locale_controller.dart';
+import '../../state/path_controller.dart';
 import '../../state/scan_controller.dart';
 import '../../theme/tokens.dart';
+import '../path/mission_banner.dart';
+import '../path/next_step_card.dart';
 import '../widgets/coach_banner.dart';
 import '../widgets/detection_card.dart';
 import '../widgets/sr_chrome.dart';
@@ -16,54 +19,70 @@ class ScanScreen extends StatelessWidget {
     super.key,
     required this.showCoach,
     required this.onDismissCoach,
+    this.onOpenResults,
   });
 
   final bool showCoach;
   final VoidCallback onDismissCoach;
+  final VoidCallback? onOpenResults;
 
   @override
   Widget build(BuildContext context) {
     final c = context.watch<ScanController>();
     final locale = context.watch<LocaleController>();
+    final path = context.watch<PathController>();
     final t = locale.t;
+    final inMission = path.inMission;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 130),
       children: [
-        SrSurface(
-          gradient: true,
-          accentBorder: true,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  SrKicker(t.tabRadar.toUpperCase()),
-                  const Spacer(),
-                  SrModeBadge(live: !kIsWeb),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(
-                t.scanTitle,
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                t.scanSubtitle,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 10),
-              Text(
-                t.etaHint,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelMedium?.copyWith(color: SrColors.accent),
-              ),
-            ],
+        if (inMission) ...[
+          const MissionBanner(),
+          const SizedBox(height: 12),
+        ] else if (path.missionsDone) ...[
+          NextStepCard(
+            scanning: c.scanning,
+            onScan: () => c.runScan(t),
+            onOpenResults: onOpenResults ?? () {},
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
+        if (!inMission)
+          SrSurface(
+            gradient: true,
+            accentBorder: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    SrKicker(t.tabRadar.toUpperCase()),
+                    const Spacer(),
+                    SrModeBadge(live: !kIsWeb),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  t.scanTitle,
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  t.scanSubtitle,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  t.etaHint,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelMedium?.copyWith(color: SrColors.accent),
+                ),
+              ],
+            ),
+          ),
+        if (!inMission) const SizedBox(height: 12),
         if (showCoach) ...[
           CoachBanner(t: t, onDismiss: onDismissCoach),
           const SizedBox(height: 12),
@@ -75,68 +94,71 @@ class ScanScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
         ),
-        const SizedBox(height: 20),
-        SrSectionTitle(t.exchanges),
-        const SizedBox(height: 10),
-        Wrap(
-          children: ExchangeId.values
-              .map(
-                (e) => FilterChipToggle(
-                  label: e.label,
-                  selected: c.selectedExchanges.contains(e),
-                  onTap: () => c.toggleExchange(e),
-                ),
-              )
-              .toList(),
-        ),
-        SrSectionTitle(t.timeframes),
-        const SizedBox(height: 10),
-        Wrap(
-          children: AppTimeframe.values
-              .map(
-                (e) => FilterChipToggle(
-                  label: e.label,
-                  selected: c.selectedTimeframes.contains(e),
-                  onTap: () => c.toggleTimeframe(e),
-                ),
-              )
-              .toList(),
-        ),
-        SrSectionTitle(t.detectors),
-        const SizedBox(height: 10),
-        Wrap(
-          children: DetectorKind.values
-              .map(
-                (e) => FilterChipToggle(
-                  label: t.detectorLabel(e.name),
-                  selected: c.selectedDetectors.contains(e),
-                  onTap: () => c.toggleDetector(e),
-                ),
-              )
-              .toList(),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            Text(t.minScore, style: Theme.of(context).textTheme.titleMedium),
-            const Spacer(),
-            Text(
-              c.minScore.toStringAsFixed(0),
-              style: Theme.of(
-                context,
-              ).textTheme.labelLarge?.copyWith(color: SrColors.accent),
-            ),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Text(t.minScoreHint, style: Theme.of(context).textTheme.bodySmall),
-        Slider(
-          value: c.minScore,
-          min: 50,
-          max: 90,
-          divisions: 8,
-          onChanged: c.setMinScore,
-        ),
+        // Mission lens is fixed: filters are hidden so the lesson stays focused.
+        if (!inMission) ...[
+          const SizedBox(height: 20),
+          SrSectionTitle(t.exchanges),
+          const SizedBox(height: 10),
+          Wrap(
+            children: ExchangeId.values
+                .map(
+                  (e) => FilterChipToggle(
+                    label: e.label,
+                    selected: c.selectedExchanges.contains(e),
+                    onTap: () => c.toggleExchange(e),
+                  ),
+                )
+                .toList(),
+          ),
+          SrSectionTitle(t.timeframes),
+          const SizedBox(height: 10),
+          Wrap(
+            children: AppTimeframe.values
+                .map(
+                  (e) => FilterChipToggle(
+                    label: e.label,
+                    selected: c.selectedTimeframes.contains(e),
+                    onTap: () => c.toggleTimeframe(e),
+                  ),
+                )
+                .toList(),
+          ),
+          SrSectionTitle(t.detectors),
+          const SizedBox(height: 10),
+          Wrap(
+            children: DetectorKind.values
+                .map(
+                  (e) => FilterChipToggle(
+                    label: t.detectorLabel(e.name),
+                    selected: c.selectedDetectors.contains(e),
+                    onTap: () => c.toggleDetector(e),
+                  ),
+                )
+                .toList(),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(t.minScore, style: Theme.of(context).textTheme.titleMedium),
+              const Spacer(),
+              Text(
+                c.minScore.toStringAsFixed(0),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelLarge?.copyWith(color: SrColors.accent),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(t.minScoreHint, style: Theme.of(context).textTheme.bodySmall),
+          Slider(
+            value: c.minScore,
+            min: 50,
+            max: 90,
+            divisions: 8,
+            onChanged: c.setMinScore,
+          ),
+        ],
         if (c.scanning) ...[
           const SizedBox(height: 8),
           const SrSkeleton(),
