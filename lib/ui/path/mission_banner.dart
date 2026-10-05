@@ -128,12 +128,23 @@ class MissionBanner extends StatelessWidget {
             ),
           ] else if (emptyAfterScan) ...[
             const SizedBox(height: 12),
-            PathButton(
-              label: pl.bannerWhyEmpty,
-              onPressed: () => showEmptyHitSheet(
-                context,
-                pl: pl,
-                onContinue: () => path.completeMission(emptyOk: true),
+            // Plain FilledButton — PathButton + modal sheet crashed some browsers.
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: SrColors.accent,
+                  foregroundColor: SrColors.onAccent,
+                ),
+                onPressed: () {
+                  showEmptyHitSheet(
+                    context,
+                    pl: pl,
+                    onContinue: () => path.completeMission(emptyOk: true),
+                  );
+                },
+                child: Text(pl.bannerWhyEmpty),
               ),
             ),
           ],
