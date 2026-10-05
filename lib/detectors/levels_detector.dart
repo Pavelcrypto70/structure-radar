@@ -48,6 +48,14 @@ class LevelsDetector implements Detector {
   }) {
     if (candles.length < 80) return const [];
 
+    // Same anti-chop gate as Structure/MA — dead/flat markets invent fake walls.
+    if (!isVolatileEnough(
+      candles,
+      minAtrPct: minAtrPctForTf(timeframe),
+    )) {
+      return const [];
+    }
+
     final atrVal = atr(candles);
     if (atrVal <= 0) return const [];
 
@@ -104,21 +112,34 @@ class LevelsDetector implements Detector {
       );
       if (!approaching) continue;
 
-      final triangle = _tryTriangle(
-        candles: candles,
-        flat: cand,
-        atrVal: atrVal,
-        oppositePivots: cand.side == LevelSide.resistance ? lows : highs,
-      );
-
-      final score = _score(
+      // Score horizontals first — triangle must not launder a weak hit past minScore.
+      final baseScore = _score(
         touches: cand.touchIndexes.length,
         proximity: prox,
         spanBars: cand.touchIndexes.last - cand.touchIndexes.first,
         tightness: cand.tightnessAtr,
-        hasTriangle: triangle != null,
+        hasTriangle: false,
         recentTouch: lastIdx - cand.touchIndexes.last,
       );
+
+      // Short TFs invent “triangles” constantly — keep them horizontal-only.
+      final allowTriangle = timeframe != AppTimeframe.m15 &&
+          timeframe != AppTimeframe.m30 &&
+          baseScore >= 70;
+
+      final triangle = allowTriangle
+          ? _tryTriangle(
+              candles: candles,
+              flat: cand,
+              atrVal: atrVal,
+              oppositePivots:
+                  cand.side == LevelSide.resistance ? lows : highs,
+            )
+          : null;
+
+      final score = triangle == null
+          ? baseScore
+          : (baseScore + 3).clamp(60, 97).toDouble();
 
       final pattern = triangle?.pattern ?? LevelPattern.horizontal;
       final zone = LevelZone(
@@ -236,7 +257,7 @@ class LevelsDetector implements Detector {
       final tightness = spread / atrVal;
 
       // Reject fat / messy zones.
-      if (tightness > 0.45) continue;
+      if (tightness > 0.32) continue;
 
       out.add(
         _LevelCandidate(
@@ -269,7 +290,8 @@ class LevelsDetector implements Detector {
           : c < level - slack;
       if (broken) {
         closesThrough++;
-        if (closesThrough >= 2) return false;
+        // One clean close through kills the level — soft 2-close kept dead walls alive.
+        if (closesThrough >= 1) return false;
       } else {
         closesThrough = 0;
       }
@@ -290,9 +312,16 @@ class LevelsDetector implements Detector {
         : close >= level - atrVal * breakToleranceAtr;
     if (!onCorrectSide) return false;
 
+    // Tight band always ok; wider band needs drift toward the wall.
     if (proximity <= tightApproachAtr) return true;
-    // Near the band is enough for scanner — drift toward is a bonus, not a gate.
-    return proximity <= approachAtr;
+    if (proximity > approachAtr) return false;
+    if (candles.length < 4) return false;
+    final older = candles[candles.length - 4].close;
+    final newer = candles.last.close;
+    final driftedToward = side == LevelSide.resistance
+        ? newer > older
+        : newer < older;
+    return driftedToward;
   }
 
   _TriangleHint? _tryTriangle({
@@ -304,13 +333,21 @@ class LevelsDetector implements Detector {
     // Opposing swings after first flat touch, in the consolidation window.
     final start = flat.touchIndexes.first;
     final ops = oppositePivots.where((i) => i >= start).toList();
-    if (ops.length < 2) return null;
+    // Need ≥3 opposing pivots — 2-pivot “triangles” are the main false-positive factory.
+    if (ops.length < 3) return null;
 
-    final lastOps = ops.length > 4 ? ops.sublist(ops.length - 4) : ops;
-    if (lastOps.length < 2) return null;
+    final lastOps = ops.length > 5 ? ops.sublist(ops.length - 5) : ops;
+    if (lastOps.length < 3) return null;
+
+    final span = lastOps.last - lastOps.first;
+    if (span < 16) return null;
 
     if (flat.side == LevelSide.resistance) {
       // Ascending triangle: higher lows under flat resistance.
+      for (final i in lastOps) {
+        // Side integrity: opposing pivot must stay below the flat.
+        if (candles[i].low > flat.price - atrVal * 0.1) return null;
+      }
       var rising = true;
       for (var i = 1; i < lastOps.length; i++) {
         if (candles[lastOps[i]].low <= candles[lastOps[i - 1]].low) {
@@ -321,11 +358,12 @@ class LevelsDetector implements Detector {
       if (!rising) return null;
       final a = lastOps.first;
       final b = lastOps.last;
-      // Converging: last low closer to flat than first low.
       final firstGap = flat.price - candles[a].low;
       final lastGap = flat.price - candles[b].low;
-      if (lastGap >= firstGap * 0.92) return null;
-      if (lastGap < atrVal * 0.15) return null;
+      // Real squeeze: start wide enough, shrink ≥25%.
+      if (firstGap < atrVal * 0.8) return null;
+      if (lastGap >= firstGap * 0.75) return null;
+      if (lastGap < atrVal * 0.2) return null;
       return _TriangleHint(
         pattern: LevelPattern.ascendingTriangle,
         startIndex: a,
@@ -336,6 +374,9 @@ class LevelsDetector implements Detector {
     }
 
     // Descending triangle: lower highs above flat support.
+    for (final i in lastOps) {
+      if (candles[i].high < flat.price + atrVal * 0.1) return null;
+    }
     var falling = true;
     for (var i = 1; i < lastOps.length; i++) {
       if (candles[lastOps[i]].high >= candles[lastOps[i - 1]].high) {
@@ -348,8 +389,9 @@ class LevelsDetector implements Detector {
     final b = lastOps.last;
     final firstGap = candles[a].high - flat.price;
     final lastGap = candles[b].high - flat.price;
-    if (lastGap >= firstGap * 0.92) return null;
-    if (lastGap < atrVal * 0.15) return null;
+    if (firstGap < atrVal * 0.8) return null;
+    if (lastGap >= firstGap * 0.75) return null;
+    if (lastGap < atrVal * 0.2) return null;
     return _TriangleHint(
       pattern: LevelPattern.descendingTriangle,
       startIndex: a,
@@ -367,14 +409,15 @@ class LevelsDetector implements Detector {
     required bool hasTriangle,
     required int recentTouch,
   }) {
-    var s = 52.0;
+    var s = 48.0;
     s += (touches - 2) * 9.0; // 3→+9, 4→+18…
     s += (1.1 - proximity).clamp(0, 1.1) * 18;
     s += (spanBars / 40).clamp(0, 1) * 8;
-    s += (0.45 - tightness).clamp(0, 0.45) * 20;
-    if (hasTriangle) s += 10;
+    s += (0.32 - tightness).clamp(0, 0.32) * 22;
+    // Triangle bonus is applied outside after quality gates — keep base honest.
+    if (hasTriangle) s += 3;
     if (recentTouch <= 8) s += 6;
-    return s.clamp(55, 97);
+    return s.clamp(60, 97);
   }
 
   String _title(_LevelCandidate c, LevelPattern pattern) {
