@@ -128,7 +128,7 @@ class L10n {
     pt: '$failed leituras de pares falharam ($ok OK). Os resultados podem estar incompletos.',
     ru: '$failed запросов пар не удалось ($ok OK). Результаты могут быть неполными.',
   );
-  String get buildStamp => 'r13';
+  String get buildStamp => 'r14';
 
   String universeRecap(int unique, int raw) => t(
     'Unique pairs: $unique (raw listings: $raw)',
@@ -333,6 +333,42 @@ class L10n {
     es: 'Confianza mín. de alerta',
     pt: 'Confiança mín. do alerta',
     ru: 'Мин. уверенность алерта',
+  );
+  String get alertMinScoreHint => t(
+    'Alerts default to 75+ — lower scores stay in-app only.',
+    es: 'Las alertas usan 75+ por defecto; scores más bajos solo en la app.',
+    pt: 'Alertas usam 75+ por padrão; scores menores ficam só no app.',
+    ru: 'Алерты по умолчанию от 75 — ниже только в приложении.',
+  );
+  String get quietHours => t(
+    'Quiet hours',
+    es: 'Horas silenciosas',
+    pt: 'Horário silencioso',
+    ru: 'Тихие часы',
+  );
+  String get quietHoursSub => t(
+    'No alerts queued in this local-time window (default 23:00–08:00).',
+    es: 'No se encolan alertas en esta ventana de hora local (por defecto 23:00–08:00).',
+    pt: 'Nenhum alerta na fila neste intervalo de hora local (padrão 23:00–08:00).',
+    ru: 'В этом окне по локальному времени алерты не ставятся в очередь (по умолчанию 23:00–08:00).',
+  );
+  String get quietHoursOff => t(
+    'Off',
+    es: 'Apagado',
+    pt: 'Desligado',
+    ru: 'Выкл',
+  );
+  String quietHoursRange(int start, int end) => t(
+    '${start.toString().padLeft(2, '0')}:00 → ${end.toString().padLeft(2, '0')}:00',
+    es: '${start.toString().padLeft(2, '0')}:00 → ${end.toString().padLeft(2, '0')}:00',
+    pt: '${start.toString().padLeft(2, '0')}:00 → ${end.toString().padLeft(2, '0')}:00',
+    ru: '${start.toString().padLeft(2, '0')}:00 → ${end.toString().padLeft(2, '0')}:00',
+  );
+  String get alertAntiSpam => t(
+    'Anti-spam: max 8 alerts/day, 6h cooldown on the same setup.',
+    es: 'Anti-spam: máx. 8 alertas/día, 6 h de espera en el mismo setup.',
+    pt: 'Anti-spam: máx. 8 alertas/dia, 6 h de espera no mesmo setup.',
+    ru: 'Антиспам: макс. 8 алертов/день, 6 ч кулдаун на тот же сетап.',
   );
   String get bridgePreview => t(
     'Bridge payload preview',

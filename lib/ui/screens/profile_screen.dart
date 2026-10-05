@@ -314,16 +314,63 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(t.minScoreHint, style: Theme.of(context).textTheme.bodySmall),
+          Text(t.alertMinScoreHint, style: Theme.of(context).textTheme.bodySmall),
           Slider(
-            value: p.minScore,
-            min: 50,
+            value: p.minScore.clamp(65, 90),
+            min: 65,
             max: 90,
-            divisions: 8,
+            divisions: 5,
             onChanged: (v) async {
               await c.saveProfile(p.copyWith(minScore: v));
             },
           ),
+          const SizedBox(height: 12),
+          Text(t.quietHours, style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(t.quietHoursSub, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilterChipToggle(
+                label: t.quietHoursOff,
+                selected: p.quietHoursStart == null || p.quietHoursEnd == null,
+                onTap: () async {
+                  await c.saveProfile(p.copyWith(clearQuietHours: true));
+                },
+              ),
+              FilterChipToggle(
+                label: t.quietHoursRange(23, 8),
+                selected: p.quietHoursStart == 23 && p.quietHoursEnd == 8,
+                onTap: () async {
+                  await c.saveProfile(
+                    p.copyWith(quietHoursStart: 23, quietHoursEnd: 8),
+                  );
+                },
+              ),
+              FilterChipToggle(
+                label: t.quietHoursRange(22, 7),
+                selected: p.quietHoursStart == 22 && p.quietHoursEnd == 7,
+                onTap: () async {
+                  await c.saveProfile(
+                    p.copyWith(quietHoursStart: 22, quietHoursEnd: 7),
+                  );
+                },
+              ),
+              FilterChipToggle(
+                label: t.quietHoursRange(0, 6),
+                selected: p.quietHoursStart == 0 && p.quietHoursEnd == 6,
+                onTap: () async {
+                  await c.saveProfile(
+                    p.copyWith(quietHoursStart: 0, quietHoursEnd: 6),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(t.alertAntiSpam, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
           FutureBuilder(
             future: c.store.loadQueue(),

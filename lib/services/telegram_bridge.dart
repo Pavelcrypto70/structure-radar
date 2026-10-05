@@ -5,6 +5,11 @@ import 'alert_profile_store.dart';
 
 /// Telegram delivery is not live yet — this bridge prepares deep links,
 /// message templates, and an on-device outbound queue for a future bot worker.
+///
+/// Anti-churn gates (client-side, before queue):
+/// - profile filters + quiet hours
+/// - dedupe same setup for [dedupeCooldown]
+/// - daily cap [maxAlertsPerDay]
 class TelegramBridge {
   TelegramBridge(this._store);
 
@@ -22,6 +27,12 @@ class TelegramBridge {
       'https://pavelcrypto70.github.io/structure-radar-privacy.html';
   static const termsUrl =
       'https://pavelcrypto70.github.io/structure-radar-terms.html';
+
+  /// Same fingerprint cannot re-queue within this window.
+  static const dedupeCooldown = Duration(hours: 6);
+
+  /// Hard daily cap per device (UTC day) — spam kills opt-in retention.
+  static const maxAlertsPerDay = 8;
 
   static Uri communityHubUri() => Uri.parse(communityHubUrl);
 
@@ -69,6 +80,7 @@ class TelegramBridge {
                 'side': d.level!.side.name,
                 'touches': d.level!.touches,
                 'strength': d.level!.strength,
+                'pattern': d.level!.pattern.name,
               },
         'detectedAt': d.detectedAt.toIso8601String(),
       },
@@ -77,7 +89,23 @@ class TelegramBridge {
         'channel': 'telegram',
         'status': profile.telegramOptIn ? 'queued_local' : 'suppressed_opt_out',
       },
+      'dedupeKey': dedupeKey(d),
     };
+  }
+
+  /// Fingerprint for cooldown: symbol · tf · kind · level bucket (or bias).
+  String dedupeKey(Detection d) {
+    final levelBucket = d.level == null
+        ? d.bias.name
+        : (d.level!.price).toStringAsFixed(d.level!.price >= 1 ? 2 : 5);
+    return [
+      d.symbol.id,
+      d.exchange.name,
+      d.timeframe.name,
+      d.kind.name,
+      levelBucket,
+      if (d.level != null) d.level!.pattern.name,
+    ].join('|');
   }
 
   bool matchesProfile(Detection d, AlertProfile profile) {
@@ -85,8 +113,8 @@ class TelegramBridge {
     if (!profile.timeframes.contains(d.timeframe)) return false;
     if (!profile.exchanges.contains(d.exchange)) return false;
     if (d.score < profile.minScore) return false;
-    if (!_inQuietHours(profile)) return true;
-    return false;
+    if (_inQuietHours(profile)) return false;
+    return true;
   }
 
   bool _inQuietHours(AlertProfile profile) {
@@ -99,7 +127,7 @@ class TelegramBridge {
     return hour >= start || hour < end;
   }
 
-  /// Enqueue locally. A future worker will drain this to Bot API.
+  /// Enqueue locally after anti-spam gates. A future worker drains to Bot API.
   Future<OutboundAlertEvent?> queueIfArmed(
     Detection detection,
     AlertProfile profile,
@@ -107,15 +135,22 @@ class TelegramBridge {
     if (!profile.telegramOptIn) return null;
     if (!matchesProfile(detection, profile)) return null;
 
+    final key = dedupeKey(detection);
+    final now = DateTime.now().toUtc();
+    final gate = await _store.loadAlertGate();
+    if (gate.sentToday(now) >= maxAlertsPerDay) return null;
+    if (gate.isDuplicate(key, now, dedupeCooldown)) return null;
+
     final event = OutboundAlertEvent(
       id: _uuid.v4(),
-      createdAt: DateTime.now().toUtc(),
+      createdAt: now,
       detectionId: detection.id,
       profileLinkCode: profile.linkCode,
       message: formatDetectionMessage(detection),
       payload: detectionPayload(detection, profile),
     );
     await _store.enqueue(event);
+    await _store.saveAlertGate(gate.record(key, now));
     return event;
   }
 }

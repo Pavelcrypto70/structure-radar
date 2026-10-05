@@ -9,7 +9,7 @@ class StructureShiftDetector implements Detector {
   StructureShiftDetector({
     this.lookback = 4,
     this.recentBars = 8,
-    this.minBreakAtr = 0.28,
+    this.minBreakAtr = 0.35,
     this.confirmCloses = 2,
   });
 

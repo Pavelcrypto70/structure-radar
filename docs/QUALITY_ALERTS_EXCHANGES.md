@@ -101,21 +101,23 @@ Spam алертов = второй канал оттока. Без dedupe/caps �
 ## 5. Roadmap исполнения
 
 ```
-Week 1 (сделано / добить)
-  ✅ Triangle / Levels quality gates
-  □ Live sweep report до/после на BTC+majors
-  □ Structure minBreakAtr sync + MA flat band
-  □ Обновить copy: «triangle rare / high bar»
+Week 1
+  ✅ Triangle / Levels quality gates (r13)
+  ✅ Structure minBreakAtr 0.35 + MA flat 0.18×ATR + cooldown 18 (r14)
+  ✅ Alert minScore 75 default + higher TF defaults
+  ✅ Client dedupe 6h + cap 8/day
+  ✅ Quiet hours UI (Profile)
+  ✅ ALERT_BOT_RUNBOOK.md
+  □ Live sweep report на BTC+majors (ops)
+  □ Telegram bot provision + server drain (needs token/hosting)
 
 Week 2–3
-  □ Telegram bot live + dedupe + rate cap
-  □ Quiet hours UI
-  □ Alert minScore 75 default
+  □ Bot live + /start bind
+  □ Server-side scheduled scan for opt-in profiles
 
 Week 4+
-  □ Server-side scheduled scan for opt-in profiles
   □ Optional Android local notify
-  □ +1 exchange native
+  □ +1 exchange native (OKX/Bitget)
 ```
 
 ---

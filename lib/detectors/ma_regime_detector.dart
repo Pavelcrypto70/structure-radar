@@ -11,7 +11,7 @@ enum _Regime { bull, bear, mixed }
 class MaRegimeDetector implements Detector {
   MaRegimeDetector({
     this.confirmBars = 3,
-    this.minBarsSinceFlip = 12,
+    this.minBarsSinceFlip = 18,
     this.emitWindowBars = 8,
   });
 
@@ -66,7 +66,7 @@ class MaRegimeDetector implements Detector {
       final a = eFast[i];
       final b = eMid[i];
       // Flat stack: MAs glued together → chop, not regime.
-      if ((a - b).abs() < atrVal * 0.12) return _Regime.mixed;
+      if ((a - b).abs() < atrVal * 0.18) return _Regime.mixed;
       if (px > a && a > b) return _Regime.bull;
       if (px < a && a < b) return _Regime.bear;
       return _Regime.mixed;

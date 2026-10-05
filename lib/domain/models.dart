@@ -260,11 +260,14 @@ class AlertProfile {
 
   static AlertProfile defaults(String linkCode) => AlertProfile(
     enabledDetectors: DetectorKind.values.toSet(),
-    timeframes: AppTimeframe.values.toSet(),
+    // Prefer higher TFs for alerts — less noise than 15m/30m floods.
+    timeframes: {AppTimeframe.h1, AppTimeframe.h4, AppTimeframe.d1},
     exchanges: ExchangeId.values.toSet(),
-    minScore: 65,
+    minScore: 75,
     telegramOptIn: false,
     linkCode: linkCode,
+    quietHoursStart: 23,
+    quietHoursEnd: 8,
   );
 
   AlertProfile copyWith({
@@ -335,7 +338,7 @@ class AlertProfile {
           : detectors,
       timeframes: tfs.isEmpty ? AppTimeframe.values.toSet() : tfs,
       exchanges: exs.isEmpty ? ExchangeId.values.toSet() : exs,
-      minScore: (json['minScore'] as num?)?.toDouble() ?? 65,
+      minScore: (json['minScore'] as num?)?.toDouble() ?? 75,
       telegramOptIn: json['telegramOptIn'] as bool? ?? false,
       linkCode: json['linkCode'] as String? ?? 'PENDING',
       quietHoursStart: json['quietHoursStart'] as int?,
