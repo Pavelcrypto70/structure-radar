@@ -372,13 +372,27 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(t.alertAntiSpam, style: Theme.of(context).textTheme.bodySmall),
           const SizedBox(height: 8),
-          FutureBuilder(
-            future: c.store.loadQueue(),
+          FutureBuilder<(int, int)>(
+            future: () async {
+              final personal = await c.store.loadQueue();
+              final broadcast = await c.store.loadBroadcastQueue();
+              return (personal.length, broadcast.length);
+            }(),
             builder: (context, snap) {
-              final n = snap.data?.length ?? 0;
-              return Text(
-                t.outboundQueue(n),
-                style: Theme.of(context).textTheme.bodySmall,
+              final personal = snap.data?.$1 ?? 0;
+              final broadcast = snap.data?.$2 ?? 0;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.outboundQueue(personal),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  Text(
+                    t.broadcastQueueLabel(broadcast),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
               );
             },
           ),

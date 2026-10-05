@@ -1,15 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../domain/models.dart';
 import '../../state/locale_controller.dart';
+import '../../services/curated_signals_store.dart';
 import '../../state/scan_controller.dart';
 import '../../theme/tokens.dart';
+import '../widgets/curated_signals_panel.dart';
 import '../widgets/detection_card.dart';
 import '../widgets/sr_chrome.dart';
 
 class ResultsScreen extends StatelessWidget {
   const ResultsScreen({super.key});
+
+  static void _openCurated(
+    BuildContext context,
+    ScanController c,
+    CuratedInboxItem item,
+  ) {
+    unawaited(c.markCuratedRead(item.dedupeKey));
+    c.selectDetection(item.snapshot.toDetection());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +38,10 @@ class ResultsScreen extends StatelessWidget {
           Text(
             t.resultsTitle,
             style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 14),
+          CuratedSignalsPanel(
+            onOpen: (item) => _openCurated(context, c, item),
           ),
           const SizedBox(height: 16),
           SrEmptyState(
@@ -61,6 +78,10 @@ class ResultsScreen extends StatelessWidget {
                   style: Theme.of(
                     context,
                   ).textTheme.labelMedium?.copyWith(color: SrColors.warn),
+                ),
+                const SizedBox(height: 14),
+                CuratedSignalsPanel(
+                  onOpen: (item) => _openCurated(context, c, item),
                 ),
                 const SizedBox(height: 14),
                 SingleChildScrollView(

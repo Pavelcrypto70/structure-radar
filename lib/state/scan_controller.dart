@@ -7,6 +7,8 @@ import '../data/market_repository.dart';
 import '../domain/models.dart';
 import '../l10n/app_lang.dart';
 import '../services/alert_profile_store.dart';
+import '../services/curated_feed_client.dart';
+import '../services/curated_signals_store.dart';
 import '../services/telegram_bridge.dart';
 import 'path_controller.dart';
 
@@ -17,13 +19,19 @@ class ScanController extends ChangeNotifier {
     MarketRepository? repository,
     AlertProfileStore? store,
     TelegramBridge? bridge,
+    CuratedSignalsStore? curatedStore,
+    CuratedFeedClient? curatedFeed,
   }) : _repository = repository ?? MarketRepository(),
-       _store = store ?? AlertProfileStore() {
+       _store = store ?? AlertProfileStore(),
+       _curatedStore = curatedStore ?? CuratedSignalsStore(),
+       _curatedFeed = curatedFeed ?? CuratedFeedClient() {
     _bridge = bridge ?? TelegramBridge(_store);
   }
 
   final MarketRepository _repository;
   final AlertProfileStore _store;
+  final CuratedSignalsStore _curatedStore;
+  final CuratedFeedClient _curatedFeed;
   late final TelegramBridge _bridge;
 
   AlertProfile? profile;
@@ -54,6 +62,12 @@ class ScanController extends ChangeNotifier {
   /// A scan finished (not cancelled) since the last lens change — drives the
   /// mission banner's empty-scan state.
   bool lensScanDone = false;
+
+  List<CuratedInboxItem> curatedInbox = [];
+  int curatedSnackCount = 0;
+  int curatedSnackToken = 0;
+
+  int get curatedUnreadCount => curatedInbox.where((e) => !e.read).length;
 
   PathController? _path;
 
@@ -114,6 +128,28 @@ class ScanController extends ChangeNotifier {
       _setLens(path.activeMissionKind, clearResults: false);
     }
     loadingProfile = false;
+    await refreshCuratedInbox();
+    notifyListeners();
+  }
+
+  Future<void> refreshCuratedInbox() async {
+    final feed = await _curatedFeed.fetchSnapshots();
+    if (feed.isNotEmpty) {
+      await _curatedStore.mergeFromFeedItems(feed);
+    }
+    curatedInbox = await _curatedStore.loadInbox();
+  }
+
+
+  Future<void> markCuratedRead(String dedupeKey) async {
+    await _curatedStore.markRead(dedupeKey);
+    curatedInbox = await _curatedStore.loadInbox();
+    notifyListeners();
+  }
+
+  Future<void> markAllCuratedRead() async {
+    await _curatedStore.markAllRead();
+    curatedInbox = await _curatedStore.loadInbox();
     notifyListeners();
   }
 
@@ -302,8 +338,15 @@ class ScanController extends ChangeNotifier {
       if (p != null) {
         for (final d in hits) {
           await _bridge.queueIfArmed(d, p);
+          await _bridge.queueCuratedBroadcast(d);
         }
       }
+      final curatedAdded = await _curatedStore.mergeFromScan(hits, _bridge);
+      if (curatedAdded > 0) {
+        curatedSnackCount = curatedAdded;
+        curatedSnackToken++;
+      }
+      await refreshCuratedInbox();
     } catch (e) {
       final msg = '$e';
       if (msg.contains('EMPTY_UNIVERSE')) {

@@ -2,6 +2,7 @@ import 'package:uuid/uuid.dart';
 
 import '../domain/models.dart';
 import 'alert_profile_store.dart';
+import 'curated_broadcast.dart';
 
 /// Telegram delivery is not live yet — this bridge prepares deep links,
 /// message templates, and an on-device outbound queue for a future bot worker.
@@ -34,6 +35,9 @@ class TelegramBridge {
   /// Hard daily cap per device (UTC day) — spam kills opt-in retention.
   static const maxAlertsPerDay = 8;
 
+  /// Public channel / «for everyone» curated queue (see [CuratedBroadcast]).
+  static const maxBroadcastAlertsPerDay = CuratedBroadcast.maxBroadcastPerDay;
+
   static Uri communityHubUri() => Uri.parse(communityHubUrl);
 
   Uri deepLink(AlertProfile profile) {
@@ -57,9 +61,15 @@ class TelegramBridge {
     ].join('\n');
   }
 
-  Map<String, dynamic> detectionPayload(Detection d, AlertProfile profile) {
+  Map<String, dynamic> detectionPayload(
+    Detection d,
+    AlertProfile profile, {
+    String schema = 'structure_radar.detection_alert.v1',
+    String deliveryChannel = 'telegram',
+    String deliveryStatus = 'queued_local',
+  }) {
     return {
-      'schema': 'structure_radar.detection_alert.v1',
+      'schema': schema,
       'linkCode': profile.linkCode,
       'detection': {
         'id': d.id,
@@ -86,10 +96,12 @@ class TelegramBridge {
       },
       'message': formatDetectionMessage(d),
       'delivery': {
-        'channel': 'telegram',
-        'status': profile.telegramOptIn ? 'queued_local' : 'suppressed_opt_out',
+        'channel': deliveryChannel,
+        'status': deliveryStatus,
       },
       'dedupeKey': dedupeKey(d),
+      if (schema == 'structure_radar.broadcast_alert.v1')
+        'broadcastMinScore': CuratedBroadcast.minScore,
     };
   }
 
@@ -151,6 +163,38 @@ class TelegramBridge {
     );
     await _store.enqueue(event);
     await _store.saveAlertGate(gate.record(key, now));
+    return event;
+  }
+
+  /// Curated 90+ for the shared bot — no personal opt-in; separate queue + caps.
+  Future<OutboundAlertEvent?> queueCuratedBroadcast(Detection detection) async {
+    if (!CuratedBroadcast.matches(detection)) return null;
+
+    final key = dedupeKey(detection);
+    final now = DateTime.now().toUtc();
+    final gate = await _store.loadBroadcastGate();
+    if (gate.sentToday(now) >= maxBroadcastAlertsPerDay) return null;
+    if (gate.isDuplicate(key, now, CuratedBroadcast.dedupeCooldown)) {
+      return null;
+    }
+
+    final stubProfile = AlertProfile.defaults(CuratedBroadcast.linkCode);
+    final event = OutboundAlertEvent(
+      id: _uuid.v4(),
+      createdAt: now,
+      detectionId: detection.id,
+      profileLinkCode: CuratedBroadcast.linkCode,
+      message: formatDetectionMessage(detection),
+      payload: detectionPayload(
+        detection,
+        stubProfile,
+        schema: 'structure_radar.broadcast_alert.v1',
+        deliveryChannel: 'telegram_broadcast',
+        deliveryStatus: 'queued_local',
+      ),
+    );
+    await _store.enqueueBroadcast(event);
+    await _store.saveBroadcastGate(gate.record(key, now));
     return event;
   }
 }

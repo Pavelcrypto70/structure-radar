@@ -2,6 +2,28 @@ import 'package:flutter/material.dart';
 
 import '../../theme/tokens.dart';
 
+/// App bar for pushed routes (detection detail, etc.) — explicit back icon
+/// avoids a grey M3 icon-button tile when Material Icons lag on web.
+PreferredSizeWidget srDetailAppBar(
+  BuildContext context, {
+  required String title,
+  List<Widget>? actions,
+}) {
+  final canPop = Navigator.of(context).canPop();
+  return AppBar(
+    title: Text(title),
+    actions: actions,
+    automaticallyImplyLeading: false,
+    leading: canPop
+        ? IconButton(
+            onPressed: () => Navigator.of(context).maybePop(),
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            icon: const Icon(Icons.arrow_back_rounded),
+          )
+        : null,
+  );
+}
+
 class SrSurface extends StatelessWidget {
   const SrSurface({
     super.key,

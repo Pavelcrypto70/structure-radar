@@ -39,6 +39,7 @@ class _AppShellState extends State<AppShell> {
   int index = 0;
   bool _coachDismissed = false;
   bool _recapBusy = false;
+  int _curatedSnackSeenToken = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +127,31 @@ class _AppShellState extends State<AppShell> {
       const GlossaryScreen(),
     ];
 
+    _maybeCuratedSnack(context, c, t);
+
     return _terminal(context, c, t, pl, path, pages, tabIndex, tabLocked);
+  }
+
+  void _maybeCuratedSnack(BuildContext context, ScanController c, L10n t) {
+    if (c.curatedSnackToken == _curatedSnackSeenToken ||
+        c.curatedSnackCount <= 0) {
+      return;
+    }
+    final token = c.curatedSnackToken;
+    final count = c.curatedSnackCount;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || token != c.curatedSnackToken) return;
+      _curatedSnackSeenToken = token;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(t.curatedSnack(count)),
+          action: SnackBarAction(
+            label: t.tabResults,
+            onPressed: () => setState(() => index = 1),
+          ),
+        ),
+      );
+    });
   }
 
   void _openSelectedDetection(ScanController c) {

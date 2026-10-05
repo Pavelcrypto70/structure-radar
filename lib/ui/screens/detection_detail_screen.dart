@@ -14,6 +14,7 @@ import '../../theme/app_theme.dart';
 import '../path/path_kit.dart';
 import '../widgets/candle_chart.dart';
 import '../widgets/detection_card.dart';
+import '../widgets/sr_chrome.dart';
 
 class DetectionDetailScreen extends StatefulWidget {
   const DetectionDetailScreen({super.key, required this.detection});
@@ -122,7 +123,7 @@ class _DetectionDetailScreenState extends State<DetectionDetailScreen> {
 
     return Scaffold(
       backgroundColor: AppTokens.bg,
-      appBar: AppBar(title: Text(d.symbol.display)),
+      appBar: srDetailAppBar(context, title: d.symbol.display),
       bottomNavigationBar: missionReady
           ? SafeArea(
               child: Container(

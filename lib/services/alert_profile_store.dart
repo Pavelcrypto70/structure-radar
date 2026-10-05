@@ -8,8 +8,10 @@ import '../domain/models.dart';
 class AlertProfileStore {
   static const _key = 'alert_profile_v1';
   static const _queueKey = 'outbound_alert_queue_v1';
+  static const _broadcastQueueKey = 'outbound_broadcast_queue_v1';
   static const _disclaimerKey = 'disclaimer_accepted_v1';
   static const _gateKey = 'alert_gate_v1';
+  static const _broadcastGateKey = 'broadcast_gate_v1';
 
   Future<AlertProfile> loadOrCreate() async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,8 +40,29 @@ class AlertProfileStore {
   }
 
   Future<List<OutboundAlertEvent>> loadQueue() async {
+    return _readQueue(await _rawQueue(_queueKey));
+  }
+
+  Future<void> enqueue(OutboundAlertEvent event) async {
+    await _writeQueue(_queueKey, await loadQueue()..insert(0, event));
+  }
+
+  Future<List<OutboundAlertEvent>> loadBroadcastQueue() async {
+    return _readQueue(await _rawQueue(_broadcastQueueKey));
+  }
+
+  Future<void> enqueueBroadcast(OutboundAlertEvent event) async {
+    final current = await loadBroadcastQueue();
+    current.insert(0, event);
+    await _writeQueue(_broadcastQueueKey, current);
+  }
+
+  Future<String?> _rawQueue(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    final raw = prefs.getString(_queueKey);
+    return prefs.getString(key);
+  }
+
+  List<OutboundAlertEvent> _readQueue(String? raw) {
     if (raw == null) return [];
     final list = jsonDecode(raw) as List<dynamic>;
     return list.map((e) {
@@ -55,13 +78,11 @@ class AlertProfileStore {
     }).toList();
   }
 
-  Future<void> enqueue(OutboundAlertEvent event) async {
+  Future<void> _writeQueue(String key, List<OutboundAlertEvent> current) async {
     final prefs = await SharedPreferences.getInstance();
-    final current = await loadQueue();
-    current.insert(0, event);
     final trimmed = current.take(100).toList();
     await prefs.setString(
-      _queueKey,
+      key,
       jsonEncode(
         trimmed
             .map(
@@ -95,6 +116,24 @@ class AlertProfileStore {
   Future<void> saveAlertGate(AlertGateState gate) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_gateKey, jsonEncode(gate.toJson()));
+  }
+
+  Future<AlertGateState> loadBroadcastGate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(_broadcastGateKey);
+    if (raw == null) return AlertGateState.empty();
+    try {
+      return AlertGateState.fromJson(
+        jsonDecode(raw) as Map<String, dynamic>,
+      );
+    } catch (_) {
+      return AlertGateState.empty();
+    }
+  }
+
+  Future<void> saveBroadcastGate(AlertGateState gate) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_broadcastGateKey, jsonEncode(gate.toJson()));
   }
 
   String _newLinkCode() {

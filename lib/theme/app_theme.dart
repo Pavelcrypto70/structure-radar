@@ -85,9 +85,19 @@ class AppTheme {
       appBarTheme: const AppBarTheme(
         backgroundColor: SrColors.bg,
         foregroundColor: SrColors.text,
+        surfaceTintColor: Colors.transparent,
         elevation: 0,
         centerTitle: false,
         scrolledUnderElevation: 0,
+        iconTheme: IconThemeData(color: SrColors.text, size: 24),
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: IconButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: SrColors.text,
+          surfaceTintColor: Colors.transparent,
+          visualDensity: VisualDensity.compact,
+        ),
       ),
       dividerColor: SrColors.lineSoft,
       sliderTheme: const SliderThemeData(

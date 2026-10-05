@@ -128,7 +128,58 @@ class L10n {
     pt: '$failed leituras de pares falharam ($ok OK). Os resultados podem estar incompletos.',
     ru: '$failed запросов пар не удалось ($ok OK). Результаты могут быть неполными.',
   );
-  String get buildStamp => 'r16';
+  String get buildStamp => 'r18';
+
+  String get curatedSignalsTitle => t(
+    'Extra signals for everyone · 90+',
+    es: 'Señales extra para todos · 90+',
+    pt: 'Sinais extra para todos · 90+',
+    ru: 'Доп. сигналы для всех · 90+',
+  );
+  String get curatedSignalsBody => t(
+    'Curated setups for the shared bot: score ≥90, 1H/4H/1D only. Same feed for every user.',
+    es: 'Setups curados para el bot común: score ≥90, solo 1H/4H/1D. Mismo feed para todos.',
+    pt: 'Setups curados para o bot comum: score ≥90, só 1H/4H/1D. Mesmo feed para todos.',
+    ru: 'Отборные сетапы в общий бот: score ≥90, только 1H/4H/1D. Один feed для всех пользователей.',
+  );
+  String get curatedSignalsEmpty => t(
+    'Nothing curated yet — server scans and your 90+ hits will land here.',
+    es: 'Aún no hay curados — el escaneo del servidor y tus hits 90+ aparecerán aquí.',
+    pt: 'Nada curado ainda — varreduras do servidor e seus hits 90+ aparecem aqui.',
+    ru: 'Пока пусто — сюда попадут серверные сканы и твои хиты 90+ после скана.',
+  );
+  String curatedSignalsMore(int n) => t(
+    '+ $n more in inbox',
+    es: '+ $n más en la bandeja',
+    pt: '+ $n a mais na caixa',
+    ru: 'ещё $n в инбоксе',
+  );
+  String get curatedMarkAllRead => t(
+    'Mark all read',
+    es: 'Marcar todo leído',
+    pt: 'Marcar tudo lido',
+    ru: 'Прочитано всё',
+  );
+  String curatedUnreadBadge(int n) => t(
+    '$n new',
+    es: '$n nuevos',
+    pt: '$n novos',
+    ru: '$n новых',
+  );
+  String curatedRowMeta(String exchange, String tf) =>
+      '$exchange · $tf · ${t('For everyone', es: 'Para todos', pt: 'Para todos', ru: 'Для всех')}';
+  String curatedSnack(int n) => t(
+    '$n curated setup(s) · 90+ — see Results',
+    es: '$n setup(s) curado(s) · 90+ — mira Resultados',
+    pt: '$n setup(s) curado(s) · 90+ — veja Resultados',
+    ru: '$n отборных сетапа · 90+ — смотри в Результатах',
+  );
+  String broadcastQueueLabel(int n) => t(
+    'Broadcast queue (90+, shared bot): $n waiting.',
+    es: 'Cola broadcast (90+, bot común): $n en espera.',
+    pt: 'Fila broadcast (90+, bot comum): $n aguardando.',
+    ru: 'Очередь broadcast (90+, общий бот): $n в ожидании.',
+  );
 
   String universeRecap(int unique, int raw) => t(
     'Unique pairs: $unique (raw listings: $raw)',

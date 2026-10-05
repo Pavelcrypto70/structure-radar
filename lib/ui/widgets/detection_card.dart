@@ -133,15 +133,16 @@ class _ScorePill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 28,
-            height: 4,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(99),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: SizedBox(
+              width: 28,
+              height: 4,
               child: LinearProgressIndicator(
                 value: (score / 100).clamp(0, 1),
                 backgroundColor: AppTokens.strokeSoft,
                 color: AppTokens.accent,
+                minHeight: 4,
               ),
             ),
           ),
