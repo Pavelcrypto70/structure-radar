@@ -128,7 +128,7 @@ class L10n {
     pt: '$failed leituras de pares falharam ($ok OK). Os resultados podem estar incompletos.',
     ru: '$failed запросов пар не удалось ($ok OK). Результаты могут быть неполными.',
   );
-  String get buildStamp => 'r15';
+  String get buildStamp => 'r16';
 
   String universeRecap(int unique, int raw) => t(
     'Unique pairs: $unique (raw listings: $raw)',

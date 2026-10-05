@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/path_l10n.dart';
+import '../../services/telegram_bridge.dart';
 import '../../theme/tokens.dart';
 
 /// Full-screen teach page when a mission scan returns 0 hits.
-///
-/// Intentionally NOT a [showModalBottomSheet] — Flutter web has repeated
-/// null-check crashes in modal sheet layout for some viewport/browser combos.
+/// Funnel beat: empty → Desk Club (see live reads / ask about the setup).
 Future<void> showEmptyHitSheet(
   BuildContext context, {
   required PathL10n pl,
@@ -15,8 +15,7 @@ Future<void> showEmptyHitSheet(
   VoidCallback? onRetry,
 }) async {
   if (!context.mounted) return;
-  // Don't await haptics — on some web/test hosts the future never completes
-  // and the teach page never opens.
+  // Don't await haptics — on some web/test hosts the future never completes.
   // ignore: unawaited_futures
   HapticFeedback.selectionClick().ignore();
 
@@ -66,6 +65,16 @@ class _EmptyHitPage extends StatelessWidget {
     letterSpacing: 1.4,
   );
 
+  Future<void> _openClub() async {
+    debugPrint(
+      'tg_cta_tap source=${TelegramBridge.communitySource}_empty_scan',
+    );
+    await launchUrl(
+      TelegramBridge.communityHubUri(),
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,10 +92,10 @@ class _EmptyHitPage extends StatelessWidget {
             Text(pl.emptyTitle, style: _titleStyle),
             const SizedBox(height: 12),
             Text(pl.emptyBody, style: _bodyStyle),
-            const SizedBox(height: 20),
+            const SizedBox(height: 18),
             for (final point in pl.emptyPoints)
               Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -102,20 +111,23 @@ class _EmptyHitPage extends StatelessWidget {
                   ],
                 ),
               ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
+            _DeskClubCard(pl: pl, onOpen: _openClub),
+            const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               height: 52,
-              child: FilledButton(
+              child: FilledButton.icon(
                 style: FilledButton.styleFrom(
                   backgroundColor: SrColors.accent,
                   foregroundColor: SrColors.onAccent,
                 ),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  onContinue();
+                onPressed: () async {
+                  await _openClub();
+                  // Stay on page — user can come back and continue the path.
                 },
-                child: Text(pl.emptyContinue),
+                icon: const Icon(Icons.forum_outlined, size: 20),
+                label: Text(pl.emptyClubOpen),
               ),
             ),
             const SizedBox(height: 10),
@@ -129,12 +141,129 @@ class _EmptyHitPage extends StatelessWidget {
                 ),
                 onPressed: () {
                   Navigator.of(context).pop();
+                  onContinue();
+                },
+                child: Text(pl.emptyContinue),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
                   onRetry?.call();
                 },
-                child: Text(pl.emptyRetry),
+                child: Text(
+                  pl.emptyRetry,
+                  style: const TextStyle(color: SrColors.muted),
+                ),
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DeskClubCard extends StatelessWidget {
+  const _DeskClubCard({required this.pl, required this.onOpen});
+
+  final PathL10n pl;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onOpen,
+        borderRadius: BorderRadius.circular(SrRadius.lg),
+        child: Ink(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [SrColors.accentSoft, SrColors.accentDim],
+            ),
+            borderRadius: BorderRadius.circular(SrRadius.lg),
+            border: Border.all(color: SrColors.accent.withValues(alpha: 0.55)),
+          ),
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: SrColors.bg.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(SrRadius.md),
+                      border: Border.all(
+                        color: SrColors.accent.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.forum_outlined,
+                      color: SrColors.accent,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(pl.emptyClubKicker, style: const TextStyle(
+                          color: SrColors.accent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.3,
+                        )),
+                        const SizedBox(height: 2),
+                        Text(
+                          pl.emptyClubTitle,
+                          style: const TextStyle(
+                            color: SrColors.text,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            height: 1.25,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(
+                    Icons.open_in_new_rounded,
+                    size: 18,
+                    color: SrColors.accent,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                pl.emptyClubBody,
+                style: const TextStyle(
+                  color: SrColors.muted,
+                  fontSize: 14,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                TelegramBridge.communityHubHandle,
+                style: const TextStyle(
+                  color: SrColors.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

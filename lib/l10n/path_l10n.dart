@@ -392,38 +392,58 @@ class PathL10n {
     ru: 'Пустой скан — не ошибка',
   );
   String get emptyBody => t(
-    'The radar shows only clear structure. When the market is quiet or pairs sit in a range, there is nothing to read — you will see this often.',
-    es: 'El radar muestra solo estructura clara. Si el mercado está tranquilo o los pares están en rango, no hay nada que leer; lo verás a menudo.',
-    pt: 'O radar mostra só estrutura clara. Com o mercado calmo ou pares em range, não há o que ler; você verá isso com frequência.',
-    ru: 'Радар показывает только чёткую структуру. Когда рынок тихий или пары стоят в диапазоне, читать нечего — ты будешь видеть это часто.',
+    'The radar shows only clear structure. When the market is quiet, empty is normal — reading also means knowing when there is nothing clean to read.',
+    es: 'El radar muestra solo estructura clara. Si el mercado está tranquilo, vacío es normal: leer también es saber cuándo no hay nada limpio.',
+    pt: 'O radar mostra só estrutura clara. Com o mercado calmo, vazio é normal — ler também é saber quando não há nada limpo.',
+    ru: 'Радар показывает только чёткую структуру. Когда рынок тихий — пусто это норма: читать значит и понимать, когда чистого нечего читать.',
   );
   List<String> get emptyPoints => _l(
     [
-      'Quiet market: nothing clear to read right now',
-      'Try again after a candle closes or later today',
-      'Knowing an empty result is normal is part of reading',
+      'Quiet market: nothing clear on the radar right now',
+      'Try again after a candle closes — or check the desk chat',
     ],
     es: [
-      'Mercado tranquilo: nada claro que leer ahora',
-      'Prueba de nuevo tras cerrar una vela o más tarde',
-      'Saber que un resultado vacío es normal también es leer',
+      'Mercado tranquilo: ahora el radar no ve nada claro',
+      'Prueba tras cerrar una vela — o mira el chat del desk',
     ],
     pt: [
-      'Mercado calmo: nada claro para ler agora',
-      'Tente de novo após o fechamento de um candle ou mais tarde',
-      'Saber que vazio é normal também faz parte de ler',
+      'Mercado calmo: o radar não vê nada claro agora',
+      'Tente após fechar um candle — ou veja o chat do desk',
     ],
     ru: [
-      'Тихий рынок: сейчас нечего читать',
-      'Повтори после закрытия свечи или позже сегодня',
-      'Понимать, что пустой результат — норма, тоже часть чтения',
+      'Тихий рынок: радар сейчас ничего чистого не видит',
+      'Повтори после закрытия свечи — или загляни в чат деска',
     ],
   );
+  String get emptyClubKicker => t(
+    'DESK CLUB',
+    es: 'DESK CLUB',
+    pt: 'DESK CLUB',
+    ru: 'DESK CLUB',
+  );
+  String get emptyClubTitle => t(
+    'See what the desk is reading',
+    es: 'Mira qué está leyendo el desk',
+    pt: 'Veja o que o desk está lendo',
+    ru: 'Посмотри, что читают на деске',
+  );
+  String get emptyClubBody => t(
+    'In our trading chat people post live charts and setups. Ask if this figure is forming somewhere — or just watch what they are reading now.',
+    es: 'En nuestro chat de trading la gente publica gráficos y setups en vivo. Pregunta si esta figura se está formando en algún sitio — o mira qué están leyendo ahora.',
+    pt: 'No nosso chat de trading o pessoal posta gráficos e setups ao vivo. Pergunte se essa figura está se formando em algum lugar — ou veja o que estão lendo agora.',
+    ru: 'В торговом чате ребята кидают живые графики и сетапы. Спроси, формируется ли где-то эта фигура — или просто посмотри, что сейчас читают.',
+  );
+  String get emptyClubOpen => t(
+    'OPEN DESK CLUB',
+    es: 'ABRIR DESK CLUB',
+    pt: 'ABRIR DESK CLUB',
+    ru: 'ОТКРЫТЬ DESK CLUB',
+  );
   String get emptyContinue => t(
-    'UNDERSTOOD — CONTINUE',
-    es: 'ENTENDIDO — CONTINUAR',
-    pt: 'ENTENDI — CONTINUAR',
-    ru: 'ПОНЯТНО — ДАЛЬШЕ',
+    'CONTINUE THE PATH',
+    es: 'SEGUIR EL CAMINO',
+    pt: 'SEGUIR O CAMINHO',
+    ru: 'ПРОДОЛЖИТЬ ПУТЬ',
   );
   String get emptyRetry => t(
     'Scan again',

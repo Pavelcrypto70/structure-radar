@@ -42,9 +42,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Пустой скан — не ошибка'), findsOneWidget);
-    expect(find.text('ПОНЯТНО — ДАЛЬШЕ'), findsOneWidget);
+    expect(find.textContaining('DESK CLUB'), findsWidgets);
+    expect(find.text('ПРОДОЛЖИТЬ ПУТЬ'), findsOneWidget);
+    expect(find.text('ОТКРЫТЬ DESK CLUB'), findsOneWidget);
 
-    await tester.tap(find.text('ПОНЯТНО — ДАЛЬШЕ'));
+    await tester.tap(find.text('ПРОДОЛЖИТЬ ПУТЬ'));
     await tester.pumpAndSettle();
 
     expect(continued, isTrue);
