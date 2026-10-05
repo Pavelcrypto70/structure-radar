@@ -63,7 +63,12 @@ class MissionBanner extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: PathCap(pl.bannerKicker(n))),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: PathCap(pl.bannerKicker(n)),
+                ),
+              ),
               TextButton(
                 onPressed: path.leaveMission,
                 style: TextButton.styleFrom(

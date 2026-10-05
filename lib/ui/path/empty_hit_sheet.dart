@@ -13,9 +13,11 @@ Future<void> showEmptyHitSheet(
   required VoidCallback onContinue,
   VoidCallback? onRetry,
 }) {
+  if (!context.mounted) return Future.value();
   HapticFeedback.mediumImpact();
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: SrColors.surface,
     shape: const RoundedRectangleBorder(
@@ -24,48 +26,61 @@ Future<void> showEmptyHitSheet(
     builder: (ctx) {
       final theme = Theme.of(ctx).textTheme;
       return SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: SrColors.line,
-                    borderRadius: BorderRadius.circular(99),
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 12,
+            bottom: 20 + MediaQuery.viewInsetsOf(ctx).bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: SrColors.line,
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              PathCap(pl.emptyKicker),
-              const SizedBox(height: 10),
-              Text(pl.emptyTitle, style: theme.headlineSmall),
-              const SizedBox(height: 10),
-              Text(pl.emptyBody, style: theme.bodyMedium),
-              const SizedBox(height: 16),
-              PathPoints(pl.emptyPoints),
-              const SizedBox(height: 8),
-              PathButton(
-                label: pl.emptyContinue,
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  onContinue();
-                },
-              ),
-              const SizedBox(height: 10),
-              PathButton(
-                label: pl.emptyRetry,
-                secondary: true,
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  onRetry?.call();
-                },
-              ),
-            ],
+                const SizedBox(height: 16),
+                PathCap(pl.emptyKicker),
+                const SizedBox(height: 10),
+                Text(
+                  pl.emptyTitle,
+                  style: theme.headlineSmall?.copyWith(color: SrColors.text),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  pl.emptyBody,
+                  style: theme.bodyMedium?.copyWith(color: SrColors.muted),
+                ),
+                const SizedBox(height: 16),
+                PathPoints(pl.emptyPoints),
+                const SizedBox(height: 8),
+                PathButton(
+                  label: pl.emptyContinue,
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    onContinue();
+                  },
+                ),
+                const SizedBox(height: 10),
+                PathButton(
+                  label: pl.emptyRetry,
+                  secondary: true,
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    onRetry?.call();
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       );

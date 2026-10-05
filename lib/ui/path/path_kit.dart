@@ -106,14 +106,12 @@ class PathChip extends StatelessWidget {
             Icon(icon, size: 12, color: color),
             const SizedBox(width: 4),
           ],
-          Flexible(
-            child: Text(
-              label,
-              overflow: TextOverflow.ellipsis,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: color),
-            ),
+          Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(color: color),
           ),
         ],
       ),
@@ -129,6 +127,8 @@ class PathCap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Never put Flexible/Expanded in a min-sized Row — on Flutter web that
+    // crashes showModalBottomSheet with "Null check operator used on a null value".
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -141,13 +141,11 @@ class PathCap extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
           ),
         ),
-        Flexible(
-          child: Text(
-            text.toUpperCase(),
-            style: Theme.of(
-              context,
-            ).textTheme.labelMedium?.copyWith(color: color, letterSpacing: 1.4),
-          ),
+        Text(
+          text.toUpperCase(),
+          style: Theme.of(
+            context,
+          ).textTheme.labelMedium?.copyWith(color: color, letterSpacing: 1.4),
         ),
       ],
     );
